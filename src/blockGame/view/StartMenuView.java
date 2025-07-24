@@ -69,12 +69,41 @@ public class StartMenuView extends JFrame {
 		backgroundPnl.add(buttonPnl, BorderLayout.SOUTH);
 		
 		// ActionListeners for Buttons
+		newGameBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new GameView();
+				dispose();
+			}
+		});
+		
+		loadGameBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new LoadGameView();
+				dispose();
+			}
+		});
+		
+		settingsBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new SettingsView();
+				dispose();
+			}
+		});
+		
 		exitBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispose();				
+				dispose();
 			}
 		});
+		
+
 		
 		// add background to frame
 		getContentPane().add(backgroundPnl); // füge Hintergrund dem Fenster hinzu
