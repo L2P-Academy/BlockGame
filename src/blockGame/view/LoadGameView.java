@@ -71,7 +71,8 @@ public class LoadGameView extends JFrame {
 		backBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispose();				
+			new StartMenuView();
+			dispose();			
 			}
 		});
 		
