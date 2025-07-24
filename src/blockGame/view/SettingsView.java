@@ -58,28 +58,31 @@ public class SettingsView extends JFrame {
 		
 		// Buttons
 		backBtn = new JButton("Zurück");
+		beautifyButton(backBtn);
 		applyBtn = new JButton("Übernehmen");
+		beautifyButton(applyBtn);
 		
 		// alles Hinzufügen
-		settingsPnl.add(volumeLbl);
-		settingsPnl.add(volumeSldr);
-		settingsPnl.add(resolutionLbl);
-		settingsPnl.add(resolutionDropdown);
+		settingsPnl.add(volumeLbl, BorderLayout.WEST);
+		settingsPnl.add(volumeSldr, BorderLayout.WEST);
+		settingsPnl.add(resolutionLbl, BorderLayout.WEST);
+		settingsPnl.add(resolutionDropdown, BorderLayout.WEST);
 		
 		buttonPnl.add(backBtn);
 		buttonPnl.add(applyBtn);
 		
 		// Layout
 		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(settingsPnl, BorderLayout.CENTER);
+		getContentPane().add(settingsPnl, BorderLayout.NORTH);
 		getContentPane().add(buttonPnl, BorderLayout.SOUTH);
-		
+		setLocationRelativeTo(null);
+		setVisible(true);
 		// Action Listener (2 versch. Wege getestet)
 		backBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				new StartMenuView();
 				dispose();	
-			new StartMenuView().setVisible(true);
 			}
 		});
 		
@@ -90,15 +93,8 @@ public class SettingsView extends JFrame {
 			System.out.println("Lautstärke: " + volume + ", Auflösung: " + resolution);
 		});
 		
-		// Beautify Buttons
-        beautifyButton(backBtn);
-        beautifyButton(applyBtn);
-        
-        pack();
-        setLocationRelativeTo(null);
 	}
 	
-		
 		// Modify Buttons
 				public static void beautifyButton(JButton button) {
 					button.setFocusPainted(false);
@@ -123,9 +119,6 @@ public class SettingsView extends JFrame {
 							button.setBackground(new Color(16, 62, 161));
 						}
 					});
-		
-		
-		
 		}
 	}
 	
