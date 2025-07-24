@@ -22,7 +22,7 @@ public class PlayerCharacterModel {
 		this.positionX = positionX;
 		this.positionY = positionY;
 		this.inventoryList = inventoryList;
-	}
+	} 
    		
 	
 	// Getter & Setter 
