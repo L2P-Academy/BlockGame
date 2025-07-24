@@ -1,4 +1,8 @@
+// Tobias & Yakup
+
 package blockGame.model;
+
+import javax.swing.ImageIcon;
 
 public class BlockModel {
 	
@@ -7,7 +11,7 @@ public class BlockModel {
 	private String material;
 	private int PosX;
 	private int PosY;
-	private bufferedImage texture;
+	private ImageIcon texture;
 	private boolean isDestructable;
 	
 

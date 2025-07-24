@@ -1,3 +1,5 @@
+// Marc & Dirk
+
 package blockGame.model;
 
 public class AnimationsModel {
