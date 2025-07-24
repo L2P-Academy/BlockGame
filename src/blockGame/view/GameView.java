@@ -21,15 +21,10 @@ public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
 	private static final int ROWS = 16;
 	private static final int COLS = 32;
-	private static final int BLOCK_SIZE = 32;
-	private String imagePath = "/res/img/startscreen_bg.png";
+	private static final int BLOCK_SIZE = 64; // 64 ~ square
+	private String imagePath = "/res/img/maingame_bg.png";
 	
 	// TODO: flexible blockSizes for different screen resolutions
-//	private int blockSize; 
-	
-//	public GameView(int blockSize) {
-//		this.blockSize = blockSize;
-//	}
 	
 	public GameView() {
 		setTitle("PixelMine!"); // frame title
@@ -38,15 +33,16 @@ public class GameView extends JFrame {
 		setLayout(new BorderLayout());
 		setUndecorated(true);
 		
-//		// background Panel
-//		ImageIcon bgIcon = new ImageIcon();
-//		backgroundPnl = new BackGroundPanel(bgIcon.getImage());
-//		backgroundPnl.setLayout(new BorderLayout());
+		// background Panel
+		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
+		backgroundPnl = new BackGroundPanel(bgIcon.getImage());
+		backgroundPnl.setLayout(new BorderLayout());
 
 		// tool Panel
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		toolPnl.setPreferredSize(new Dimension(100, 60));
 		toolPnl.setBackground(Color.DARK_GRAY);
+		
 		ButtonGroup tools = new ButtonGroup();
 		for(int i = 0; i < 10; i++) {
 			JToggleButton btn = new JToggleButton(String.valueOf(i));
@@ -58,11 +54,10 @@ public class GameView extends JFrame {
 		blockPnl = new JPanel(new GridLayout(ROWS, COLS));
 		fillBlockPanelRandomly();
 		
-//		backgroundPnl.add(toolPnl, BorderLayout.NORTH);
-//		backgroundPnl.add(blockPnl, BorderLayout.CENTER);
+		backgroundPnl.add(toolPnl, BorderLayout.NORTH);
+		backgroundPnl.add(blockPnl, BorderLayout.SOUTH);
 		
-		getContentPane().add(blockPnl, BorderLayout.SOUTH);
-		getContentPane().add(toolPnl, BorderLayout.NORTH);
+		getContentPane().add(backgroundPnl);
 		
 		setLocationRelativeTo(null);
 		setVisible(true);
