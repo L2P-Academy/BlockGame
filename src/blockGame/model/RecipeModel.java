@@ -1,6 +1,8 @@
+// Kristian
+
 package blockGame.model;
 
-public class recipeModel {
+public class RecipeModel {
 
     private String name; 
 	private BlockModel typeofBlock; //BlockModel

@@ -1,9 +1,9 @@
-// Tim
+// Chris
 
 package blockGame.view;
 
 import javax.swing.JFrame;
 
-public class SettingsView extends JFrame {
+public class LoadGameView extends JFrame {
 
 }

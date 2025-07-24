@@ -1,5 +1,9 @@
+// Abdul & Mohamed
+
 package blockGame.view;
 
-public class InventoryView {
+import javax.swing.JFrame;
+
+public class InventoryView extends JFrame {
 
 }
