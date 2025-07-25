@@ -28,7 +28,7 @@ public class SettingsView extends JFrame {
 	private JSlider volumeSldr;
 	private JComboBox<String> resolutionDropdown;
 	private JButton backBtn, applyBtn;
-	private String imagePath = "/res/img/startscreen_bg.png";
+	private String imagePath = "/res/img/loadscreen_bg.png";
 	private static SettingsView instance;
 	
 	public static SettingsView getInstance() {
