@@ -9,6 +9,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.Iterator;
 import java.util.Random;
+import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -21,11 +22,30 @@ public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
 	private static final int ROWS = 16;
 	private static final int COLS = 32;
-	private static final int BLOCK_SIZE = 64; // 64 ~ square
+	private static final int BLOCK_SIZE = 32; // 64 ~ square
 	private String imagePath = "/res/img/maingame_bg.png";
 	
 	// TODO: flexible blockSizes for different screen resolutions
+	private int blockSize; 	
 	
+//	public GameView(int blockSize) {
+//	this.blockSize = blockSize;
+	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+//	int height = (int)JFrame.getHeight();
+//	if (height < 480) {
+//		blockSize = 16;
+//	} else if (height < 720) {
+//		blockSize = 24;
+//	} else if (height < 1080) {
+//		blockSize = 32;
+//	} else if (height < 1440) {
+//		blockSize = 42;
+//	} else if (height < 2160) {
+//		blockSize = 54;
+//	} else {blockSize = 64}
+
+
+
 	public GameView() {
 		setTitle("PixelMine!"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
