@@ -1,6 +1,4 @@
-
-
-AnimationController.java
+// Marc & Dirk
 package blockGame.controller;
 
 import blockGame.model.AnimationsModel;
