@@ -30,6 +30,11 @@ public class GameView extends JFrame {
 	private static final int COLS = 32;
 	private static final int BLOCK_SIZE = 32; // 64 ~ square
 	private String imagePath = "/res/img/maingame_bg.png";
+	private static GameView instance;
+	
+	public static GameView getInstance() {
+		return instance;
+	}
 	
 	// TODO: flexible blockSizes for different screen resolutions
 	private int blockSize; 	
@@ -53,6 +58,7 @@ public class GameView extends JFrame {
 
 
 	public GameView() {
+		instance = this;
 		setTitle("PixelMine!"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -166,10 +172,13 @@ public class GameView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SettingsView settings = new SettingsView();
-				settings.setAlwaysOnTop(true);
-				pauseDialog.dispose();
-				
+				if (SettingsView.getInstance() != null && SettingsView.getInstance().isVisible()) {
+					SettingsView.getInstance().setAlwaysOnTop(true);
+				} else {
+					SettingsView settings = new SettingsView();
+					settings.setAlwaysOnTop(true);
+				}
+				pauseDialog.dispose();				
 			}
 		});
 		
