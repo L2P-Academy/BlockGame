@@ -54,7 +54,7 @@ public class LoadGameView extends JFrame {
 	
 		loadGameBtn = new JButton("Spiel laden");
 		beautifyButton(loadGameBtn);
-		backBtn = new JButton("back");
+		backBtn = new JButton("Zurück");
 		beautifyButton(backBtn);
 		
 		// add buttons to panel
