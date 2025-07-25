@@ -10,13 +10,19 @@ import java.awt.GridLayout;
 import java.util.Iterator;
 import java.util.Random;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 
 public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
@@ -79,6 +85,16 @@ public class GameView extends JFrame {
 		
 		getContentPane().add(backgroundPnl);
 		
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
+		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showPauseMenu();
+				
+			}
+		});
+		
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
@@ -94,5 +110,96 @@ public class GameView extends JFrame {
 			rngBlock.setBackground(new Color(rng.nextInt(100, 255), rng.nextInt(100, 255), rng.nextInt(100, 255)));
 			blockPnl.add(rngBlock);
 		}
+	}
+	
+	private void showPauseMenu() {
+		JDialog pauseDialog = new JDialog(this, "PAUSE", true);
+		pauseDialog.setSize(400, 600);
+		pauseDialog.setLocationRelativeTo(this);
+		pauseDialog.setLayout(new GridLayout(6, 1));
+		
+		JButton resumeButton = new JButton("Fortsetzen");
+		StartMenuView.beautifyButton(resumeButton);
+		JButton loadButton = new JButton("Laden");
+		StartMenuView.beautifyButton(loadButton);
+		JButton saveButton = new JButton("Speichern");
+		StartMenuView.beautifyButton(saveButton);
+		JButton settingsButton = new JButton("Einstellungen");
+		StartMenuView.beautifyButton(settingsButton);
+		JButton menuButton = new JButton("Hauptmenü");
+		StartMenuView.beautifyButton(menuButton);
+		JButton exitButton = new JButton("Beenden");
+		StartMenuView.beautifyButton(exitButton);
+		
+		resumeButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pauseDialog.dispose();
+				
+			}
+		});
+		
+		loadButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LoadGameView loadGame = new LoadGameView();
+				loadGame.setAlwaysOnTop(true);
+				pauseDialog.dispose();
+				
+			}
+		});
+		
+		saveButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LoadGameView loadGame = new LoadGameView();
+				loadGame.setAlwaysOnTop(true);
+				pauseDialog.dispose();
+				
+			}
+		});
+		
+		settingsButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SettingsView settings = new SettingsView();
+				settings.setAlwaysOnTop(true);
+				pauseDialog.dispose();
+				
+			}
+		});
+		
+		menuButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				StartMenuView startMenu = new StartMenuView();
+				startMenu.setAlwaysOnTop(true);
+				pauseDialog.dispose();
+				
+			}
+		});
+		
+		exitButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pauseDialog.dispose();
+				dispose();
+				
+			}
+		});
+		
+		pauseDialog.add(resumeButton);
+		pauseDialog.add(loadButton);
+		pauseDialog.add(saveButton);
+		pauseDialog.add(settingsButton);
+		pauseDialog.add(menuButton);
+		pauseDialog.add(exitButton);
+		pauseDialog.setVisible(true);
 	}
 }
