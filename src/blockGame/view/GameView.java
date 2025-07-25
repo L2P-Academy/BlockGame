@@ -40,7 +40,7 @@ public class GameView extends JFrame {
 //	int height = (int)JFrame.getHeight();
 //	if (height < 480) {
 //		blockSize = 16;
-//	} else if (height < 720) {
+//	} else if (height < 720) { 
 //		blockSize = 24;
 //	} else if (height < 1080) {
 //		blockSize = 32;
