@@ -29,9 +29,17 @@ public class SettingsView extends JFrame {
 	private JComboBox<String> resolutionDropdown;
 	private JButton backBtn, applyBtn;
 	private String imagePath = "/res/img/startscreen_bg.png";
+	private static SettingsView instance;
+	
+	public static SettingsView getInstance() {
+		return instance;
+	}
 	
 	// Konstruktor
 	public SettingsView() {
+		// Instanz anlegen
+		instance = this;
+		
 		setTitle("Einstellungen");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
