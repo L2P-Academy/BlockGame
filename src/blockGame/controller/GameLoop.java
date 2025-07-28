@@ -1,9 +1,6 @@
 // MT , DJ
 
-GameLoop.java
-package blockGame.loop;
-
-import blockGame.common.Updatable;
+package blockGame.controller;
 
 /* This is a custom game loop that runs in its own thread (independent of main UI thread) */
 
