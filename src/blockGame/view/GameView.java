@@ -20,6 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
@@ -27,8 +28,8 @@ import javax.swing.KeyStroke;
 public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
 	private static final int ROWS = 16;
-	private static final int COLS = 32;
-	private static final int BLOCK_SIZE = 32; // 64 ~ square
+	private static final int COLS = 64;
+	private static final int BLOCK_SIZE = 32;
 	private String imagePath = "/res/img/maingame_bg.png";
 	private static GameView instance;
 	
@@ -37,7 +38,7 @@ public class GameView extends JFrame {
 	}
 	
 	// TODO: flexible blockSizes for different screen resolutions
-	private int blockSize; 	
+	private int blockSize;
 	
 //	public GameView(int blockSize) {
 //	this.blockSize = blockSize;
@@ -55,8 +56,6 @@ public class GameView extends JFrame {
 //		blockSize = 54;
 //	} else {blockSize = 64}
 
-
-
 	public GameView() {
 		instance = this;
 		setTitle("PixelMine!"); // frame title
@@ -72,8 +71,9 @@ public class GameView extends JFrame {
 
 		// tool Panel
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toolPnl.setPreferredSize(new Dimension(100, 60));
+		toolPnl.setPreferredSize(new Dimension(100, 180));
 		toolPnl.setBackground(Color.DARK_GRAY);
+		
 		
 		ButtonGroup tools = new ButtonGroup();
 		for(int i = 0; i < 10; i++) {
@@ -150,9 +150,9 @@ public class GameView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				LoadGameView loadGame = new LoadGameView();
-				loadGame.setAlwaysOnTop(true);
 				pauseDialog.dispose();
+				LoadGameView loadGame = new LoadGameView();
+				loadGame.setAlwaysOnTop(true);			
 				
 			}
 		});
@@ -161,9 +161,9 @@ public class GameView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				pauseDialog.dispose();
 				LoadGameView loadGame = new LoadGameView();
 				loadGame.setAlwaysOnTop(true);
-				pauseDialog.dispose();
 				
 			}
 		});
@@ -172,15 +172,8 @@ public class GameView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (SettingsView.getInstance() == null) {
-					new SettingsView();
-					
-				}
 				pauseDialog.dispose();
-				SettingsView.getInstance().setAlwaysOnTop(true);
-				
-				
-				
+				new SettingsView();
 				
 			}
 		});
@@ -189,10 +182,10 @@ public class GameView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				StartMenuView startMenu = new StartMenuView();
-				startMenu.setAlwaysOnTop(true);
 				pauseDialog.dispose();
-				
+				dispose();
+				StartMenuView startMenu = new StartMenuView();
+				startMenu.requestFocus();
 			}
 		});
 		
@@ -202,7 +195,6 @@ public class GameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				dispose();
-				
 			}
 		});
 		
