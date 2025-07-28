@@ -19,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 import blockGame.controller.FontLoader;
 
@@ -29,6 +31,8 @@ public class LoadGameView extends JFrame {
 	private JButton loadGameBtn, backBtn;
 	private String imagePath = "/res/img/loadscreen_bg.png";
 	private JTable saveTable;
+	private JTableHeader saveTableHeader;
+	private DefaultTableModel saveTableModel;
 	
 	// Constructor
 	public LoadGameView() {
@@ -60,14 +64,17 @@ public class LoadGameView extends JFrame {
     {"Save 2", "27.07.2025", "01:20"},
     {"Save 3", "26.07.2025", "00:30"}
 };
-
+		saveTableModel = new DefaultTableModel(data,columnNames);
+		
 		// Tabelle erstellen
 		
-		saveTable = new JTable(data, columnNames);
+		saveTable = new JTable(saveTableModel);
 		saveTable.setFont(FontLoader.loadPixelFont(16f));
 		saveTable.setRowHeight(48);
 		saveTable.setBackground(new Color(255, 255, 255, 200));
 		saveTable.setForeground(Color.BLACK);
+		saveTableHeader =  saveTable.getTableHeader();
+		saveTableHeader.setFont(FontLoader.loadPixelFont(32f));
 
 		// ScrollPane um die Tabelle
 		
