@@ -2,7 +2,6 @@
 package blockGame.controller;
 
 import blockGame.model.AnimationsModel;
-import blockGame.common.Updatable;
 
 // The controller connects the game loop to the animation model
 // It decides when the animation should advance (based on isAnimating)

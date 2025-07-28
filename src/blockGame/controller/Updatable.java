@@ -1,7 +1,6 @@
 //MS, DJ
 
-Updatable.java
-package blockGame.common;
+package blockGame.controller;
 
 /* This is an interface for anything that needs to be updated regularly (like every frame) */
 
