@@ -91,11 +91,9 @@ public class SettingsView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
 					GameView.getInstance().setAlwaysOnTop(true);
-				} else {
-					GameView game = new GameView();
-					game.setAlwaysOnTop(true);
+				} else if (StartMenuView.getInstance() != null && StartMenuView.getInstance().isVisible()) {
+					StartMenuView.getInstance().setAlwaysOnTop(true);	
 				}
-				new StartMenuView();
 				dispose();	
 			}
 		});
