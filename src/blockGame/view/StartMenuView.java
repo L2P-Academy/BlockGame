@@ -25,13 +25,19 @@ public class StartMenuView extends JFrame {
 	private JPanel buttonPnl, backgroundPnl, gameTitlePnl;
 	private JButton newGameBtn, loadGameBtn, settingsBtn, exitBtn;
 	private String imagePath = "/res/img/startscreen_bg.png";
+	private static StartMenuView instance;
 	
+	public static StartMenuView getInstance() {
+		return instance;
+	}
 	// graphical constructor
 	public StartMenuView() {
+		instance = this;
 		setTitle("Start - PixelMine"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setUndecorated(true);
+	
 		
 		// panels
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
@@ -92,7 +98,6 @@ public class StartMenuView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new SettingsView();
-				dispose();
 			}
 		});
 		
