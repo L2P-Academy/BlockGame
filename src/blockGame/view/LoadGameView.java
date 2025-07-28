@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -49,6 +50,41 @@ public class LoadGameView extends JFrame {
 		gameTitleLbl.setFont(FontLoader.loadPixelFont(64f));
 		gameTitleLbl.setForeground(new Color(16, 62, 161));
 		gameTitlePnl.add(gameTitleLbl);
+		
+
+		// Load game Tabbele
+		
+		String[] columnNames = {"Spielstand", "Datum", "Spielzeit"};
+		Object[][] data = {
+    {"Save 1", "28.07.2025", "00:45"},
+    {"Save 2", "27.07.2025", "01:20"},
+    {"Save 3", "26.07.2025", "00:30"}
+};
+
+		// Tabelle erstellen
+		
+		saveTable = new JTable(data, columnNames);
+		saveTable.setFont(FontLoader.loadPixelFont(16f));
+		saveTable.setRowHeight(48);
+		saveTable.setBackground(new Color(255, 255, 255, 200));
+		saveTable.setForeground(Color.BLACK);
+
+		// ScrollPane um die Tabelle
+		
+		JScrollPane scrollPane = new JScrollPane(saveTable);
+		scrollPane.setOpaque(false);
+		scrollPane.getViewport().setOpaque(false);
+		scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
+
+		// Panel für die Tabelle
+		
+		JPanel tablePanel = new JPanel(new BorderLayout());
+		tablePanel.setOpaque(false);
+		tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+		// Tabelle ins Hintergrund-Panel einfügen
+		backgroundPnl.add(tablePanel, BorderLayout.NORTH);
+
 		
 		// buttons
 	
