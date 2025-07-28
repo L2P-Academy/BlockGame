@@ -39,7 +39,7 @@ public class SettingsView extends JFrame {
 	public SettingsView() {
 		// Instanz anlegen
 		instance = this;
-		
+		setAlwaysOnTop(true);
 		setTitle("Einstellungen");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -132,6 +132,11 @@ public class SettingsView extends JFrame {
 						}
 					});
 		}
+				@Override
+				public void dispose() {
+					instance = null;
+					super.dispose();
+				}
 	}
 	
 

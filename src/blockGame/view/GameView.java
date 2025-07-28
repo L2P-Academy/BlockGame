@@ -172,13 +172,16 @@ public class GameView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (SettingsView.getInstance() != null && SettingsView.getInstance().isVisible()) {
-					SettingsView.getInstance().setAlwaysOnTop(true);
-				} else {
-					SettingsView settings = new SettingsView();
-					settings.setAlwaysOnTop(true);
+				if (SettingsView.getInstance() == null) {
+					new SettingsView();
+					
 				}
-				pauseDialog.dispose();				
+				pauseDialog.dispose();
+				SettingsView.getInstance().setAlwaysOnTop(true);
+				
+				
+				
+				
 			}
 		});
 		
