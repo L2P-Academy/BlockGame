@@ -3,76 +3,70 @@
 package blockGame.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class PlayerCharacterModel {
-//attributes
-	private int playerId;
-	private String playerName;
-	private int positionX;
-	private int positionY;
-	private ArrayList<ItemModel> inventoryList;
-	
-//Konstruktoren
-	public PlayerCharacterModel(int playerId, String playerName, int positionX, int positionY, ArrayList inventoryList) {
-		super();
-		this.playerId = playerId;
-		this.playerName = playerName;
-		this.positionX = positionX;
-		this.positionY = positionY;
-		this.inventoryList = inventoryList;
-	} 
-   		
-	
-	// Getter & Setter 
-	public int getPlayerId() {
-		return playerId;
-	}
 
-	
+// GRUNDLEGENDE FELDER
+private final String name;
+private int level             = 1;
+private int experience        = 0;
+/*private int experienceToNext  = GameConstants.DEFAULT_XP_TO_NEXT_LEVEL; Müsste noch angelegt werden*/
 
-	public void setPlayerId(int playerId) {
-		this.playerId = playerId;
-	}
+//ÜBERLEBENSATTRIBUTE
+/*private int health            = GameConstants.DEFAULT_MAX_HEALTH;  Müsste noch angelegt werden*/
+/*private int maxHealth         = GameConstants.DEFAULT_MAX_HEALTH;  Müsste noch angelegt werden*/
+/*private int stamina           = GameConstants.DEFAULT_MAX_STAMINA; Müsste noch angelegt werden*/
+/*private int maxStamina        = GameConstants.DEFAULT_MAX_STAMINA; Müsste noch angelegt werden*/
+private int hunger            = 0;   // 0 = satt, 100 = verhungert
+private int thirst            = 0;   // 0 = kein Durst, 100 = verdurstet
+private int radiation         = 0;   // 0 = sauber, 100 = tödlich
+private int infection         = 0;   // zukünftige Nutzung
+private int mentalHealth      = 100; // 0 = zusammengebrochen
 
-	public String getPlayerName() {
-		return playerName;
-	}
+// ATTRIBUTE
+private int strength   = 5;
+private int agility    = 5;
+private int intelligence = 5;
+private int endurance  = 5;
+private int perception = 5;
+private int luck       = 5;
 
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
+// BERECHNETE WERTE
+private int attackPower    = 0;
+private int defense        = 0;
+private int maxCarryWeight = 0;
+private int carryWeight    = 0;
 
-	public int getPositionX() {
-		return positionX;
-	}
+// POSITION
+private int x = 0, y = 0;
+private int movementSpeed = 1;
+private String currentArea = "Safe Zone";
 
-	public void setPositionX(int positionX) {
-		this.positionX = positionX;
-	}
+// INVENTAR & AUSRÜSTUNG
+/* private final PlayerInventory inventory = new PlayerInventory(20);  Müsste noch angelegt werden*/
+/* private Weapon equippedWeapon   = null;							   Müsste noch angelegt werden*/
+/* private Armor  equippedArmor    = null;							   Müsste noch angelegt werden*/
 
-	public int getPositionY() {
-		return positionY;
-	}
+// FERTIGKEITEN
+private int scavengingSkill = 1;
+private int craftingSkill   = 1;
+private int combatSkill     = 1;
+private int stealthSkill    = 1;
+private int medicalSkill    = 1;
 
-	public void setPositionY(int positionY) {
-		this.positionY = positionY;
-		
-		}
-
-
-	public ArrayList getInventoryList() {
-		return inventoryList;
-	}
+// ZUSTAND
+private boolean isAlive      = true;
+private boolean isSick       = false;
+private boolean isRadioactive = false;
+private final List<String> statusEffects = new ArrayList<>();
 
 
-	public void setInventoryList(ArrayList inventoryList) {
-		this.inventoryList = inventoryList;
-	}
-	
-
-	
-
-	
 }
+
+
+	
+
+	
+
+	
