@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 import blockGame.controller.FontLoader;
+import blockGame.controller.SoundController;
 
 public class StartMenuView extends JFrame {
 	// graphical attributes
@@ -26,18 +27,22 @@ public class StartMenuView extends JFrame {
 	private JButton newGameBtn, loadGameBtn, settingsBtn, exitBtn;
 	private String imagePath = "/res/img/startscreen_bg.png";
 	private static StartMenuView instance;
+	private SoundController soundController;
 	
 	public static StartMenuView getInstance() {
 		return instance;
 	}
 	// graphical constructor
-	public StartMenuView() {
+	public StartMenuView(SoundController soundController) {
 		instance = this;
 		setTitle("Start - PixelMine"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setUndecorated(true);
-	
+		
+		// SoundController initialize
+		this.soundController = soundController;
+		soundController.playMusicLoop("src/res/sounds/testmusic.wav");
 		
 		// panels
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));

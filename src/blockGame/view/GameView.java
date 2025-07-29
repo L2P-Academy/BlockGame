@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 
+import blockGame.controller.SoundController;
+
 public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
 	private static final int ROWS = 16;
@@ -32,6 +34,7 @@ public class GameView extends JFrame {
 	private static final int BLOCK_SIZE = 32;
 	private String imagePath = "/res/img/maingame_bg.png";
 	private static GameView instance;
+	
 	
 	public static GameView getInstance() {
 		return instance;
@@ -184,8 +187,8 @@ public class GameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				dispose();
-				StartMenuView startMenu = new StartMenuView();
-				startMenu.requestFocus();
+//				StartMenuView startMenu = new StartMenuView();
+//				startMenu.requestFocus();
 			}
 		});
 		
