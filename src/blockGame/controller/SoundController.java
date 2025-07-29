@@ -4,50 +4,101 @@ package blockGame.controller;
 
 import javax.sound.sampled.*; 					// Import für Audio-Handling (Clip, AudioSystem, AudioInputStream)
 import java.io.InputStream; 					// Import für das Einlesen von Dateien als Stream
-import java.io.BufferedInputStream; 			// ermöglicht gepuffertes Einlesen für bessere Performance
+import java.io.BufferedInputStream;
+import java.io.File; 			// ermöglicht gepuffertes Einlesen für bessere Performance
 
 public class SoundController {
 
     private static SoundController instance; 	// Singleton-Instanz des SoundControllers
+    private int volume = 50;
+    private File file;
+    public Clip buttonClip, musicClip, sfxClip;
 
-    // statische Methode zum Zugriff auf die Singleton-Instanz
-    public static SoundController getInstance() {
-        if (instance == null) { 				// Wenn keine Instanz existiert ...
-            instance = new SoundController(); 	// ... wird eine neue erstellt
-        }
-        return instance; 						// gibt die vorhandene oder neu erstellte Instanz zurück
-    }
+    // Getter - Setter
+    public int getVolume() {
+		return volume;
+	}
 
-    // privater Konstruktor verhindert direkte Objekterstellung außerhalb der Klasse
-    private SoundController() {}
+	public void setVolume(int volume) {
+		this.volume = volume;
+		adjustVolume(getMusicClip(), volume);
+	}
 
-    // spielt eine Sounddatei im Loop ab
-    public void playLoop(String resourcePath) {
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public Clip getButtonClip() {
+		return buttonClip;
+	}
+
+	public void setButtonClip(Clip buttonClip) {
+		this.buttonClip = buttonClip;
+	}
+
+	public Clip getMusicClip() {
+		return musicClip;
+	}
+
+	public void setMusicClip(Clip musicClip) {
+		this.musicClip = musicClip;
+	}
+
+	public Clip getSfxClip() {
+		return sfxClip;
+	}
+
+	public void setSfxClip(Clip sfxClip) {
+		this.sfxClip = sfxClip;
+	}
+    
+    public SoundController() {
+    		setVolume(this.volume);
+    }   
+
+	/**
+	 * plays a Music Loop
+	 * @author Kain Plan
+	 * @param filePath - Path to Res-File
+	 * @return the Music Clip
+	 */
+    
+    public Clip playMusicLoop(String filePath) {
         try {
-            // Versucht, die Sounddatei als InputStream aus dem Ressourcenpfad zu laden
-            InputStream stream = getClass().getResourceAsStream(resourcePath);
-            if (stream == null) { 													// wenn die Datei nicht gefunden wurde ...
-                System.err.println("❌ Datei nicht gefunden: " + resourcePath); 		// Fehlermeldung
-                return; 															// abbrechen
-            }
-
-            // wandelt den InputStream in einen gepufferten Stream um (sicherer und schneller)
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new BufferedInputStream(stream));
-
-            // erstellt ein Clip-Objekt, das Audio abspielen kann
-            Clip clip = AudioSystem.getClip();
-
-            // lädt die Audiodaten in das Clip-Objekt
-            clip.open(audioIn);
-
-            // setzt das Abspielen auf Endlosschleife (LOOP_CONTINUOUSLY)
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-
-            // startet das Abspielen
-            clip.start();
-
-        } catch (Exception e) { 			// fängt alle Fehler beim Laden oder Abspielen ab
-            e.printStackTrace(); 			// gibt die Fehlerdetails in der Konsole aus
-        }
+			if (musicClip == null || !musicClip.isOpen()) {		// || = oder, !vorEingabe = Gegenteiltag
+				AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
+				musicClip = AudioSystem.getClip();
+				musicClip.open(audioStream);	
+				adjustVolume(musicClip, volume);
+				musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+				}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        return musicClip;
+    }
+    
+    public void stopMusicLoop() {
+    		musicClip.stop();
+    		musicClip.close();
+    }
+    
+    public void adjustVolume(Clip clip, int volume) {
+    		if (clip != null && clip.isOpen() && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+			FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			float minVolume = volumeControl.getMinimum();		// -80.0f
+			float maxVolume = volumeControl.getMaximum();		// 6.0206f
+			
+			float scaledVolume = minVolume + (volume / 100.0f) * (maxVolume - minVolume);
+			volumeControl.setValue(scaledVolume);
+			System.out.println("Volume set to: " + scaledVolume);
+    		} else {
+			System.out.println("❌ Clip not ready or not supported!");
+			}
+    		
     }
 }
