@@ -10,10 +10,9 @@ public class InventoryView extends JFrame {
     private int numberIcon;
 
 
-public void InventoryView() {
+public InventoryView(){
     setTitle("Inventar");
     setSize(400, 300);
-    setLocationRelativeTo(null);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     String[] spaltenNamen = {"Haben", "Anzahl"};
@@ -26,7 +25,9 @@ public void InventoryView() {
     inventoryTable = new JTable(daten, spaltenNamen);
 
     JScrollPane scrollPane = new JScrollPane(inventoryTable);
-    add(scrollPane);
+    getContentPane().add(scrollPane);
 
     setVisible(true);
-}}
+    setLocationRelativeTo(null);
+	}
+}

@@ -114,8 +114,12 @@ public class LoadGameView extends JFrame {
 		backBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			new StartMenuView();
-			dispose();			
+				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
+					GameView.getInstance().setAlwaysOnTop(true);
+				} else if (StartMenuView.getInstance() != null && StartMenuView.getInstance().isVisible()) {
+					StartMenuView.getInstance().setAlwaysOnTop(true);	
+				}
+				dispose();			
 			}
 		});
 		
