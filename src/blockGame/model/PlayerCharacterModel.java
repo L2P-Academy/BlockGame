@@ -3,12 +3,13 @@
 package blockGame.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class PlayerCharacterModel {
 
 // GRUNDLEGENDE FELDER
-private final String name;
+private String name;
 private int level             = 1;
 private int experience        = 0;
 /*private int experienceToNext  = GameConstants.DEFAULT_XP_TO_NEXT_LEVEL; Müsste noch angelegt werden*/
