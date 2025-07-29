@@ -3,6 +3,8 @@
 package blockGame.controller;
 
 import javax.sound.sampled.*; 					// Import für Audio-Handling (Clip, AudioSystem, AudioInputStream)
+import javax.swing.JFrame;
+
 import java.io.InputStream; 					// Import für das Einlesen von Dateien als Stream
 import java.io.BufferedInputStream;
 import java.io.File; 			// ermöglicht gepuffertes Einlesen für bessere Performance
@@ -13,6 +15,12 @@ public class SoundController {
     private int volume = 50;
     private File file;
     public Clip buttonClip, musicClip, sfxClip;
+    private JFrame view;
+    
+    // Constructor
+    public SoundController() {
+    	setVolume(this.volume);		
+    }   
 
     // Getter - Setter
     public int getVolume() {
@@ -55,10 +63,6 @@ public class SoundController {
 	public void setSfxClip(Clip sfxClip) {
 		this.sfxClip = sfxClip;
 	}
-    
-    public SoundController() {
-    		setVolume(this.volume);
-    }   
 
 	/**
 	 * plays a Music Loop
