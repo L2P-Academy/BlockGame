@@ -4,7 +4,10 @@ package blockGame.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 import blockGame.controller.FontLoader;
@@ -46,18 +50,25 @@ public class SettingsView extends JFrame {
 		setUndecorated(true);
 		
 		// Panels
-		// Hintergrund (gleich wie StartMenuView evtl. ändern)
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
 		backgroundPnl = new BackGroundPanel(bgIcon.getImage());
 		backgroundPnl.setLayout(new BorderLayout());
 		
-		settingsPnl = new JPanel(new GridLayout(3, 2, 20, 20));
-		settingsPnl.setOpaque(false);
-		buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		settingsPnl = new JPanel(new GridLayout(6, 1, 10, 10));
+		settingsPnl.setBackground(new Color(0, 0, 0, 140));
+		settingsPnl.setOpaque(true);
+		settingsPnl.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+		settingsPnl.setMaximumSize(new Dimension(600, 300));
+		settingsPnl.setPreferredSize(new Dimension(600, 300));
 		
-		// Slider (Volume) & Dropdown (Resolution)
+		buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		buttonPnl.setOpaque(false);
+		
+		
+		// Slider (Volume) & Dropdown (Resolution) --> vllt. Checkbox für Vollbild oder Windowed einbauen
 		musicLbl = new JLabel("Lautstärke (Musik):");
 		musicSldr = new JSlider(0, 100, 50);
+		musicSldr.setPreferredSize(new Dimension(200,20));
 		
 		effectLbl = new JLabel("Lautstärke (Effekte):");
 		effectSldr = new JSlider(0, 100, 50);
@@ -67,6 +78,25 @@ public class SettingsView extends JFrame {
 	            "800x600", "1280x720", "1920x1080"
 	        });
 		
+ 
+		
+		JPanel centerWrapper = new JPanel(new GridBagLayout());
+		centerWrapper.setOpaque(false);
+		centerWrapper.add(settingsPnl);
+		
+		backgroundPnl.add(centerWrapper, BorderLayout.CENTER);
+		
+		// Schriftart
+				Font labelFont = FontLoader.loadPixelFont(16f);
+				musicLbl.setFont(labelFont);
+				effectLbl.setFont(labelFont);
+				resolutionLbl.setFont(labelFont);
+				
+				Color fontColor = Color.WHITE;
+				musicLbl.setForeground(fontColor);
+				effectLbl.setForeground(fontColor);
+				resolutionLbl.setForeground(fontColor);
+		
 		// Buttons
 		backBtn = new JButton("Zurück");
 		beautifyButton(backBtn);
@@ -74,21 +104,29 @@ public class SettingsView extends JFrame {
 		beautifyButton(applyBtn);
 		
 		// alles Hinzufügen
-		settingsPnl.add(musicLbl, BorderLayout.WEST);
-		settingsPnl.add(musicSldr, BorderLayout.WEST);
-		settingsPnl.add(effectLbl, BorderLayout.WEST);
-		settingsPnl.add(effectSldr, BorderLayout.WEST);
-		settingsPnl.add(resolutionLbl, BorderLayout.WEST);
-		settingsPnl.add(resolutionDropdown, BorderLayout.WEST);
+		//musicLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+		//effectLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+		//resolutionLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		settingsPnl.add(musicLbl);
+		settingsPnl.add(musicSldr);
+		settingsPnl.add(effectLbl);
+		settingsPnl.add(effectSldr);
+		settingsPnl.add(resolutionLbl);
+		settingsPnl.add(resolutionDropdown);
 		
 		buttonPnl.add(backBtn);
 		buttonPnl.add(applyBtn);
 		
+		for (int i = 0; i < 3; i++) {
+
+            settingsPnl.add(new JLabel());
+        }
+		
 		// Layout
-		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(settingsPnl, BorderLayout.NORTH);
-		getContentPane().add(buttonPnl, BorderLayout.SOUTH);
-		setLocationRelativeTo(null);
+		backgroundPnl.add(settingsPnl, BorderLayout.CENTER);
+		backgroundPnl.add(buttonPnl, BorderLayout.SOUTH);
+		setContentPane(backgroundPnl);
 		setVisible(true);
 		// Action Listener (2 versch. Wege getestet)
 		backBtn.addActionListener(new ActionListener() {			
@@ -105,9 +143,14 @@ public class SettingsView extends JFrame {
 		
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
-			int volume = musicSldr.getValue();
+			int effectVolume = effectSldr.getValue();
+			int musicVolume = musicSldr.getValue();
 			String resolution = (String) resolutionDropdown.getSelectedItem();
-			System.out.println("Lautstärke: " + volume + ", Auflösung: " + resolution);
+			System.out.println("Gespeichert:");
+			System.out.println("Musik: " + musicVolume + "%");
+			System.out.println("Effekte: " + effectVolume + "%");
+			System.out.println("Auflösung: " + resolution);
+                    
 		});
 		
 	}
