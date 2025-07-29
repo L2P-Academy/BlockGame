@@ -2,7 +2,7 @@
 
 package blockGame.controller;
 
-public class CraftingController {
+public class InventoryController {
 	private String inventory;
 	private String recipes;
 	
