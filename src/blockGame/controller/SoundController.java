@@ -2,102 +2,52 @@
 
 package blockGame.controller;
 
-import javax.sound.sampled.AudioInputStream;	// Audio-Datenstrom für .wav-Dateien
-import javax.sound.sampled.AudioSystem;			// Zugriff auf Java Sound API
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
-
-import java.io.InputStream;						// Grundklasse für das Laden der Datei
-import java.io.BufferedInputStream;				// puffert den Stream für schnelleren Zugriff
-import java.util.HashMap;						// notwendig zum Stoppen von Musik oder wiederverwendbaren Sounds
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;							// merkt sich, welche Sounds in Schleife laufen, um sie gezielt zu stoppen
-import java.util.concurrent.ExecutorService;	// ermöglicht paralleles Abspielen von Sounds, ohne Spiel zu blockieren
-import java.util.concurrent.Executors;
-
+import javax.sound.sampled.*; 					// Import für Audio-Handling (Clip, AudioSystem, AudioInputStream)
+import java.io.InputStream; 					// Import für das Einlesen von Dateien als Stream
+import java.io.BufferedInputStream; 			// ermöglicht gepuffertes Einlesen für bessere Performance
 
 public class SoundController {
 
-    private static SoundController instance;
+    private static SoundController instance; 	// Singleton-Instanz des SoundControllers
 
-    private final Map<String, Clip> soundMap = new HashMap<>();
-    private final Set<String> loopedSounds = new HashSet<>();
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-    private boolean muted = false;
+    // statische Methode zum Zugriff auf die Singleton-Instanz
+    public static SoundController getInstance() {
+        if (instance == null) { 				// Wenn keine Instanz existiert ...
+            instance = new SoundController(); 	// ... wird eine neue erstellt
+        }
+        return instance; 						// gibt die vorhandene oder neu erstellte Instanz zurück
+    }
 
-    // privater Konstruktor
+    // privater Konstruktor verhindert direkte Objekterstellung außerhalb der Klasse
     private SoundController() {}
 
-    // öffentliche Zugriffsmethode
-    public static SoundController getInstance() {
-        if (instance == null) {
-            instance = new SoundController();
-        }
-        return instance;
-    }
-
-    
-    //spielt einen Sound ab, optional im Loop
-    public void playLoopedSound(String name, String resourcePath) {			
-        if (muted) return;
-
-        executor.submit(() -> {
-            try {
-                Clip clip = soundMap.get(name);
-                if (clip == null) {
-                    InputStream audioSrc = getClass().getResourceAsStream(resourcePath);
-                    if (audioSrc == null) {
-                        System.err.println("Sounddatei nicht gefunden: " + resourcePath); 	// falls Datei nicht gefunden wird
-                        return;
-                    }
-
-                    BufferedInputStream bufferedIn = new BufferedInputStream(audioSrc);
-                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedIn);
-                    clip = AudioSystem.getClip();
-                    clip.open(audioStream);
-
-                    soundMap.put(name, clip);  // registrieren
-                }
-
-                if (clip.isRunning()) {
-                    clip.stop();
-                }
-
-                clip.setFramePosition(0);
-                clip.loop(Clip.LOOP_CONTINUOUSLY);
-                loopedSounds.add(name);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+    // spielt eine Sounddatei im Loop ab
+    public void playLoop(String resourcePath) {
+        try {
+            // Versucht, die Sounddatei als InputStream aus dem Ressourcenpfad zu laden
+            InputStream stream = getClass().getResourceAsStream(resourcePath);
+            if (stream == null) { 													// wenn die Datei nicht gefunden wurde ...
+                System.err.println("❌ Datei nicht gefunden: " + resourcePath); 		// Fehlermeldung
+                return; 															// abbrechen
             }
-        });
-    }
-    
-    // Musik stoppen    	
-    public void stopSound(String name) {		
-        Clip clip = soundMap.get(name);
-        if (clip != null && clip.isRunning()) {
-            clip.stop();
-        }
-        loopedSounds.remove(name);
-    }
 
-    // alle Sounds stoppen (z.B. beim Szenenwechsel)
-    public void stopAll() {		
-        for (Clip clip : soundMap.values()) {
-            if (clip.isRunning()) {
-                clip.stop();
-            }
-        }
-        loopedSounds.clear();
-    }
+            // wandelt den InputStream in einen gepufferten Stream um (sicherer und schneller)
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new BufferedInputStream(stream));
 
-    // globales Stummschalten
-    public void setMuted(boolean muted) {
-        this.muted = muted;
-        if (muted) {
-            stopAll();
+            // erstellt ein Clip-Objekt, das Audio abspielen kann
+            Clip clip = AudioSystem.getClip();
+
+            // lädt die Audiodaten in das Clip-Objekt
+            clip.open(audioIn);
+
+            // setzt das Abspielen auf Endlosschleife (LOOP_CONTINUOUSLY)
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+
+            // startet das Abspielen
+            clip.start();
+
+        } catch (Exception e) { 			// fängt alle Fehler beim Laden oder Abspielen ab
+            e.printStackTrace(); 			// gibt die Fehlerdetails in der Konsole aus
         }
     }
 }
