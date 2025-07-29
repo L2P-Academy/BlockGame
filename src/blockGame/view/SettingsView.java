@@ -24,8 +24,8 @@ import blockGame.controller.FontLoader;
 public class SettingsView extends JFrame {
 	// graphical attributes
 	private JPanel settingsPnl, backgroundPnl, buttonPnl;
-	private JLabel volumeLbl, resolutionLbl;
-	private JSlider volumeSldr;
+	private JLabel musicLbl, effectLbl, resolutionLbl;
+	private JSlider musicSldr, effectSldr;
 	private JComboBox<String> resolutionDropdown;
 	private JButton backBtn, applyBtn;
 	private String imagePath = "/res/img/loadscreen_bg.png";
@@ -56,8 +56,11 @@ public class SettingsView extends JFrame {
 		buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		// Slider (Volume) & Dropdown (Resolution)
-		volumeLbl = new JLabel("Lautstärke:");
-		volumeSldr = new JSlider(0, 100, 50);
+		musicLbl = new JLabel("Lautstärke (Musik):");
+		musicSldr = new JSlider(0, 100, 50);
+		
+		effectLbl = new JLabel("Lautstärke (Effekte):");
+		effectSldr = new JSlider(0, 100, 50);
 		
 		resolutionLbl = new JLabel("Auflösung:");
 		resolutionDropdown = new JComboBox<>(new String[] {
@@ -71,8 +74,10 @@ public class SettingsView extends JFrame {
 		beautifyButton(applyBtn);
 		
 		// alles Hinzufügen
-		settingsPnl.add(volumeLbl, BorderLayout.WEST);
-		settingsPnl.add(volumeSldr, BorderLayout.WEST);
+		settingsPnl.add(musicLbl, BorderLayout.WEST);
+		settingsPnl.add(musicSldr, BorderLayout.WEST);
+		settingsPnl.add(effectLbl, BorderLayout.WEST);
+		settingsPnl.add(effectSldr, BorderLayout.WEST);
 		settingsPnl.add(resolutionLbl, BorderLayout.WEST);
 		settingsPnl.add(resolutionDropdown, BorderLayout.WEST);
 		
@@ -100,7 +105,7 @@ public class SettingsView extends JFrame {
 		
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
-			int volume = volumeSldr.getValue();
+			int volume = musicSldr.getValue();
 			String resolution = (String) resolutionDropdown.getSelectedItem();
 			System.out.println("Lautstärke: " + volume + ", Auflösung: " + resolution);
 		});
