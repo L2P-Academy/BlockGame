@@ -14,7 +14,7 @@ public class SoundController {
     private static SoundController instance; 	// Singleton-Instanz des SoundControllers
     private int volume = 50;
     private File file;
-    public Clip buttonClip, musicClip, sfxClip;
+    public Clip btnClip, musicClip, sfxClip;
     private JFrame view;
     
     // Constructor
@@ -22,7 +22,7 @@ public class SoundController {
     	setVolume(this.volume);		
     }   
 
-    // Getter - Setter
+    // Getter & Setter
     public int getVolume() {
 		return volume;
 	}
@@ -30,6 +30,8 @@ public class SoundController {
 	public void setVolume(int volume) {
 		this.volume = volume;
 		adjustVolume(getMusicClip(), volume);
+		adjustVolume(getSfxClip(), volume);
+		adjustVolume(getButtonClip(), volume);
 	}
 
 	public File getFile() {
@@ -41,11 +43,11 @@ public class SoundController {
 	}
 
 	public Clip getButtonClip() {
-		return buttonClip;
+		return btnClip;
 	}
 
 	public void setButtonClip(Clip buttonClip) {
-		this.buttonClip = buttonClip;
+		this.btnClip = buttonClip;
 	}
 
 	public Clip getMusicClip() {
@@ -80,15 +82,38 @@ public class SoundController {
 				adjustVolume(musicClip, volume);
 				musicClip.loop(Clip.LOOP_CONTINUOUSLY);
 				}
+			if (sfxClip == null || !sfxClip.isOpen()) {		
+				AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
+				sfxClip = AudioSystem.getClip();
+				sfxClip.open(audioStream);	
+				adjustVolume(sfxClip, volume);
+				sfxClip.loop(Clip.LOOP_CONTINUOUSLY);
+				}
+			if (btnClip == null || !btnClip.isOpen()) {		
+				AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
+				btnClip = AudioSystem.getClip();
+				btnClip.open(audioStream);	
+				adjustVolume(btnClip, volume);
+				btnClip.loop(Clip.LOOP_CONTINUOUSLY);
+				}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
         return musicClip;
     }
     
+    /**
+     * stops Music Loop
+     * @author Kain Plan
+     */
+    
     public void stopMusicLoop() {
     		musicClip.stop();
     		musicClip.close();
+    		sfxClip.stop();
+    		sfxClip.close();
+    		btnClip.stop();   		
+    		btnClip.close();
     }
     
     public void adjustVolume(Clip clip, int volume) {
