@@ -42,7 +42,7 @@ public class StartMenuView extends JFrame {
 		
 		// SoundController initialize
 		this.soundController = soundController;
-		soundController.playMusicLoop("src/res/sounds/testmusic.wav");
+		soundController.playMusicLoop("src/res/sounds/bettertest.wav");
 		
 		// panels
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
