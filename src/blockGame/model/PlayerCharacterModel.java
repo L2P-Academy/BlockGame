@@ -63,8 +63,19 @@ private boolean isRadioactive = false;
 private final List<String> statusEffects = new ArrayList<>();
 
 
+// GETTER
+public String getName() { return name; }
+public int getLevel()   { return level; }
+public int getExperience() { return experience; }
+//public int getHealth()  { return health; }
+//public int getStamina() { return stamina; }
+public int getHunger()  { return hunger; }
+public int getThirst()  { return thirst; }
+public int getRadiation() { return radiation; }
+public int getAttackPower() { return attackPower; }
+public int getDefense() { return defense; }
+//public PlayerInventory getInventory() { return inventory; }
 }
-
 
 	
 
