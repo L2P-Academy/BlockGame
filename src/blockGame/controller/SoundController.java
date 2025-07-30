@@ -22,7 +22,7 @@ public class SoundController {
     	setVolume(this.volume);		
     }   
 
-    // Getter - Setter
+    // Getter & Setter
     public int getVolume() {
 		return volume;
 	}
@@ -109,10 +109,10 @@ public class SoundController {
     
     public void stopMusicLoop() {
     		musicClip.stop();
-    		sfxClip.stop();
-    		btnClip.stop();
     		musicClip.close();
+    		sfxClip.stop();
     		sfxClip.close();
+    		btnClip.stop();   		
     		btnClip.close();
     }
     
