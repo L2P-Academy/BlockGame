@@ -36,8 +36,8 @@ public class SettingsView extends JFrame {
 	private JButton backBtn, applyBtn;
 	private JCheckBox fullscreenBox;
 	private String imagePath = "/res/img/loadscreen_bg.png";
-	private static SettingsView instance;
 	
+	private static SettingsView instance;
 	public static SettingsView getInstance() {
 		return instance;
 	}

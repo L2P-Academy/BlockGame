@@ -34,9 +34,16 @@ public class LoadGameView extends JFrame {
 	private JTableHeader saveTableHeader;
 	private DefaultTableModel saveTableModel;
 	
+	private static LoadGameView instance;	
+	public static LoadGameView getInstance() {
+		return instance;
+	}
+	
 	// Constructor
 	public LoadGameView() {
-		setTitle("Start - PixelMine"); // frame title
+		instance = this;
+		setAlwaysOnTop(true);
+		setTitle("Spiel laden - PixelMine"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setUndecorated(true);
@@ -124,7 +131,7 @@ public class LoadGameView extends JFrame {
 		});
 		
 		// add background to frame
-		getContentPane().add(backgroundPnl); // füge Hintergrund dem Fenster hinzu
+		setContentPane(backgroundPnl); // füge Hintergrund dem Fenster hinzu
 		setLocationRelativeTo(null); // Bildschirmmitte
 		setVisible(true); // Sichtbarkeit setzen
 	}
