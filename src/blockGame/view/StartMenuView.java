@@ -84,7 +84,9 @@ public class StartMenuView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new GameView();
+				soundController.playBtnSound();
+				soundController.stopMusicLoop();
+				new GameView(soundController);
 				dispose();
 			}
 		});
@@ -93,6 +95,7 @@ public class StartMenuView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				new LoadGameView();
 				dispose();
 			}
@@ -102,6 +105,7 @@ public class StartMenuView extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				new SettingsView();
 			}
 		});
@@ -109,6 +113,8 @@ public class StartMenuView extends JFrame {
 		exitBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
+				soundController.stopMusicLoop();
 				dispose();
 			}
 		});

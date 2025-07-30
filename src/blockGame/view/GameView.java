@@ -34,6 +34,7 @@ public class GameView extends JFrame {
 	private static final int BLOCK_SIZE = 32;
 	private String imagePath = "/res/img/maingame_bg.png";
 	private static GameView instance;
+	private SoundController soundController;
 	
 	
 	public static GameView getInstance() {
@@ -59,7 +60,9 @@ public class GameView extends JFrame {
 //		blockSize = 54;
 //	} else {blockSize = 64}
 
-	public GameView() {
+	public GameView(SoundController soundController) {
+		// SoundController initialize
+		this.soundController = soundController;
 		instance = this;
 		setTitle("PixelMine!"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
@@ -187,8 +190,8 @@ public class GameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				dispose();
-//				StartMenuView startMenu = new StartMenuView();
-//				startMenu.requestFocus();
+				StartMenuView startMenu = new StartMenuView(soundController);
+				startMenu.requestFocus();
 			}
 		});
 		

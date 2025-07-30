@@ -82,20 +82,6 @@ public class SoundController {
 				adjustVolume(musicClip, volume);
 				musicClip.loop(Clip.LOOP_CONTINUOUSLY);
 				}
-			if (sfxClip == null || !sfxClip.isOpen()) {		
-				AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
-				sfxClip = AudioSystem.getClip();
-				sfxClip.open(audioStream);	
-				adjustVolume(sfxClip, volume);
-				sfxClip.loop(Clip.LOOP_CONTINUOUSLY);
-				}
-			if (btnClip == null || !btnClip.isOpen()) {		
-				AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
-				btnClip = AudioSystem.getClip();
-				btnClip.open(audioStream);	
-				adjustVolume(btnClip, volume);
-				btnClip.loop(Clip.LOOP_CONTINUOUSLY);
-				}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -110,10 +96,6 @@ public class SoundController {
     public void stopMusicLoop() {
     		musicClip.stop();
     		musicClip.close();
-    		sfxClip.stop();
-    		sfxClip.close();
-    		btnClip.stop();   		
-    		btnClip.close();
     }
     
     public void adjustVolume(Clip clip, int volume) {
@@ -129,5 +111,21 @@ public class SoundController {
 			System.out.println("❌ Clip not ready or not supported!");
 			}
     		
+    }
+    
+    public void playBtnSound() {
+    		if (btnClip != null && btnClip.isOpen()) {
+    			btnClip.stop();
+    			btnClip.flush();
+    		}
+    		try {
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File ("src/res/sounds/click.wav"));
+			btnClip = AudioSystem.getClip();
+			btnClip.open(audioStream);
+			btnClip.setFramePosition(0);
+			btnClip.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
     }
 }
