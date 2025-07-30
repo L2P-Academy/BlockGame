@@ -97,7 +97,6 @@ public class StartMenuView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
 				new LoadGameView();
-				dispose();
 			}
 		});
 		
