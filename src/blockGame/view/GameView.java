@@ -22,6 +22,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 
@@ -96,6 +97,20 @@ public class GameView extends JFrame {
 		backgroundPnl.add(blockPnl, BorderLayout.SOUTH);
 		
 		getContentPane().add(backgroundPnl);
+		
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke('i'), "openInventory");
+
+		getRootPane().getActionMap().put("openInventory", new AbstractAction() {
+
+		    @Override
+
+		    public void actionPerformed(ActionEvent e) {
+
+		       InventoryView inventory = new InventoryView();
+		  
+		    }
+
+		});
 		
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
