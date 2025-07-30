@@ -33,8 +33,8 @@ public class LoadGameView extends JFrame {
 	private JTable saveTable;
 	private JTableHeader saveTableHeader;
 	private DefaultTableModel saveTableModel;
+	private static LoadGameView instance;
 	
-	private static LoadGameView instance;	
 	public static LoadGameView getInstance() {
 		return instance;
 	}
@@ -123,10 +123,13 @@ public class LoadGameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
 					GameView.getInstance().setAlwaysOnTop(true);
+					System.out.println("GameView fokussiert");
 				} else if (StartMenuView.getInstance() != null && StartMenuView.getInstance().isVisible()) {
-					StartMenuView.getInstance().setAlwaysOnTop(true);	
+					StartMenuView.getInstance().setAlwaysOnTop(true);
+					System.out.println("StartMenuView fokussiert");
 				}
-				dispose();			
+				System.out.println("LoadGameView geschlossen");
+				dispose();
 			}
 		});
 		
