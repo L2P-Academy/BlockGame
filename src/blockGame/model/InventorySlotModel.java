@@ -6,15 +6,21 @@ public class InventorySlotModel {
 
 	//attributes
 			private ItemModel item;
-			private ToolModel tool;
+			// private ToolModel
 			private int quantity;
 
 		//Constructor
-		public InventorySlotModel(ItemModel item, ToolModel tool, int quantity) {
+		public InventorySlotModel(ItemModel item, int quantity) {
 		    this.item = item;
-		    this.tool = tool;
+		    // this.tool =toll
 		    this.quantity = quantity;
 		    
+		    // Wenn Menge 0 Item entfernen
+		    if (this.quantity ==0) {
+		    	this.item = null;
+		    }
+		    
+		
 		}
 
 		public ItemModel getItem() {
@@ -25,20 +31,18 @@ public class InventorySlotModel {
 			this.item = item;
 		}
 
-		public ToolModel getTool() {
-			return tool;
-		}
-
-		public void setTool(ToolModel tool) {
-			this.tool = tool;
-		}
-
 		public int getQuantity() {
 			return quantity;
 		}
 
 		public void setQuantity(int quantity) {
-			this.quantity = quantity;
+			if (quantity < 0) {
+				throw new IllegalArgumentException("Menge darf nicht negativ sein.");
+				
+			}
+			
+		
+			
 		}
 		
 		
