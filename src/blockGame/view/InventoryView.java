@@ -2,9 +2,14 @@
 
 package blockGame.view;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.util.Random;
 public class InventoryView extends JFrame {
 	private JTable inventoryTable;
     private int numberIcon;
@@ -13,7 +18,7 @@ public class InventoryView extends JFrame {
 public InventoryView(){
     setTitle("Inventar");
     setSize(400, 300);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
     String[] spaltenNamen = {"Haben", "Anzahl"};
     Object[][] daten = {
@@ -23,11 +28,10 @@ public InventoryView(){
     };
 
     inventoryTable = new JTable(daten, spaltenNamen);
-
     JScrollPane scrollPane = new JScrollPane(inventoryTable);
-    getContentPane().add(scrollPane);
-
+    getContentPane().add(scrollPane);   
     setVisible(true);
     setLocationRelativeTo(null);
+    
 	}
 }
