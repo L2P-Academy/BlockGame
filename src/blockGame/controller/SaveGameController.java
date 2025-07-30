@@ -9,8 +9,10 @@ public class SaveGameController {
     private static String saveGameDateipfad;
     private static String saveGameDateiName;
     private static String saveGameString;
+//hier Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters  
+    private static String splitString = "AAAA";
 
-    // Platzhaltermethoden
+    // Platzhalter / Methoden
     private static String positionX() {
         return "100";
     }
@@ -30,8 +32,10 @@ public class SaveGameController {
     // Spiel speichern
     public static void writeSavegame(String dateiName, String spielStand) {
         saveGameDateiName = dateiName;
-        saveGameString = positionX() + "AAAA" + positionY() + "AAAA" + charakterWerte() + "AAAA" + spielerInventar();
+        //der Spielstandstring wird aus den einzelnene Charakterattributen jeweils getrennt durch den oben splitString mit dem Wert "AAAA" zusammengebaut 
+        saveGameString = positionX() + splitString + positionY() + splitString + charakterWerte() + splitString + spielerInventar();
 
+        //der Spielstandstring wird in die Datei geschrieben 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveGameDateiName))) {
             writer.write(saveGameString);
             System.out.println("Spielstand erfolgreich gespeichert.");
@@ -45,7 +49,7 @@ public class SaveGameController {
         saveGameDateiName = dateiName;
         try (BufferedReader reader = new BufferedReader(new FileReader(saveGameDateiName))) {
             saveGameString = reader.readLine();
-            String[] daten = saveGameString.split("AAAA");
+            String[] daten = saveGameString.split(splitString);
             String posX = daten[0];
             String posY = daten[1];
             String werte = daten[2];
