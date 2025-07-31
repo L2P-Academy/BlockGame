@@ -7,7 +7,7 @@ public class SaveGameController {
 
     // Variablen (aktuell nicht genutzt, könnten entfernt oder verwendet werden)
     public static String savegamePath = "/savegames";
-    private static String savegamefileName = "savegame1.sav"; // Dateiname
+    private static String savegameFileName = "savegame1.sav"; // Dateiname
     private static String savegameString; // nur Temporäre, wird nach Umschreibung auf XML-Format unnötig; kompletter String der in/aus Datei geschrieben/gelesen wird.
     private static String splitString = "AAAA"; // nur Temporär, wird später unnötig. Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters
 
@@ -30,12 +30,12 @@ public class SaveGameController {
 
 // Spiel speichern
     public static void writeSavegame(String dateiName, String spielStand) {
-        savegamefileName = dateiName;
+        savegameFileName = dateiName;
         //der Spielstandstring wird aus den einzelnene Charakterattributen jeweils getrennt durch den oben splitString mit dem Wert "AAAA" zusammengebaut 
         savegameString = positionX() + splitString + positionY() + splitString + charakterWerte() + splitString + spielerInventar();
 
         //der Spielstandstring wird in die Datei geschrieben 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(savegamefileName))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(savegameFileName))) {
             writer.write(savegameString);
             System.out.println("Spielstand erfolgreich gespeichert.");
         } catch (IOException e) {
@@ -45,8 +45,8 @@ public class SaveGameController {
 
 // Spielstand laden
     public static void readSavegame(String dateiName) {
-        savegamefileName = dateiName;
-        try (BufferedReader reader = new BufferedReader(new FileReader(savegamefileName))) {
+        savegameFileName = dateiName;
+        try (BufferedReader reader = new BufferedReader(new FileReader(savegameFileName))) {
             savegameString = reader.readLine();
             //Split des Savegamestrings in die einzelnenen Attribute (Charakterattribute werden durch Variable splitString getrennt)
             String[] daten = savegameString.split(splitString); 
