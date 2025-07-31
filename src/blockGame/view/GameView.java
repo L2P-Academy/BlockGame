@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -27,24 +28,26 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 
 import blockGame.controller.SoundController;
+import blockGame.model.BlockModel;
+import blockGame.model.BlockRepository;
 
 public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
+	private static final int DIRT_LAYERS = 1;
 	private static final int ROWS = 16;
 	private static final int COLS = 64;
 	private static final int BLOCK_SIZE = 32;
 	private String imagePath = "/res/img/maingame_bg.png";
 	private static GameView instance;
 	private SoundController soundController;
-	
-	
+
 	public static GameView getInstance() {
 		return instance;
 	}
-	
+
 	// TODO: flexible blockSizes for different screen resolutions
 	private int blockSize;
-	
+
 //	public GameView(int blockSize) {
 //	this.blockSize = blockSize;
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -70,7 +73,7 @@ public class GameView extends JFrame {
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLayout(new BorderLayout());
 		setUndecorated(true);
-		
+
 		// background Panel
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
 		backgroundPnl = new BackGroundPanel(bgIcon.getImage());
@@ -80,71 +83,126 @@ public class GameView extends JFrame {
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		toolPnl.setPreferredSize(new Dimension(100, 180));
 		toolPnl.setBackground(Color.DARK_GRAY);
-		
-		
+
 		ButtonGroup tools = new ButtonGroup();
-		for(int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			JToggleButton btn = new JToggleButton(String.valueOf(i));
 			btn.setFocusable(false);
 			tools.add(btn);
 		}
-		
+
 		// block Panel
 		blockPnl = new JPanel(new GridLayout(ROWS, COLS));
 		fillBlockPanelRandomly();
-		
+
 		backgroundPnl.add(toolPnl, BorderLayout.NORTH);
 		backgroundPnl.add(blockPnl, BorderLayout.SOUTH);
-		
+
 		getContentPane().add(backgroundPnl);
-		
+
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke('i'), "openInventory");
 
 		getRootPane().getActionMap().put("openInventory", new AbstractAction() {
 
-		    @Override
+			@Override
 
-		    public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-		       InventoryView inventory = new InventoryView();
-		  
-		    }
+				InventoryView inventory = new InventoryView();
+
+			}
 
 		});
-		
+
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				showPauseMenu();
-				
+
 			}
 		});
-		
+
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
+
+	// Block Mapping & Randomizer 
+	private static final Map<Integer, Double> blockChances = Map.ofEntries(
+			Map.entry(1, 0.2), // Dirt
+			Map.entry(2, 0.25), // Stone
+			Map.entry(3, 0.1), // Sand
+			Map.entry(4, 0.1), // Coal
+			Map.entry(5, 0.1), // Iron
+			Map.entry(6, 0.08), // Copper
+			Map.entry(7, 0.05), // Gold
+			Map.entry(8, 0.03), // Diamond
+			Map.entry(9, 0.08), // Clay
+			Map.entry(10, 0.05) // Water
+	);
 	
+	private static final Map<Integer, int[]> DEPTH_RANGES = Map.of(
+		    4, new int[]{5, 15},   // Coal
+		    5, new int[]{10, 20},  // Iron
+		    6, new int[]{15, 25},  // Copper
+		    7, new int[]{20, 32},  // Gold
+		    8, new int[]{25, 32}   // Diamond
+		);
+
+	private BlockModel getRandomBlock(int x, int y) {
+		double totalWeight = blockChances.values().stream().mapToDouble(Double::doubleValue).sum();
+		double rand = Math.random() * totalWeight;
+		double cumulative = 0.0;
+
+		for (Map.Entry<Integer, Double> entry : blockChances.entrySet()) {
+			cumulative += entry.getValue();
+			if (rand <= cumulative) {
+				BlockModel template = BlockRepository.getBlockByID(entry.getKey());
+				if (template != null) {
+					return new BlockModel(template.getID(), template.getName(), template.getTier(), x, y,
+							template.getTexturePath());
+				}
+			}
+		}
+		// Fallback to dirt
+		return BlockRepository.getBlockByID(1);
+	}
+
+	private BlockModel[][] world = new BlockModel[ROWS][COLS];
+
 	private void fillBlockPanelRandomly() {
 		Random rng = new Random();
-		for (int i = 0; i < ROWS * COLS; i++) {
-			JPanel rngBlock = new JPanel();
-			rngBlock.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
-			rngBlock.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-			
-			// random colors
-			rngBlock.setBackground(new Color(rng.nextInt(100, 255), rng.nextInt(100, 255), rng.nextInt(100, 255)));
-			blockPnl.add(rngBlock);
+		
+		for (int row = 0; row < ROWS; row++) {
+			for (int col = 0; col < COLS; col++) {
+				BlockModel block;	
+				
+				if (row < DIRT_LAYERS) {
+					block = BlockRepository.getBlockByID(1);
+				} else {
+					block = getRandomBlock(col, row);
+				}
+				
+				world[row][col] = block;
+
+				JPanel blockPanel = new JPanel();
+				blockPanel.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
+				blockPanel.setLayout(new BorderLayout());
+				blockPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+				ImageIcon icon = new ImageIcon(getClass().getResource(block.getTexturePath()));
+				blockPanel.add(new JLabel(icon), BorderLayout.CENTER);
+				blockPnl.add(blockPanel);
+			}
 		}
 	}
-	
+
 	private void showPauseMenu() {
 		JDialog pauseDialog = new JDialog(this, "PAUSE", true);
 		pauseDialog.setSize(400, 600);
 		pauseDialog.setLocationRelativeTo(this);
 		pauseDialog.setLayout(new GridLayout(6, 1));
-		
+
 		JButton resumeButton = new JButton("Fortsetzen");
 		StartMenuView.beautifyButton(resumeButton);
 		JButton loadButton = new JButton("Laden");
@@ -157,50 +215,50 @@ public class GameView extends JFrame {
 		StartMenuView.beautifyButton(menuButton);
 		JButton exitButton = new JButton("Beenden");
 		StartMenuView.beautifyButton(exitButton);
-		
+
 		resumeButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
-				
+
 			}
 		});
-		
+
 		loadButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pauseDialog.dispose();
-				LoadGameView loadGame = new LoadGameView();
-				loadGame.setAlwaysOnTop(true);			
-				
-			}
-		});
-		
-		saveButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				LoadGameView loadGame = new LoadGameView();
 				loadGame.setAlwaysOnTop(true);
-				
+
 			}
 		});
-		
+
+		saveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pauseDialog.dispose();
+				LoadGameView loadGame = new LoadGameView();
+				loadGame.setAlwaysOnTop(true);
+
+			}
+		});
+
 		settingsButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				new SettingsView();
-				
+
 			}
 		});
-		
+
 		menuButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
@@ -209,16 +267,16 @@ public class GameView extends JFrame {
 				startMenu.requestFocus();
 			}
 		});
-		
+
 		exitButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				dispose();
 			}
 		});
-		
+
 		pauseDialog.add(resumeButton);
 		pauseDialog.add(loadButton);
 		pauseDialog.add(saveButton);
