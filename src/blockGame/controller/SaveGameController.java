@@ -6,11 +6,10 @@ import java.io.*;
 public class SaveGameController {
 
     // Variablen (aktuell nicht genutzt, könnten entfernt oder verwendet werden)
-    public static String saveGameDateipfad = "/savegames";
-    private static String saveGameDateiName;
-    private static String saveGameString;
-    //hier Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters  
-    private static String splitString = "AAAA";
+    public static String savegamePath = "/savegames";
+    private static String savegamefileName = "savegame1.sav"; // Dateiname
+    private static String savegameString; // nur Temporäre, wird nach Umschreibung auf XML-Format unnötig; kompletter String der in/aus Datei geschrieben/gelesen wird.
+    private static String splitString = "AAAA"; // nur Temporär, wird später unnötig. Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters
 
     // Platzhalter / Methoden
     private static String positionX() {
@@ -31,13 +30,13 @@ public class SaveGameController {
 
 // Spiel speichern
     public static void writeSavegame(String dateiName, String spielStand) {
-        saveGameDateiName = dateiName;
+        savegamefileName = dateiName;
         //der Spielstandstring wird aus den einzelnene Charakterattributen jeweils getrennt durch den oben splitString mit dem Wert "AAAA" zusammengebaut 
-        saveGameString = positionX() + splitString + positionY() + splitString + charakterWerte() + splitString + spielerInventar();
+        savegameString = positionX() + splitString + positionY() + splitString + charakterWerte() + splitString + spielerInventar();
 
         //der Spielstandstring wird in die Datei geschrieben 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveGameDateiName))) {
-            writer.write(saveGameString);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(savegamefileName))) {
+            writer.write(savegameString);
             System.out.println("Spielstand erfolgreich gespeichert.");
         } catch (IOException e) {
             System.err.println("Fehler beim Speichern des Spielstands: " + e.getMessage());
@@ -46,11 +45,11 @@ public class SaveGameController {
 
 // Spielstand laden
     public static void readSavegame(String dateiName) {
-        saveGameDateiName = dateiName;
-        try (BufferedReader reader = new BufferedReader(new FileReader(saveGameDateiName))) {
-            saveGameString = reader.readLine();
+        savegamefileName = dateiName;
+        try (BufferedReader reader = new BufferedReader(new FileReader(savegamefileName))) {
+            savegameString = reader.readLine();
             //Split des Savegamestrings in die einzelnenen Attribute (Charakterattribute werden durch Variable splitString getrennt)
-            String[] daten = saveGameString.split(splitString); 
+            String[] daten = savegameString.split(splitString); 
             String posX = daten[0];
             String posY = daten[1];
             String werte = daten[2];
@@ -79,8 +78,8 @@ public class SaveGameController {
     }
 
 // Liste der vorhandenen Spielstände erstellen
-    public static void listSavegames(String ordnerPfad) {
-        File ordner = new File(ordnerPfad);
+    public static void listSavegames(String directoryPath) {
+        File ordner = new File(directoryPath);
 
         if (!ordner.exists() || !ordner.isDirectory()) {
             System.err.println("Fehler: Der angegebene Pfad ist kein gültiges Verzeichnis.");
