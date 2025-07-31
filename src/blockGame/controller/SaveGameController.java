@@ -6,10 +6,10 @@ import java.io.*;
 public class SaveGameController {
 
     // Variablen (aktuell nicht genutzt, könnten entfernt oder verwendet werden)
-    private static String saveGameDateipfad;
+    public static String saveGameDateipfad = "/savegames";
     private static String saveGameDateiName;
     private static String saveGameString;
-//hier Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters  
+    //hier Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters  
     private static String splitString = "AAAA";
 
     // Platzhalter / Methoden
@@ -29,7 +29,7 @@ public class SaveGameController {
         return "Schwert,Bogen,Trank";
     }
 
-    // Spiel speichern
+// Spiel speichern
     public static void writeSavegame(String dateiName, String spielStand) {
         saveGameDateiName = dateiName;
         //der Spielstandstring wird aus den einzelnene Charakterattributen jeweils getrennt durch den oben splitString mit dem Wert "AAAA" zusammengebaut 
@@ -44,17 +44,19 @@ public class SaveGameController {
         }
     }
 
-    // Spielstand laden
+// Spielstand laden
     public static void readSavegame(String dateiName) {
         saveGameDateiName = dateiName;
         try (BufferedReader reader = new BufferedReader(new FileReader(saveGameDateiName))) {
             saveGameString = reader.readLine();
-            String[] daten = saveGameString.split(splitString);
+            //Split des Savegamestrings in die einzelnenen Attribute (Charakterattribute werden durch Variable splitString getrennt)
+            String[] daten = saveGameString.split(splitString); 
             String posX = daten[0];
             String posY = daten[1];
             String werte = daten[2];
             String inventar = daten[3];
 
+            //Platzhalter, derzeit Ausgabe der Charakterattribute des geladenen Spielstands
             System.out.println("Position X: " + posX);
             System.out.println("Position Y: " + posY);
             System.out.println("Charakterwerte: " + werte);
@@ -66,7 +68,7 @@ public class SaveGameController {
         }
     }
 
-    // Spielstand löschen
+// Spielstand löschen
     public static void deleteSavegame(String dateiName) {
         File file = new File(dateiName);
         if (file.exists() && file.delete()) {
@@ -76,7 +78,7 @@ public class SaveGameController {
         }
     }
 
-    // Spielstände auflisten
+// Liste der vorhandenen Spielstände erstellen
     public static void listSavegames(String ordnerPfad) {
         File ordner = new File(ordnerPfad);
 
