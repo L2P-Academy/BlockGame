@@ -1,4 +1,4 @@
-// Abdul & Mohamed
+// Abdulaziz & Mohamed
 
 package blockGame.view;
 
