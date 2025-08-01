@@ -6,14 +6,14 @@ public class ItemModel {
 	
  //attributes
 	private int id;
-	private String itemTyp;
+	private String itemType;
 	private String itemName;
 	private String textureImagePath;
 
 //Constructor
 public ItemModel(int id, String itemTyp, String itemName, String textureImagePath) {
     this.id = id;
-    this.itemTyp = itemTyp;
+    this.itemType = itemTyp;
     this.itemName = itemName;
     this.textureImagePath = textureImagePath;
 }
@@ -31,12 +31,12 @@ public void setId(int id) {
 
 
 public String getItemTyp() {
-	return itemTyp;
+	return itemType;
 }
 
 
 public void setItemTyp(String itemTyp) {
-	this.itemTyp = itemTyp;
+	this.itemType = itemTyp;
 }
 
 
@@ -62,7 +62,7 @@ public void setTextureImagePath(String textureImagePath) {
 
 @Override
 public String toString() {
-    return "Item: " + itemTyp + " (ID: " + id + ", Thing: " + itemTyp + ", Thingname: " + itemName + ", Texture: " + textureImagePath + ")";}
+    return "Item: " + itemType + " (ID: " + id + ", Thing: " + itemType + ", Thingname: " + itemName + ", Texture: " + textureImagePath + ")";}
 
 
 public static final ItemModel EISEN = new ItemModel(1, "Block", "Eisen", "textures/eisen.png");
