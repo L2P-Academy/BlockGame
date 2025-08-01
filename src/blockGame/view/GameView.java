@@ -253,7 +253,7 @@ public class GameView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
-				new SettingsView();
+				new SettingsView(soundController);
 
 			}
 		});

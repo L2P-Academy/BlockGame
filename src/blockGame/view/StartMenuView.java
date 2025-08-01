@@ -105,7 +105,7 @@ public class StartMenuView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
-				new SettingsView();
+				new SettingsView(soundController);
 			}
 		});
 		
