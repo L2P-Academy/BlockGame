@@ -78,10 +78,13 @@ public class LoadGameView extends JFrame {
 		saveTable = new JTable(saveTableModel);
 		saveTable.setFont(FontLoader.loadPixelFont(16f));
 		saveTable.setRowHeight(48);
-		saveTable.setBackground(new Color(255, 255, 255, 200));
-		saveTable.setForeground(Color.BLACK);
+		saveTable.setBackground(new Color(0, 0 , 0 , 150));
+		saveTable.setForeground(Color.WHITE);
 		saveTableHeader =  saveTable.getTableHeader();
 		saveTableHeader.setFont(FontLoader.loadPixelFont(32f));
+		
+		JTableHeader header = saveTable.getTableHeader();
+		header.setBackground(new Color(255, 200, 200)); // z. B. Hellrot
 
 		// ScrollPane um die Tabelle
 		
