@@ -12,7 +12,7 @@ public class BlockModel extends ItemModel {
 	
 	// Konstruktor
 	public BlockModel(int id, String itemTyp, String itemName, int tier, int posX, int posY, String textureImagePath) {
-		super(id, itemTyp, itemName, tier, textureImagePath); //
+		super(id, itemTyp, itemName, tier, textureImagePath); 
 		this.posX = posX;
 		this.posY = posY;
 			

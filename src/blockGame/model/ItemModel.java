@@ -16,7 +16,7 @@ public class ItemModel {
 		this.id = id;
 		this.itemTyp = itemTyp;
 		this.itemName = itemName;
-		this.tier = tier; //
+		this.tier = tier; 
 		this.textureImagePath = textureImagePath;
 	}
 

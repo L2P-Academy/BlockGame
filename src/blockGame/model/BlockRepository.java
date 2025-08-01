@@ -6,7 +6,7 @@ import java.util.List;
 public class BlockRepository {
 	private static final List<BlockModel> BLOCKS = new ArrayList<>();
 	
-	static {					//
+	static {					
 		BLOCKS.add(new BlockModel(1, "Block" , "Dirt", 0, 0, 0, "/res/img/textures/tile_dirt_64px.png"));
 		BLOCKS.add(new BlockModel(2, "Block" , "Stone", 1, 0, 0, "/res/img/textures/tile_stone_64px.png"));
 		BLOCKS.add(new BlockModel(3, "Block" , "Sand", 0, 0, 0, "/res/img/textures/tile_sand_64px.png"));
