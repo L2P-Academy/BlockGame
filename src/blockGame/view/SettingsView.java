@@ -26,6 +26,7 @@ import javax.swing.JSlider;
 import javax.swing.border.Border;
 
 import blockGame.controller.FontLoader;
+import blockGame.controller.SoundController;
 
 public class SettingsView extends JFrame {
 	// graphical attributes
@@ -36,6 +37,7 @@ public class SettingsView extends JFrame {
 	private JButton backBtn, applyBtn;
 	private JCheckBox fullscreenBox;
 	private String imagePath = "/res/img/loadscreen_bg.png";
+	private SoundController soundController;
 	private static SettingsView instance;
 	
 	public static SettingsView getInstance() {
@@ -43,7 +45,8 @@ public class SettingsView extends JFrame {
 	}
 	
 	// Konstruktor
-	public SettingsView() {
+	public SettingsView(SoundController soundController) {
+		this.soundController = soundController;
 		// Instanz anlegen
 		instance = this;
 		setAlwaysOnTop(true);
@@ -81,16 +84,16 @@ public class SettingsView extends JFrame {
 		resolutionLbl.setForeground(fontColor);
 		
 		/*
-		fullscreenBox = new JCheckBox("Vollbild:");
+		fullscreenBox = new JCheckBox("Vollbild");
 		fullscreenBox.setFont(labelFont);
 		fullscreenBox.setForeground(fontColor);
-		fullscreenBox.setOpaque(false);
 		*/
+		
 		
 		musicSldr = new JSlider(0, 100, 50); // -> Wert 50 später durch getInstance() ersetzen wenn Controller steht
 		effectSldr = new JSlider(0, 100, 50); // 							""
 		resolutionDropdown = new JComboBox<>(new String[] {
-	            "800x600", "1280x720", "1920x1080"			//				""
+	            "800x600", "1280x720", "1920x1080", "2560x1440"			//				""
 	        });
 		
 		// Komponenten hinzufügen
@@ -101,7 +104,7 @@ public class SettingsView extends JFrame {
 		settingsPnl.add(resolutionLbl);
 		settingsPnl.add(resolutionDropdown);
 		/*
-		settingsPnl.add(new JLabel("Anzeige:"));
+		settingsPnl.add(new JLabel("Fenstermodus:"));
 		settingsPnl.add(fullscreenBox);
 		*/
 		
@@ -135,9 +138,6 @@ public class SettingsView extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
 		
-		//musicLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-		//effectLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-		//resolutionLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		
 		for (int i = 0; i < 3; i++) {
 
@@ -163,7 +163,9 @@ public class SettingsView extends JFrame {
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
 			int effectVolume = effectSldr.getValue();
+			soundController.setVolume(effectVolume);
 			int musicVolume = musicSldr.getValue();
+			soundController.setVolume(musicVolume);
 			String resolution = (String) resolutionDropdown.getSelectedItem();
 			System.out.println("Gespeichert:");
 			System.out.println("Musik: " + musicVolume + "%");
