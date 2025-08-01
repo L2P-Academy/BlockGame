@@ -15,7 +15,6 @@ public class SoundController {
     private int volume = 50;
     private File file;
     public Clip btnClip, musicClip, sfxClip;
-    private JFrame view;
     
     // Constructor
     public SoundController() {

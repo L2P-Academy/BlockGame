@@ -67,6 +67,7 @@ public class GameView extends JFrame {
 	public GameView(SoundController soundController) {
 		// SoundController initialize
 		this.soundController = soundController;
+		soundController.playMusicLoop("src/res/sounds/music/pmtfoundation.wav");
 		instance = this;
 		setTitle("PixelMine!"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
