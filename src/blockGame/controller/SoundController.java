@@ -12,7 +12,7 @@ import java.io.File; 			// ermöglicht gepuffertes Einlesen für bessere Perform
 public class SoundController {
 
     private static SoundController instance; 	// Singleton-Instanz des SoundControllers
-    private int volume = 50;
+    private int volume = 85;
     private File file;
     public Clip btnClip, musicClip, sfxClip;
     
