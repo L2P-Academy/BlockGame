@@ -27,6 +27,8 @@ public class RecipeModel {
 		return craftedItem;
 	}
 
+	
+	
 	public void setCraftedItem(ItemModel craftedItem) {
 		this.craftedItem = craftedItem;
 	}
