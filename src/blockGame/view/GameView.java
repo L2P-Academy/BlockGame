@@ -33,8 +33,9 @@ import blockGame.model.BlockRepository;
 
 public class GameView extends JFrame {
 	private JPanel backgroundPnl, blockPnl, toolPnl;
-	private static final int DIRT_LAYERS = 1;
-	private static final int ROWS = 16;
+	private static final int AIR_LAYERS = 15;
+	private static final int DIRT_LAYERS = 16;
+	private static final int ROWS = 31;
 	private static final int COLS = 64;
 	private static final int BLOCK_SIZE = 32;
 	private String imagePath = "/res/img/maingame_bg.png";
@@ -82,7 +83,7 @@ public class GameView extends JFrame {
 
 		// tool Panel
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toolPnl.setPreferredSize(new Dimension(100, 180));
+		toolPnl.setPreferredSize(new Dimension(100, 120));
 		toolPnl.setBackground(Color.DARK_GRAY);
 
 		ButtonGroup tools = new ButtonGroup();
@@ -94,6 +95,7 @@ public class GameView extends JFrame {
 
 		// block Panel
 		blockPnl = new JPanel(new GridLayout(ROWS, COLS));
+		blockPnl.setOpaque(false);
 		fillBlockPanelRandomly();
 
 		backgroundPnl.add(toolPnl, BorderLayout.NORTH);
@@ -173,13 +175,14 @@ public class GameView extends JFrame {
 	private BlockModel[][] world = new BlockModel[ROWS][COLS];
 
 	private void fillBlockPanelRandomly() {
-		Random rng = new Random();
 		
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				BlockModel block;	
 				
-				if (row < DIRT_LAYERS) {
+				if (row < AIR_LAYERS) {
+					block = BlockRepository.getBlockByID(0);
+				} else if (row < DIRT_LAYERS) {
 					block = BlockRepository.getBlockByID(1);
 				} else {
 					block = getRandomBlock(col, row);
@@ -187,13 +190,20 @@ public class GameView extends JFrame {
 				
 				world[row][col] = block;
 
-				JPanel blockPanel = new JPanel();
-				blockPanel.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
-				blockPanel.setLayout(new BorderLayout());
-				blockPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-				ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
-				blockPanel.add(new JLabel(icon), BorderLayout.CENTER);
-				blockPnl.add(blockPanel);
+				JLabel singleBlockPnl = new JLabel(); // JLabel?
+				singleBlockPnl.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
+				singleBlockPnl.setLayout(new BorderLayout());
+				
+				// outline only for non-air blocks
+				if (block.getId() != 0) {
+					ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
+					singleBlockPnl.add(new JLabel(icon), BorderLayout.CENTER);
+					singleBlockPnl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+				} else {
+					singleBlockPnl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+				}				
+				
+				blockPnl.add(singleBlockPnl);
 			}
 		}
 	}
