@@ -161,8 +161,8 @@ public class GameView extends JFrame {
 			if (rand <= cumulative) {
 				BlockModel template = BlockRepository.getBlockByID(entry.getKey());
 				if (template != null) {
-					return new BlockModel(template.getID(), template.getName(), template.getTier(), x, y,
-							template.getTexturePath());
+					return new BlockModel(template.getId(), "Block", template.getItemName(), template.getTier(), x, y,
+							template.getTextureImagePath()); 
 				}
 			}
 		}
@@ -191,7 +191,7 @@ public class GameView extends JFrame {
 				blockPanel.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
 				blockPanel.setLayout(new BorderLayout());
 				blockPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-				ImageIcon icon = new ImageIcon(getClass().getResource(block.getTexturePath()));
+				ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
 				blockPanel.add(new JLabel(icon), BorderLayout.CENTER);
 				blockPnl.add(blockPanel);
 			}
