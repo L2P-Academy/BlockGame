@@ -41,6 +41,8 @@ public class GameView extends JFrame {
 	private String imagePath = "/res/img/maingame_bg.png";
 	private static GameView instance;
 	private SoundController soundController;
+	private int playerRow = 14;
+	private int playerCol = 0;
 
 	public static GameView getInstance() {
 		return instance;
@@ -118,6 +120,12 @@ public class GameView extends JFrame {
 		});
 
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("w"), "moveUp");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("a"), "moveLeft");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("s"), "moveDown");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("d"), "moveRight");
+		
+		
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
 
 			@Override
@@ -126,11 +134,57 @@ public class GameView extends JFrame {
 
 			}
 		});
+		getRootPane().getActionMap().put("moveUp", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				movePlayer(-1, 0);
+				
+			}		
+		});
+		getRootPane().getActionMap().put("moveLeft", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				movePlayer(0, -1);
+				
+			}		
+		});
+		getRootPane().getActionMap().put("moveDown", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				movePlayer(+1, 0);
+				
+			}		
+		});
+		getRootPane().getActionMap().put("moveRight", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				movePlayer(0, +1);
+				
+			}		
+		});
 
 		setLocationRelativeTo(null);
 		setVisible(true);
+		
+		highlightAt(playerRow, playerCol);
 	}
-
+	
+	private void movePlayer(int dRow, int dCol) {
+		int newRow = playerRow + dRow;
+		int newCol = playerCol + dCol;
+		if (newRow < 0 || newRow >= ROWS || newCol < 0 || newCol >= COLS) {
+			return;
+		}
+		unhighlightAt(playerRow, playerCol);
+		playerRow = newRow;
+		playerCol = newCol;
+		highlightAt(playerRow, playerCol);
+	}
+	
 	// Block Mapping & Randomizer 
 	private static final Map<Integer, Double> blockChances = Map.ofEntries(
 			Map.entry(1, 0.2), // Dirt
@@ -173,7 +227,8 @@ public class GameView extends JFrame {
 	}
 
 	private BlockModel[][] world = new BlockModel[ROWS][COLS];
-
+	private JLabel[][] worldLabels = new JLabel[ROWS][COLS];
+	
 	private void fillBlockPanelRandomly() {
 		
 		for (int row = 0; row < ROWS; row++) {
@@ -189,27 +244,50 @@ public class GameView extends JFrame {
 				}
 				
 				world[row][col] = block;
-				block.setPosX(row);
-				block.setPosY(col);
+				block.setPosX(col);
+				block.setPosY(row);
 
-				JLabel singleBlockPnl = new JLabel(); // JLabel?
-				singleBlockPnl.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
-				singleBlockPnl.setLayout(new BorderLayout());
+				JLabel singleBlockLbl = new JLabel(); 
+				worldLabels[row][col] = singleBlockLbl;
+				singleBlockLbl.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
+				singleBlockLbl.setLayout(new BorderLayout());
 				
 				// outline only for non-air blocks
 				if (block.getId() != 0) {
 					ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
-					singleBlockPnl.add(new JLabel(icon), BorderLayout.CENTER);
-					singleBlockPnl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+					singleBlockLbl.add(new JLabel(icon), BorderLayout.CENTER);
+					singleBlockLbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 				} else {
-					singleBlockPnl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+					singleBlockLbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
 				}				
 				
-				blockPnl.add(singleBlockPnl);
+				blockPnl.add(singleBlockLbl);
 			}
 		}
 	}
 
+	private void highlightAt(int row, int col) {
+		JLabel lbl = worldLabels[row][col];
+		if (lbl == null) {
+			return;
+		}
+		lbl.setOpaque(true);
+		lbl.setBackground(new Color(37, 232, 7, 50));
+		lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
+		lbl.repaint();
+	}
+	
+	private void unhighlightAt(int row, int col) {
+		JLabel lbl = worldLabels[row][col];
+		if (lbl == null) {
+			return;
+		}
+		lbl.setOpaque(false);
+		lbl.setBackground(null);
+		lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+		lbl.repaint();
+	}
+	
 	private void showPauseMenu() {
 		JDialog pauseDialog = new JDialog(this, "PAUSE", true);
 		pauseDialog.setSize(400, 600);
