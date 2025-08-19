@@ -189,6 +189,8 @@ public class GameView extends JFrame {
 				}
 				
 				world[row][col] = block;
+				block.setPosX(row);
+				block.setPosY(col);
 
 				JLabel singleBlockPnl = new JLabel(); // JLabel?
 				singleBlockPnl.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
