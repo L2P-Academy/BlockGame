@@ -32,6 +32,8 @@ import blockGame.model.BlockModel;
 import blockGame.model.BlockRepository;
 
 public class GameView extends JFrame {
+	private JLabel toolLbl0, toolLbl1, toolLbl2, toolLbl3, toolLbl4, toolLbl5,
+	toolLbl6, toolLbl7, toolLbl8, toolLbl9;
 	private JPanel backgroundPnl, blockPnl, toolPnl;
 	private static final int AIR_LAYERS = 15;
 	private static final int DIRT_LAYERS = 16;
@@ -87,7 +89,58 @@ public class GameView extends JFrame {
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		toolPnl.setPreferredSize(new Dimension(100, 120));
 		toolPnl.setBackground(Color.DARK_GRAY);
-
+		
+		toolLbl0 = new JLabel();
+		toolLbl0.setPreferredSize(new Dimension(110, 110));
+		toolLbl0.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl1 = new JLabel();
+		toolLbl1.setPreferredSize(new Dimension(110, 110));
+		toolLbl1.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl2 = new JLabel();
+		toolLbl2.setPreferredSize(new Dimension(110, 110));
+		toolLbl2.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl3 = new JLabel();
+		toolLbl3.setPreferredSize(new Dimension(110, 110));
+		toolLbl3.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl4 = new JLabel();
+		toolLbl4.setPreferredSize(new Dimension(110, 110));
+		toolLbl4.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl5 = new JLabel();
+		toolLbl5.setPreferredSize(new Dimension(110, 110));
+		toolLbl5.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl6 = new JLabel();
+		toolLbl6.setPreferredSize(new Dimension(110, 110));
+		toolLbl6.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl7 = new JLabel();
+		toolLbl7.setPreferredSize(new Dimension(110, 110));
+		toolLbl7.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl8 = new JLabel();
+		toolLbl8.setPreferredSize(new Dimension(110, 110));
+		toolLbl8.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolLbl9 = new JLabel();
+		toolLbl9.setPreferredSize(new Dimension(110, 110));
+		toolLbl9.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		
+		toolPnl.add(toolLbl0);
+		toolPnl.add(toolLbl1);
+		toolPnl.add(toolLbl2);
+		toolPnl.add(toolLbl3);
+		toolPnl.add(toolLbl4);
+		toolPnl.add(toolLbl5);
+		toolPnl.add(toolLbl6);
+		toolPnl.add(toolLbl7);
+		toolPnl.add(toolLbl8);
+		toolPnl.add(toolLbl9);
+		
 		ButtonGroup tools = new ButtonGroup();
 		for (int i = 0; i < 10; i++) {
 			JToggleButton btn = new JToggleButton(String.valueOf(i));
