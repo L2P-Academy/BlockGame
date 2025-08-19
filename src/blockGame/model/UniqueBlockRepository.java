@@ -9,8 +9,10 @@ public class UniqueBlockRepository {
 	private static final List<UniqueBlockModel> BLOCKS = new ArrayList<>();
 	
 	static {
-		BLOCKS.add(new UniqueBlockModel(201, "Unique Block", "Wood", 0, null));
-		BLOCKS.add(new UniqueBlockModel(202, "Unique Block", "Leaf", 0, null));
+		BLOCKS.add(new UniqueBlockModel(201, "Unique Block", "Wood", 0, "res/img/textures/wood"));
+		BLOCKS.add(new UniqueBlockModel(202, "Unique Block", "Leaf", 0, "res/img/textures/leaf"));
+		BLOCKS.add(new UniqueBlockModel(203, "Unique Block", "Brick", 0, "res/img/textures/brick"));
+		BLOCKS.add(new UniqueBlockModel(204, "Unique Block", "Glas", 0, "res/img/textures/glas"));
 	}
 	
 	public static List<UniqueBlockModel> getAllBlocks() {
