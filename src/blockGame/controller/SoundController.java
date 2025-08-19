@@ -106,7 +106,7 @@ public class SoundController {
 			float scaledVolume = minVolume + (volume / 100.0f) * (maxVolume - minVolume);
 			volumeControl.setValue(scaledVolume);
 			System.out.println("Volume set to: " + scaledVolume);
-    		} else {
+    		} else if (clip != null && !clip.isOpen()) {
 			System.out.println("❌ Clip not ready or not supported!");
 			}
     		
