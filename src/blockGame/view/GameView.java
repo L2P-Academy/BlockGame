@@ -120,10 +120,10 @@ public class GameView extends JFrame {
 		});
 
 		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("w"), "moveUp");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("a"), "moveLeft");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("s"), "moveDown");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("d"), "moveRight");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("W"), "moveUp");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("A"), "moveLeft");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("S"), "moveDown");
+		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("D"), "moveRight");
 		
 		
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
@@ -248,7 +248,6 @@ public class GameView extends JFrame {
 				block.setPosY(row);
 
 				JLabel singleBlockLbl = new JLabel(); 
-				worldLabels[row][col] = singleBlockLbl;
 				singleBlockLbl.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
 				singleBlockLbl.setLayout(new BorderLayout());
 				
@@ -260,7 +259,7 @@ public class GameView extends JFrame {
 				} else {
 					singleBlockLbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
 				}				
-				
+				worldLabels[row][col] = singleBlockLbl;
 				blockPnl.add(singleBlockLbl);
 			}
 		}
