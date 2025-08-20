@@ -7,12 +7,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.util.Iterator;
+//import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
+//import java.util.Random;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JComponent;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -23,7 +24,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
+//import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 
@@ -158,8 +159,21 @@ public class GameView extends JFrame {
 
 		getContentPane().add(backgroundPnl);
 
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke('i'), "openInventory");
-
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke('i'), "openInventory");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke("W"), "moveUp");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke("A"), "moveLeft");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke("S"), "moveDown");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke("D"), "moveRight");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+						.put(KeyStroke.getKeyStroke("SPACE"), "toggleBuildOrMineMode");
+		
 		getRootPane().getActionMap().put("openInventory", new AbstractAction() {
 
 			@Override
@@ -171,14 +185,6 @@ public class GameView extends JFrame {
 			}
 
 		});
-
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "toggleMenu");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("W"), "moveUp");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("A"), "moveLeft");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("S"), "moveDown");
-		getRootPane().getInputMap().put(KeyStroke.getKeyStroke("D"), "moveRight");
-		
-		
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
 
 			@Override
@@ -219,6 +225,14 @@ public class GameView extends JFrame {
 				
 			}		
 		});
+		getRootPane().getActionMap().put("toggleBuildOrMineMode", new AbstractAction() {
+		    
+			@Override 
+			public void actionPerformed(ActionEvent e) {
+		    	toggleBuildOrMineMode(playerRow, playerCol);
+		        highlightAt(playerRow, playerCol);
+		    }
+		});
 
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -252,13 +266,14 @@ public class GameView extends JFrame {
 			Map.entry(10, 0.05) // Water
 	);
 	
-	private static final Map<Integer, int[]> DEPTH_RANGES = Map.of(
+	// ungenutzt momentan, da die Tiefe nicht berücksichtigt wird
+/*	private static final Map<Integer, int[]> DEPTH_RANGES = Map.of(
 		    4, new int[]{5, 15},   // Coal
 		    5, new int[]{10, 20},  // Iron
 		    6, new int[]{15, 25},  // Copper
 		    7, new int[]{20, 32},  // Gold
 		    8, new int[]{25, 32}   // Diamond
-		);
+		); */
 
 	private BlockModel getRandomBlock(int x, int y) {
 		double totalWeight = blockChances.values().stream().mapToDouble(Double::doubleValue).sum();
@@ -318,15 +333,16 @@ public class GameView extends JFrame {
 		}
 	}
 
-	private void highlightAt(int row, int col) {
+	private JLabel highlightAt(int row, int col) {
 		JLabel lbl = worldLabels[row][col];
 		if (lbl == null) {
-			return;
+			return null;
 		}
 		lbl.setOpaque(true);
 		lbl.setBackground(new Color(37, 232, 7, 50));
 		lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
 		lbl.repaint();
+		return lbl;
 	}
 	
 	private void unhighlightAt(int row, int col) {
@@ -336,7 +352,82 @@ public class GameView extends JFrame {
 		}
 		lbl.setOpaque(false);
 		lbl.setBackground(null);
-		lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+		// Blockrahmen nur für Blöcke, die NICHT Luft sind
+		if (world[row][col] != null && world[row][col].getId() != 0) {
+			lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		} else {
+			lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+		}
+		lbl.repaint();
+	}
+	
+	public void replaceBlockAt(int row, int col, int newBlockByID) {
+		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
+		if (!isInside(row, col)) 
+			return;
+		// Überprüfen ob der Block existiert
+		BlockModel template = BlockRepository.getBlockByID(newBlockByID);
+		if (template == null) 
+			return;
+		
+		BlockModel newBlock = new BlockModel(
+				template.getId(), 
+				"Block", 
+				template.getItemName(), 
+				template.getTier(), 
+				col, 
+				row,
+				template.getTextureImagePath()
+				);
+		
+		world[row][col] = newBlock;
+		// UI Aktualisierung
+		refreshBlockLabel(row, col);
+		}
+	
+	// Schalter zum Wechseln zw. BUILD_MODE und MINE_MODE
+	public void toggleBuildOrMineMode(int row, int col) {
+		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
+		if (!isInside(row, col)) 
+			return;
+		
+		BlockModel current = world[row][col];
+		int currentId = (current != null) ? current.getId() : 0;
+
+		if (currentId != 0) {
+			// abbauen -> Luft
+			replaceBlockAt(row, col, 0);
+		} else {
+			// bauen -> Dirt
+			replaceBlockAt(row, col, 1);
+		}
+	}
+	
+	// Prüft ob Koordinaten innerhalb des Bereichs liegen
+	private boolean isInside(int row, int col) {
+		return row >= 0 && row < ROWS && col >= 0 && col < COLS;
+	}
+	
+	// Aktualisiert das Label für den Block an der angegebenen Position
+	private void refreshBlockLabel(int row, int col) {
+		JLabel lbl = worldLabels[row][col];
+		if (lbl == null) {
+			return;
+		}
+		BlockModel block = world[row][col];
+		// Leeren des Labels
+		lbl.removeAll();
+		
+		if (block != null && block.getId() != 0) {
+			ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
+			lbl.add(new JLabel(icon), BorderLayout.CENTER);
+			lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		} else {
+			lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+		}
+		lbl.setOpaque(false);
+		lbl.setBackground(null);
+		lbl.revalidate();
 		lbl.repaint();
 	}
 	
