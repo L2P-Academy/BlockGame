@@ -1,10 +1,13 @@
 package blockGame.controller;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -22,13 +25,12 @@ import blockGame.GameState;
 public class XMLController {
 	
 	// Filepaths
-	private String gameStatePath = "res/savegames/gameState.xml";
-	private String inventoryListPath = "res/savegames/inventoryList.xml";
+	private String saveGamePath = "res/savegames/saveGame.xml";
 	private GameState gameState;
 	
 	// create empty XML-File if none exists for coordinates
-	public void xmlWriteGameStateInfo() {
-		new File(gameStatePath);
+	public void writeSaveGameFileXML() {
+		new File(saveGamePath);
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder;
@@ -37,33 +39,45 @@ public class XMLController {
 			Document doc = documentBuilder.newDocument();
 			
 			// root element for world & player state
-			Element rootElement = doc.createElement("savegame info");
+			Element rootElement = doc.createElement("savegame");
 			doc.appendChild(rootElement);
 			
-			Element worldRowsElement = doc.createElement(gameState.getWorldRows() + "");
-			worldRowsElement.appendChild(doc.createTextNode(gameState.getWorldRows() + ""));
-			rootElement.appendChild(worldRowsElement);
+			// world size information
+			Element world = doc.createElement("world");
+			world.setAttribute("rows", String.valueOf(gameState.getWorldRows()));
+			world.setAttribute("cols", String.valueOf(gameState.getWorldCols()));
+			rootElement.appendChild(world);
 			
-			Element worldColsElement = doc.createElement(gameState.getWorldCols() + "");
-			worldColsElement.appendChild(doc.createTextNode(gameState.getWorldCols() + ""));
-			rootElement.appendChild(worldColsElement);
+			// player information
+			Element player = doc.createElement("player");
+			player.setAttribute("row", String.valueOf(gameState.getPlayerRow()));
+			player.setAttribute("col", String.valueOf(gameState.getPlayerCol()));
+			rootElement.appendChild(player);
 			
-			Element playerRowElement = doc.createElement(gameState.getPlayerRow() + "");
-			playerRowElement.appendChild(doc.createTextNode(gameState.getPlayerRow() + ""));
-			rootElement.appendChild(playerRowElement);
-			
-			Element playerColElement = doc.createElement(gameState.getPlayerCol() + "");
-			playerColElement.appendChild(doc.createTextNode(gameState.getPlayerCol() + ""));
-			rootElement.appendChild(playerColElement);
-			
-			// TODO: BlockCoordinates -> HashMap?
+			// blocks information
+			Element blocks = doc.createElement("blocks");
+			rootElement.appendChild(blocks);
+			// write blocks - in order
+			gameState.getBlocks().entrySet().stream()
+		    .sorted(Comparator
+		        .comparingInt((Map.Entry<GameState.Coord, Integer> e) -> e.getKey().row())
+		        .thenComparingInt(e -> e.getKey().col()))
+		    .forEach(e -> {
+		        GameState.Coord k = e.getKey();
+		        int id = e.getValue();
+
+		        Element b = doc.createElement("b");
+		        b.setAttribute("c", String.valueOf(k.col()));
+		        b.setAttribute("r", String.valueOf(k.row()));
+		        b.setAttribute("id", String.valueOf(id));
+		        blocks.appendChild(b);
+		    });
 			
 			// write contents into file
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer(new StreamSource(new File("res/xml/formatter.xslt")));
-			DOMSource source = new DOMSource(doc);
-			StreamResult streamResult = new StreamResult(new File(gameStatePath));
-			transformer.transform(source, streamResult);
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			// possible exceptions
 		} catch (ParserConfigurationException e) {

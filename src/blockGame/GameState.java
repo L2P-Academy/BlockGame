@@ -1,25 +1,33 @@
 // Dirk
 package blockGame;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GameState {
+	// fields
 	public final int worldRows; // max Anzahl Zeilen
 	public final int worldCols; // max Anzahl Spalten
-	public final int playerRow; // Spielerposition (Zeile)
-	public final int playerCol; // Spielerposition (Spalte)
-	public final int blockId; // Typ-Id: Dirt, Stone, ...
-	public final int[][] blockCoordinates;
+	public int playerRow; // Spielerposition (Zeile)
+	public int playerCol; // Spielerposition (Spalte)
+	public record Coord(int col, int row) {}; // compact Class, simplified coordinates
+	private final Map<Coord, Integer> blocks = new HashMap<>(); // mapping Coordinates and BlockIds later
+	private static GameState instance;
 	
-	// Constructor
-	public GameState(int worldRows, int worldCols, int blockId, int playerRow, 
-			int playerCol, int[][] blockCoordinates) {
+	public static GameState getInstance() {
+		return instance;
+	}
+	
+	// constructor
+	public GameState(int worldRows, int worldCols, int playerRow, int playerCol) {
+		instance = this;
 		this.worldRows = worldRows;
 		this.worldCols = worldCols;
 		this.playerRow = playerRow;
 		this.playerCol = playerCol;
-		this.blockId = blockId;
-		this.blockCoordinates = blockCoordinates;
 	}
-
+	
+	// getter/setter
 	public int getWorldRows() {
 		return worldRows;
 	}
@@ -35,17 +43,17 @@ public class GameState {
 	public int getPlayerCol() {
 		return playerCol;
 	}
-
-	public int getBlockId() {
-		return blockId;
-	}
-
-	public int[][] getBlockCoordinates() {
-		return blockCoordinates;
+	
+	// block logic
+	public Map<Coord, Integer> getBlocks() {
+		return blocks;
 	}
 	
+	public void putBlock(int col, int row, int blockId) {
+		blocks.put(new Coord(col, row), blockId);
+	}
 	
-	
-	
-
+	public Integer getBlock(int col, int row) {
+		return blocks.get(new Coord(col, row));
+	}
 }
