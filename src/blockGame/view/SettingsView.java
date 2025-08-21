@@ -144,6 +144,25 @@ public class SettingsView extends JFrame {
             settingsPnl.add(new JLabel());
         }		
 		
+		// ActionListener für Buttonsound
+        applyBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SoundController soundController2 = new SoundController();
+				soundController2.playBtnSound(); 
+                System.out.println("Spiel wird geladen..."); 	// kannste später rausnehmen
+            }
+        });
+
+        backBtn.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		SoundController soundController3 = new SoundController();
+        		soundController3.playBtnSound();
+        		System.out.println("Gehe zurück..."); 			// das auch ^^
+        	}
+        });
+		
 		// Action Listener (2 versch. Wege getestet)
 		backBtn.addActionListener(new ActionListener() {			
 			@Override
