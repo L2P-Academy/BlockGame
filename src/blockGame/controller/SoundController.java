@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 
 import java.io.InputStream; 					// Import für das Einlesen von Dateien als Stream
 import java.io.BufferedInputStream;
-import java.io.File; 			// ermöglicht gepuffertes Einlesen für bessere Performance
+import java.io.File; 							// ermöglicht gepuffertes Einlesen für bessere Performance
 
 public class SoundController {
 

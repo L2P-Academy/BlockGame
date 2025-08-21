@@ -122,7 +122,7 @@ public class LoadGameView extends JFrame {
 		backgroundPnl.add(gameTitlePnl, BorderLayout.CENTER);
 		backgroundPnl.add(buttonPnl, BorderLayout.SOUTH);
 		
-		// ActionListener für Buttons
+		// ActionListener für Buttonsound
         loadGameBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
