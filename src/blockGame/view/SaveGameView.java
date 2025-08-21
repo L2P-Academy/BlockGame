@@ -25,24 +25,24 @@ import javax.swing.table.JTableHeader;
 import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
 
-public class LoadGameView extends JFrame {
+public class SaveGameView extends JFrame {
 	// graphical attributes
 	private JLabel gameTitleLbl;
 	private JPanel buttonPnl, backgroundPnl, gameTitlePnl;
-	private JButton loadGameBtn, backBtn;
+	private JButton loadGameBtn, backBtn, saveGameBtn;
 	private String imagePath = "/res/img/loadscreen_bg.png";
 	private JTable saveTable;
 	private JTableHeader saveTableHeader;
 	private DefaultTableModel saveTableModel;
 	private SoundController soundController;
-	private static LoadGameView instance;
+	private static SaveGameView instance;
 	
-	public static LoadGameView getInstance() {
+	public static SaveGameView getInstance() {
 		return instance;
 	}
 	
 	// Constructor
-	public LoadGameView() {
+	public SaveGameView() {
 		instance = this;
 		setAlwaysOnTop(true);
 		setTitle("Spiel laden - PixelMine"); // frame title
@@ -111,11 +111,15 @@ public class LoadGameView extends JFrame {
 		beautifyButton(loadGameBtn);
 		backBtn = new JButton("Zurück");
 		beautifyButton(backBtn);
+		saveGameBtn = new JButton("Spiel speichern");
+		beautifyButton(saveGameBtn);
 		
 		// add buttons to panel
 		
+		buttonPnl.add(saveGameBtn);
 		buttonPnl.add(loadGameBtn);
 		buttonPnl.add(backBtn);
+		
 		buttonPnl.setOpaque(false);
 		
 		// add elements to background
