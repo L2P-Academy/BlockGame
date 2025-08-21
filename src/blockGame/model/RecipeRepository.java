@@ -26,6 +26,16 @@ public class RecipeRepository {
 		TOOLS.add(new ToolModel(109,"Waffe", "Diamantschwert", 50, 4, "/res/img/textures/diamondSword"));
 	}
 	
+	// Crafted Blocks
+
+	private static final List<CraftedBlockModel> CRAFTEDBLOCKS = new ArrayList<>();
+	
+	static {
+		
+		CRAFTEDBLOCKS.add(new CraftedBlockModel(201, "Crafted Block", "Brick", 0, 0, 0, "res/img/textures/brick"));
+		CRAFTEDBLOCKS.add(new CraftedBlockModel(202, "Crafted Block", "Glas", 0, 0, 0, "res/img/textures/glas"));
+	}
+	
 	public RecipeRepository() {
 		this.recipes = new ArrayList<>();
 	
@@ -34,73 +44,72 @@ public class RecipeRepository {
 	// Holzspitzhacke
 	
 	RecipeModel woodPickaxeRecipe = new RecipeModel(RecipeRepository.getToolByID(101));
-	woodPickaxeRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 3);
+	woodPickaxeRecipe.addIngredient(BlockRepository.getBlockByID(11), 3);
 	this.addRecipe(woodPickaxeRecipe);
 	
 	// Steinspitzhacke
 	
 	RecipeModel stonePickaxeRecipe = new RecipeModel(RecipeRepository.getToolByID(102));
-	stonePickaxeRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
+	stonePickaxeRecipe.addIngredient(BlockRepository.getBlockByID(11), 1);
 	stonePickaxeRecipe.addIngredient(BlockRepository.getBlockByID(2), 2);
 	this.addRecipe(stonePickaxeRecipe);
 	
 	// Eisenspitzhacke
 	
 	RecipeModel ironPickaxeRecipe = new RecipeModel(RecipeRepository.getToolByID(103));
-	ironPickaxeRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
+	ironPickaxeRecipe.addIngredient(BlockRepository.getBlockByID(11), 1);
 	ironPickaxeRecipe.addIngredient(BlockRepository.getBlockByID(5), 2);
 	this.addRecipe(ironPickaxeRecipe);
 	
 	// Holzschaufel
 	
 	RecipeModel woodShovelRecipe = new RecipeModel(RecipeRepository.getToolByID(104));
-	woodShovelRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 2);
+	woodShovelRecipe.addIngredient(BlockRepository.getBlockByID(11), 2);
 	this.addRecipe(woodShovelRecipe);
 	
 	// Steinschaufel
 	
 	RecipeModel stoneShovelRecipe = new RecipeModel(RecipeRepository.getToolByID(105));
-	stoneShovelRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
+	stoneShovelRecipe.addIngredient(BlockRepository.getBlockByID(11), 1);
 	stoneShovelRecipe.addIngredient(BlockRepository.getBlockByID(2), 1);
 	this.addRecipe(stoneShovelRecipe);
 	
 	// Eisenschaufel
 	
 	RecipeModel ironShovelRecipe = new RecipeModel(RecipeRepository.getToolByID(106));
-	ironShovelRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
+	ironShovelRecipe.addIngredient(BlockRepository.getBlockByID(11), 1);
 	ironShovelRecipe.addIngredient(BlockRepository.getBlockByID(5), 1);
 	this.addRecipe(ironShovelRecipe);
 	
 	// Ziegelstein (Brick)
 	
-	RecipeModel brickRecipe = new RecipeModel(CraftedBlockRepository.getCraftedBlockByID(203));
+	RecipeModel brickRecipe = new RecipeModel(RecipeRepository.getCraftedBlockByID(201));
 	brickRecipe.addIngredient(BlockRepository.getBlockByID(9), 2);
 	this.addRecipe(brickRecipe);
 
 	// Glas
 	
-	RecipeModel glasRecipe = new RecipeModel(CraftedBlockRepository.getCraftedBlockByID(204));
+	RecipeModel glasRecipe = new RecipeModel(RecipeRepository.getCraftedBlockByID(201));
 	glasRecipe.addIngredient(BlockRepository.getBlockByID(3), 1);
 	this.addRecipe(glasRecipe);
 	
 	// Messer
 	
 	RecipeModel knifeRecipe = new RecipeModel(RecipeRepository.getToolByID(107));
-	knifeRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
+	knifeRecipe.addIngredient(BlockRepository.getBlockByID(11), 1);
 	knifeRecipe.addIngredient(BlockRepository.getBlockByID(5), 1);
 	this.addRecipe(knifeRecipe);
 	
 	// Eisenschwert
 	
 	RecipeModel ironSwordRecipe = new RecipeModel(RecipeRepository.getToolByID(108));
-	ironSwordRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
+	ironSwordRecipe.addIngredient(BlockRepository.getBlockByID(11), 1);
 	ironSwordRecipe.addIngredient(BlockRepository.getBlockByID(5), 3);
 	this.addRecipe(ironSwordRecipe);
 	
 	// Diamantschwert
 	
 	RecipeModel diamondSwordRecipe = new RecipeModel(RecipeRepository.getToolByID(109));
-	diamondSwordRecipe.addIngredient(CraftedBlockRepository.getCraftedBlockByID(201), 1);
 	diamondSwordRecipe.addIngredient(BlockRepository.getBlockByID(8), 3);
 	this.addRecipe(diamondSwordRecipe);
 	
@@ -141,7 +150,20 @@ public class RecipeRepository {
 				.filter(b -> b.getId() == id)
 				.findFirst()
 				.orElse(null);
+	}
+	
+	public static List<CraftedBlockModel> getAllBlocks() {
+		return CRAFTEDBLOCKS;	
 		
+		
+	}
+	
+	public static CraftedBlockModel getCraftedBlockByID(int id) {
+		return CRAFTEDBLOCKS.stream()
+				.filter(b -> b.getId() == id)
+				.findFirst()
+				.orElse(null);
+	
 	}
 }
 	

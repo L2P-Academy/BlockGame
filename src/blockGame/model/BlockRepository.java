@@ -18,6 +18,8 @@ public class BlockRepository {
 		BLOCKS.add(new BlockModel(8, "Block" , "Diamond", 3, 0, 0, "/res/img/textures/tile_diamond_64px.png"));
 		BLOCKS.add(new BlockModel(9, "Block" , "Clay", 0, 0, 0, "/res/img/textures/tile_clay_64px.png"));
 		BLOCKS.add(new BlockModel(10, "Block" , "Water", 0, 0, 0, "/res/img/textures/tile_water_64px.png"));
+		BLOCKS.add(new BlockModel(11, "Block" , "Wood", 0, 0, 0, "/res/img/textures/tile_wood_64px.png"));
+		BLOCKS.add(new BlockModel(12, "Block" , "Leaf", 0, 0, 0, "/res/img/textures/tile_leaf_64px.png"));
 	}
 
 	public static List<BlockModel> getAllBlocks() {
