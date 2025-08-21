@@ -13,8 +13,13 @@ import java.util.Map;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.net.URL;
+import java.util.HashMap;
 import javax.swing.JComponent;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -27,6 +32,7 @@ import javax.swing.JPanel;
 //import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 
 import blockGame.controller.SoundController;
 import blockGame.model.BlockModel;
@@ -34,41 +40,25 @@ import blockGame.model.BlockRepository;
 
 public class GameView extends JFrame {
 	private JLabel toolLbl0, toolLbl1, toolLbl2, toolLbl3, toolLbl4, toolLbl5,
-	toolLbl6, toolLbl7, toolLbl8, toolLbl9;
+	toolLbl6, toolLbl7, toolLbl8, toolLbl9, playerLbl;
 	private JPanel backgroundPnl, blockPnl, toolPnl;
 	private static final int AIR_LAYERS = 15;
 	private static final int DIRT_LAYERS = 16;
-	private static final int ROWS = 31;
-	private static final int COLS = 64;
-	private static final int BLOCK_SIZE = 32;
+	private static final int ROWS = 20;
+	private static final int COLS = 35;
 	private String imagePath = "/res/img/maingame_bg.png";
 	private static GameView instance;
 	private SoundController soundController;
 	private int playerRow = 14;
 	private int playerCol = 0;
+	private static final int BASE_BLOCK_SIZE = 72; // Baseline 72px @1440p
+	private int blockSize = BASE_BLOCK_SIZE;
+	private final java.util.Map<String, ImageIcon> iconCache = new HashMap<>();
+
 
 	public static GameView getInstance() {
 		return instance;
 	}
-
-	// TODO: flexible blockSizes for different screen resolutions
-	private int blockSize;
-
-//	public GameView(int blockSize) {
-//	this.blockSize = blockSize;
-	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//	int height = (int)JFrame.getHeight();
-//	if (height < 480) {
-//		blockSize = 16;
-//	} else if (height < 720) { 
-//		blockSize = 24;
-//	} else if (height < 1080) {
-//		blockSize = 32;
-//	} else if (height < 1440) {
-//		blockSize = 42;
-//	} else if (height < 2160) {
-//		blockSize = 54;
-//	} else {blockSize = 64}
 
 	public GameView(SoundController soundController) {
 		// SoundController initialize
@@ -152,6 +142,10 @@ public class GameView extends JFrame {
 		// block Panel
 		blockPnl = new JPanel(new GridLayout(ROWS, COLS));
 		blockPnl.setOpaque(false);
+		// Erste Tilegröße bestimmen
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		blockSize = computeBlockSize(screenSize.width, screenSize.height);
+
 		fillBlockPanelRandomly();
 
 		backgroundPnl.add(toolPnl, BorderLayout.NORTH);
@@ -230,15 +224,36 @@ public class GameView extends JFrame {
 			@Override 
 			public void actionPerformed(ActionEvent e) {
 		    	toggleBuildOrMineMode(playerRow, playerCol);
-		        highlightAt(playerRow, playerCol);
 		    }
 		});
 
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
-		highlightAt(playerRow, playerCol);
-	}
+		// >>> CHANGED: Spieler-Label (animiertes GIF) statt highlight
+		ImageIcon playerIcon = getScaledIcon("/res/img/player_IDLE_72px.gif", blockSize, true);
+		playerLbl = new JLabel(playerIcon);
+		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
+		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
+		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
+
+		// >>> ADDED: Resize-Handling (debounced)
+		addComponentListener(new java.awt.event.ComponentAdapter() {
+		private Timer debounce;
+		@Override
+		public void componentResized(java.awt.event.ComponentEvent e) {
+			if (debounce != null && debounce.isRunning()) {
+				debounce.restart();
+			} else {
+				debounce = new Timer(120, ev -> {
+				debounce.stop();
+				onResizeRebuild();
+		});
+			debounce.setRepeats(false);
+			debounce.start();
+						}
+					}
+				});
+			}
 	
 	private void movePlayer(int dRow, int dCol) {
 		int newRow = playerRow + dRow;
@@ -246,11 +261,21 @@ public class GameView extends JFrame {
 		if (newRow < 0 || newRow >= ROWS || newCol < 0 || newCol >= COLS) {
 			return;
 		}
-		unhighlightAt(playerRow, playerCol);
+		// alten Platz räumen
+		if (playerLbl != null && worldLabels[playerRow][playerCol] != null) {
+			worldLabels[playerRow][playerCol].remove(playerLbl);
+			worldLabels[playerRow][playerCol].revalidate();
+			worldLabels[playerRow][playerCol].repaint();
+		}
 		playerRow = newRow;
 		playerCol = newCol;
-		highlightAt(playerRow, playerCol);
+		// neuen Platz setzen
+		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
+		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
+		worldLabels[playerRow][playerCol].revalidate();
+		worldLabels[playerRow][playerCol].repaint();
 	}
+
 	
 	// Block Mapping & Randomizer 
 	private static final Map<Integer, Double> blockChances = Map.ofEntries(
@@ -298,7 +323,6 @@ public class GameView extends JFrame {
 	private JLabel[][] worldLabels = new JLabel[ROWS][COLS];
 	
 	private void fillBlockPanelRandomly() {
-		
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				BlockModel block;	
@@ -316,23 +340,23 @@ public class GameView extends JFrame {
 				block.setPosY(row);
 
 				JLabel singleBlockLbl = new JLabel(); 
-				singleBlockLbl.setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
+				singleBlockLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 				singleBlockLbl.setLayout(new BorderLayout());
 				
 				// outline only for non-air blocks
 				if (block.getId() != 0) {
-					ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
+					ImageIcon icon = getScaledIcon(block.getTextureImagePath(), blockSize, false);
 					singleBlockLbl.add(new JLabel(icon), BorderLayout.CENTER);
 					singleBlockLbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 				} else {
 					singleBlockLbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
-				}				
+				}
 				worldLabels[row][col] = singleBlockLbl;
 				blockPnl.add(singleBlockLbl);
 			}
 		}
 	}
-
+/*
 	private JLabel highlightAt(int row, int col) {
 		JLabel lbl = worldLabels[row][col];
 		if (lbl == null) {
@@ -359,7 +383,7 @@ public class GameView extends JFrame {
 			lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
 		}
 		lbl.repaint();
-	}
+	} */
 	
 	public void replaceBlockAt(int row, int col, int newBlockByID) {
 		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
@@ -415,11 +439,11 @@ public class GameView extends JFrame {
 			return;
 		}
 		BlockModel block = world[row][col];
-		// Leeren des Labels
 		lbl.removeAll();
+		lbl.setPreferredSize(new Dimension(blockSize, blockSize));
 		
 		if (block != null && block.getId() != 0) {
-			ImageIcon icon = new ImageIcon(getClass().getResource(block.getTextureImagePath()));
+			ImageIcon icon = getScaledIcon(block.getTextureImagePath(), blockSize, false);
 			lbl.add(new JLabel(icon), BorderLayout.CENTER);
 			lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		} else {
@@ -519,4 +543,98 @@ public class GameView extends JFrame {
 		pauseDialog.add(exitButton);
 		pauseDialog.setVisible(true);
 	}
+
+
+private int computeBlockSize(int availW, int availH) {
+	// Tool-Leiste oben abziehen, damit das Grid passt
+	int toolH = (toolPnl != null) ? toolPnl.getPreferredSize().height : 0;
+	int gridW = availW;
+	int gridH = Math.max(0, availH - toolH);
+
+	double scaleW = (double) gridW / (COLS * BASE_BLOCK_SIZE);
+	double scaleH = (double) gridH / (ROWS * BASE_BLOCK_SIZE);
+	double scale = Math.min(scaleW, scaleH);
+
+	// Klemmen (z. B. 0.25x bis 2.0x)
+	int newSize = (int) Math.floor(BASE_BLOCK_SIZE * Math.max(0.25, Math.min(scale, 2.0)));
+	return Math.max(newSize, 24);
+}
+
+private void onResizeRebuild() {
+	int newSize = computeBlockSize(getWidth(), getHeight());
+	if (newSize == blockSize) return;
+	blockSize = newSize;
+
+	// Welt neu skalieren
+	for (int r = 0; r < ROWS; r++) {
+		for (int c = 0; c < COLS; c++) {
+			JLabel lbl = worldLabels[r][c];
+			if (lbl == null) continue;
+			lbl.removeAll();
+			lbl.setPreferredSize(new Dimension(blockSize, blockSize));
+			BlockModel block = world[r][c];
+			if (block != null && block.getId() != 0) {
+				ImageIcon icon = getScaledIcon(block.getTextureImagePath(), blockSize, false);
+				lbl.add(new JLabel(icon), BorderLayout.CENTER);
+				lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+			} else {
+				lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+			}
+		}
+	}
+
+	// Spieler neu setzen
+	if (playerLbl != null) {
+		ImageIcon playerIcon = getScaledIcon("/res/img/player_IDLE_72px.gif", blockSize, true);
+		playerLbl.setIcon(playerIcon);
+		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
+		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
+		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
+	}
+
+	blockPnl.revalidate();
+	blockPnl.repaint();
+}
+
+private ImageIcon getScaledIcon(String path, int size, boolean isAnimatedGif) {
+	String key = path + "@" + size + (isAnimatedGif ? "#gif" : "#static");
+	ImageIcon cached = iconCache.get(key);
+	if (cached != null) return cached;
+
+	URL url = getClass().getResource(path);
+	if (url == null) return null;
+
+	if (isAnimatedGif) {
+		// Einfache Skalierung für GIFs (in der Praxis meist ok)
+		ImageIcon raw = new ImageIcon(url);
+		if (size == BASE_BLOCK_SIZE) {
+			iconCache.put(key, raw);
+			return raw;
+		}
+		Image scaled = raw.getImage().getScaledInstance(size, size, Image.SCALE_FAST);
+		ImageIcon result = new ImageIcon(scaled);
+		iconCache.put(key, result);
+		return result;
+	} else {
+		// Statische PNGs → nearest-neighbor (Pixelart)
+		try {
+			BufferedImage src = javax.imageio.ImageIO.read(url);
+			BufferedImage dst = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = dst.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			g.drawImage(src, 0, 0, size, size, null);
+			g.dispose();
+			ImageIcon result = new ImageIcon(dst);
+			iconCache.put(key, result);
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			ImageIcon fallback = new ImageIcon(url);
+			iconCache.put(key, fallback);
+			return fallback;
+		}
+	}
+}
 }
