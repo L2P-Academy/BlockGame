@@ -20,6 +20,31 @@ public class GameState {
 		this.blockCoordinates = blockCoordinates;
 	}
 
+	public int getWorldRows() {
+		return worldRows;
+	}
+
+	public int getWorldCols() {
+		return worldCols;
+	}
+
+	public int getPlayerRow() {
+		return playerRow;
+	}
+
+	public int getPlayerCol() {
+		return playerCol;
+	}
+
+	public int getBlockId() {
+		return blockId;
+	}
+
+	public int[][] getBlockCoordinates() {
+		return blockCoordinates;
+	}
+	
+	
 	
 	
 
