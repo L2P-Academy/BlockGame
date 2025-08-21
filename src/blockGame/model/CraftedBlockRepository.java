@@ -9,10 +9,10 @@ public class CraftedBlockRepository {
 	private static final List<CraftedBlockModel> BLOCKS = new ArrayList<>();
 	
 	static {
-		BLOCKS.add(new CraftedBlockModel(201, "Unique Block", "Wood", 0, 0, 0, "res/img/textures/wood"));
-		BLOCKS.add(new CraftedBlockModel(202, "Unique Block", "Leaf", 0, 0, 0, "res/img/textures/leaf"));
-		BLOCKS.add(new CraftedBlockModel(203, "Unique Block", "Brick", 0, 0, 0, "res/img/textures/brick"));
-		BLOCKS.add(new CraftedBlockModel(204, "Unique Block", "Glas", 0, 0, 0, "res/img/textures/glas"));
+		BLOCKS.add(new CraftedBlockModel(201, "Crafted Block", "Wood", 0, 0, 0, "res/img/textures/wood")); 
+		BLOCKS.add(new CraftedBlockModel(202, "Crafted Block", "Leaf", 0, 0, 0, "res/img/textures/leaf"));
+		BLOCKS.add(new CraftedBlockModel(203, "Crafted Block", "Brick", 0, 0, 0, "res/img/textures/brick"));
+		BLOCKS.add(new CraftedBlockModel(204, "Crafted Block", "Glas", 0, 0, 0, "res/img/textures/glas"));
 	}
 	
 	public static List<CraftedBlockModel> getAllBlocks() {
