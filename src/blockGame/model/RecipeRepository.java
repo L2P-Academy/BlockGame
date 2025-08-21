@@ -89,7 +89,7 @@ public class RecipeRepository {
 
 	// Glas
 	
-	RecipeModel glasRecipe = new RecipeModel(RecipeRepository.getCraftedBlockByID(201));
+	RecipeModel glasRecipe = new RecipeModel(RecipeRepository.getCraftedBlockByID(202));
 	glasRecipe.addIngredient(BlockRepository.getBlockByID(3), 1);
 	this.addRecipe(glasRecipe);
 	
@@ -152,7 +152,7 @@ public class RecipeRepository {
 				.orElse(null);
 	}
 	
-	public static List<CraftedBlockModel> getAllBlocks() {
+	public static List<CraftedBlockModel> getAllCraftedBlocks() {
 		return CRAFTEDBLOCKS;	
 		
 		
