@@ -464,7 +464,7 @@ public class GameView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
-				LoadGameView loadGame = new LoadGameView();
+				SaveGameView loadGame = new SaveGameView();
 				loadGame.setAlwaysOnTop(true);
 
 			}
@@ -475,7 +475,7 @@ public class GameView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
-				LoadGameView loadGame = new LoadGameView();
+				SaveGameView loadGame = new SaveGameView();
 				loadGame.setAlwaysOnTop(true);
 
 			}

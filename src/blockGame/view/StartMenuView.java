@@ -96,7 +96,7 @@ public class StartMenuView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
-				new LoadGameView();
+				new SaveGameView();
 			}
 		});
 		
