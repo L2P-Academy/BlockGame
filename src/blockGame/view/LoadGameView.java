@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import blockGame.controller.FontLoader;
+import blockGame.controller.SoundController;
 
 public class LoadGameView extends JFrame {
 	// graphical attributes
@@ -33,6 +34,7 @@ public class LoadGameView extends JFrame {
 	private JTable saveTable;
 	private JTableHeader saveTableHeader;
 	private DefaultTableModel saveTableModel;
+	private SoundController soundController;
 	private static LoadGameView instance;
 	
 	public static LoadGameView getInstance() {
@@ -119,6 +121,25 @@ public class LoadGameView extends JFrame {
 		// add elements to background
 		backgroundPnl.add(gameTitlePnl, BorderLayout.CENTER);
 		backgroundPnl.add(buttonPnl, BorderLayout.SOUTH);
+		
+		// ActionListener für Buttons
+        loadGameBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SoundController soundController2 = new SoundController();
+				soundController2.playBtnSound(); 
+                System.out.println("Spiel wird geladen..."); 	// kannste später rausnehmen
+            }
+        });
+
+        backBtn.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		SoundController soundController3 = new SoundController();
+        		soundController3.playBtnSound();
+        		System.out.println("Gehe zurück..."); 			// das auch ^^
+        	}
+        });
 		
 		// ActionListeners for Buttons
 		backBtn.addActionListener(new ActionListener() {			
