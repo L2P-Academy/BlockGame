@@ -145,6 +145,18 @@ public class SaveGameView extends JFrame {
         	}
         });
 		
+        saveGameBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SoundController soundController4 = new SoundController();
+                soundController4.playBtnSound();
+              
+            }
+        });
+
+        
+        
+        
 		// ActionListeners for Buttons
 		backBtn.addActionListener(new ActionListener() {			
 			@Override
