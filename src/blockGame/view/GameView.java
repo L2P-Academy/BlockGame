@@ -438,6 +438,7 @@ public class GameView extends JFrame {
 		pauseDialog.setSize(400, 600);
 		pauseDialog.setLocationRelativeTo(this);
 		pauseDialog.setLayout(new GridLayout(6, 1));
+		pauseDialog.setUndecorated(true);
 
 		JButton resumeButton = new JButton("Fortsetzen");
 		StartMenuView.beautifyButton(resumeButton);
