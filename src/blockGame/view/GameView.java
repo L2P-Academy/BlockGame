@@ -168,7 +168,20 @@ public class GameView extends JFrame {
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("D"), "moveRight");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"),
 				"toggleBuildOrMineMode");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("C"), "openCrafting");
 
+		getRootPane().getActionMap().put("openCrafting", new AbstractAction() {
+
+			@Override
+
+			public void actionPerformed(ActionEvent e) {
+
+				new CraftingView();
+
+			}
+
+		});
+		
 		getRootPane().getActionMap().put("openInventory", new AbstractAction() {
 
 			@Override
