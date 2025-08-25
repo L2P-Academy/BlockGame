@@ -275,7 +275,7 @@ public class GameView extends JFrame {
 	    
 	        inventoryView = new InventoryView();
 	       
-	    }
+	    } 
 	
 
 	private void movePlayer(int dRow, int dCol) {
