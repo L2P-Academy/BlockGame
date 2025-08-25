@@ -56,6 +56,9 @@ public class GameView extends JFrame {
 	private static final int BASE_BLOCK_SIZE = 72; // Baseline 72px @1440p
 	private int blockSize;
 	private final java.util.Map<String, ImageIcon> iconCache = new HashMap<>();
+	private boolean isBuildModeActive = false; //Hebel zum Ein- und Ausschalten des Baumoduses ohne Character-Bewegung
+	private int cursorRow, cursorCol;
+	private int lastHlRow = -1, lastHlCol = -1;
 	private InventoryView inventoryView;
 	private enum PlayerAnim { IDLE, WALK_LEFT, WALK_RIGHT }
 	private PlayerAnim currentAnim = PlayerAnim.IDLE;		// Aktueller Animationzustand
@@ -463,21 +466,41 @@ public class GameView extends JFrame {
 			}
 		}
 	}
-	/*
-	 * private JLabel highlightAt(int row, int col) { JLabel lbl =
-	 * worldLabels[row][col]; if (lbl == null) { return null; } lbl.setOpaque(true);
-	 * lbl.setBackground(new Color(37, 232, 7, 50));
-	 * lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN)); lbl.repaint();
-	 * return lbl; }
-	 * 
-	 * private void unhighlightAt(int row, int col) { JLabel lbl =
-	 * worldLabels[row][col]; if (lbl == null) { return; } lbl.setOpaque(false);
-	 * lbl.setBackground(null); // Blockrahmen nur für Blöcke, die NICHT Luft sind
-	 * if (world[row][col] != null && world[row][col].getId() != 0) {
-	 * lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK)); } else {
-	 * lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
-	 * } lbl.repaint(); }
-	 */
+	
+	private JLabel highlightAt(int row, int col) {
+		JLabel lbl = worldLabels[row][col];
+		if (!isInside(row, col)) {
+			return null;
+		} 
+		if (lastHlRow >= 0 && lastHlCol >= 0) {
+			unhighlightAt(lastHlRow, lastHlCol);
+			
+		}
+		lastHlRow=row;
+		lastHlCol=col;
+		lbl.setOpaque(true);
+		lbl.setBackground(new Color(37, 232, 7, 50));
+		lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
+		lbl.repaint();
+		return lbl;
+	}
+
+	private void unhighlightAt(int row, int col) {
+		JLabel lbl = worldLabels[row][col];
+		if (!isInside(row, col)) {
+			return;
+		}
+		lbl.setOpaque(false);
+		lbl.setBackground(null);
+		BlockModel block = world[row][col];
+		if (block != null && block.getId() != 0) { // Prüfung ob Block vorhanden und NICHT Luft
+			lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		} else {
+			lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
+		}
+		lbl.repaint();
+	}
+	 
 
 	/**
 	 * Ersetzt den Block an der angegebenen Weltposition durch einen neuen Blocktyp.
