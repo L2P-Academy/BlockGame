@@ -57,6 +57,39 @@ public class GameView extends JFrame {
 	private int blockSize;
 	private final java.util.Map<String, ImageIcon> iconCache = new HashMap<>();
 	private InventoryView inventoryView;
+	private enum PlayerAnim { IDLE, WALK_LEFT, WALK_RIGHT }
+	private PlayerAnim currentAnim = PlayerAnim.IDLE;		// Aktueller Animationzustand
+	private boolean leftDown = false, rightDown = false;	// Tastenzustand
+	
+	/**
+	 * Liefert den Ressourcenpfad (Klassenpfad) zum GIF passend zum übergebenen Animationszustand.
+	 *
+	 * @param anim gewünschter Animationszustand
+	 * @return Klassenpfad zur entsprechenden GIF-Datei (z. B. {@code "/res/img/player_WALK_LEFT_72px.gif"})
+	 * @author Marc
+	 */
+	private String animPath(PlayerAnim anim) { 				
+		switch (anim) {
+			case WALK_LEFT:  return "/res/img/player_WALK_LEFT_72px.gif";
+			case WALK_RIGHT: return "/res/img/player_WALK_RIGHT_72px.gif";
+			default:         return "/res/img/player_IDLE_72px.gif";
+		}
+	}
+
+	
+
+	/**
+	 * Wendet den aktuell gesetzten Animationszustand auf das {@code playerLbl} an.
+	 * <p>
+	 * Skaliert das entsprechende (ggf. animierte) GIF auf die aktuelle {@code blockSize}
+	 * und setzt es als Icon. Falls die Ressource nicht gefunden wird, bleibt das vorhandene Icon erhalten.
+	 * </p>
+	 */
+	private void applyPlayerAnim() {
+		if (playerLbl == null) return;
+		ImageIcon icon = getScaledIcon(animPath(currentAnim), blockSize, true);
+		if (icon != null) playerLbl.setIcon(icon);
+	}
 
 
 	public static GameView getInstance() {
@@ -168,9 +201,16 @@ public class GameView extends JFrame {
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
 				"toggleMenu");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "moveUp");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("A"), "moveLeft");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("S"), "moveDown");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("D"), "moveRight");
+		var im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		var am = getRootPane().getActionMap();
+
+		im.put(KeyStroke.getKeyStroke("pressed A"),  "pressLeft");
+		im.put(KeyStroke.getKeyStroke("released A"), "releaseLeft");
+		im.put(KeyStroke.getKeyStroke("pressed D"),  "pressRight");
+		im.put(KeyStroke.getKeyStroke("released D"), "releaseRight");
+		
+	
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"),
 				"toggleBuildOrMineMode");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("C"), "openCrafting");
@@ -209,14 +249,24 @@ public class GameView extends JFrame {
 
 			}
 		});
-		getRootPane().getActionMap().put("moveLeft", new AbstractAction() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
+		am.put("pressLeft", new AbstractAction() {
+			@Override public void actionPerformed(ActionEvent e) {
+				leftDown = true;
+				currentAnim = PlayerAnim.WALK_LEFT;
+				applyPlayerAnim();
+				// optional einmal bewegen (dein bisheriges Verhalten):
 				movePlayer(0, -1);
-
 			}
 		});
+		am.put("releaseLeft", new AbstractAction() {
+			@Override public void actionPerformed(ActionEvent e) {
+				leftDown = false;
+				// Wenn rechts noch gehalten wird → weiter rechts laufen, sonst Idle
+				currentAnim = rightDown ? PlayerAnim.WALK_RIGHT : PlayerAnim.IDLE;
+				applyPlayerAnim();
+			}
+		});
+
 		getRootPane().getActionMap().put("moveDown", new AbstractAction() {
 
 			@Override
@@ -225,12 +275,23 @@ public class GameView extends JFrame {
 
 			}
 		});
-		getRootPane().getActionMap().put("moveRight", new AbstractAction() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
+		am.put("pressRight", new AbstractAction() {
+			
+			@Override public void actionPerformed(ActionEvent e) {
+				rightDown = true;
+				currentAnim = PlayerAnim.WALK_RIGHT;
+				applyPlayerAnim();
+				// optional einmal bewegen:
 				movePlayer(0, +1);
-
+			}
+		});
+		am.put("releaseRight", new AbstractAction() {
+			
+			@Override public void actionPerformed(ActionEvent e) {
+				rightDown = false;
+				// Wenn links noch gehalten wird → weiter links laufen, sonst Idle
+				currentAnim = leftDown ? PlayerAnim.WALK_LEFT : PlayerAnim.IDLE;
+				applyPlayerAnim();
 			}
 		});
 		getRootPane().getActionMap().put("toggleBuildOrMineMode", new AbstractAction() {
@@ -244,9 +305,14 @@ public class GameView extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
     
-		// Spieler-Label (animiertes GIF) statt highlight
-		ImageIcon playerIcon = getScaledIcon("/res/img/player_IDLE_72px.gif", blockSize, true);
-		playerLbl = new JLabel(playerIcon);
+		// Spieler-Label erzeugen und aktuelle Animation anwenden (startet in IDLE)
+		playerLbl = new JLabel();
+		/**
+		 * Initialisiert das Spieler-Label mit der zum Start passenden Animation.
+		 * Nutzt {@link #applyPlayerAnim()}, um direkt auf die aktuelle {@code blockSize} zu skalieren.
+		 */
+		applyPlayerAnim();
+
 		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
@@ -695,8 +761,8 @@ public class GameView extends JFrame {
 
 		// Spieler neu setzen
 		if (playerLbl != null) {
-			ImageIcon playerIcon = getScaledIcon("/res/img/player_IDLE_72px.gif", blockSize, true);
-			playerLbl.setIcon(playerIcon);
+			applyPlayerAnim();
+
 			playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 			worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 			worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
