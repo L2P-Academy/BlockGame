@@ -34,7 +34,9 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
+import blockGame.GameState;
 import blockGame.controller.SoundController;
+import blockGame.controller.XMLController;
 import blockGame.model.BlockModel;
 import blockGame.model.BlockRepository;
 import java.awt.event.KeyEvent;
@@ -641,9 +643,23 @@ public class GameView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
-				SaveGameView loadGame = new SaveGameView();
-				loadGame.setAlwaysOnTop(true);
+				GameState gameState = new GameState(ROWS, COLS, playerRow, playerCol);
+				for (int r = 0; r < ROWS; r++) {
+					for (int c = 0; c < COLS; c++) {
+						if (world[r][c] != null) {
+							gameState.putBlock(c, r, world[r][c].getId());
+						}
+					}
+				}
+				
+				//XML write process
+				XMLController xmlController = new XMLController(gameState);
+				xmlController.writeSaveGameFileXML();
 
+				javax.swing.JOptionPane.showMessageDialog(GameView.this,
+						"Spiel erfolgreich gespeichert!",
+						"Speichern",
+						javax.swing.JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 

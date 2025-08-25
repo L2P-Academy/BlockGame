@@ -25,8 +25,12 @@ import blockGame.GameState;
 public class XMLController {
 	
 	// Filepaths
-	private String saveGamePath = "res/savegames/saveGame.xml";
+	private String saveGamePath = "savegames/saveGame.xml";
 	private GameState gameState;
+	
+	public XMLController(GameState gameState) {
+		this.gameState = gameState;
+	}
 	
 	// create empty XML-File if none exists for coordinates
 	public void writeSaveGameFileXML() {
@@ -78,6 +82,12 @@ public class XMLController {
 			Transformer transformer = tf.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			
+			File file = new File(saveGamePath);
+			file.getParentFile().mkdirs();
+			transformer.transform(new DOMSource(doc), new StreamResult(file));
+			
+			System.out.println("Savegame gespeichert unter: " + file.getAbsolutePath());
 			
 			// possible exceptions
 		} catch (ParserConfigurationException e) {
