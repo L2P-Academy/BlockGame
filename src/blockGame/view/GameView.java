@@ -250,7 +250,8 @@ public class GameView extends JFrame {
 		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
-
+		
+		
 		// Resize-Handling (debounced)
 		addComponentListener(new java.awt.event.ComponentAdapter() {
 			private Timer debounce;
@@ -294,14 +295,20 @@ public class GameView extends JFrame {
 			worldLabels[playerRow][playerCol].remove(playerLbl);
 			worldLabels[playerRow][playerCol].revalidate();
 			worldLabels[playerRow][playerCol].repaint();
+			
 		}
 		playerRow = newRow;
 		playerCol = newCol;
 		// neuen Platz setzen
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
+		worldLabels[playerRow][playerCol].setComponentZOrder(playerLbl, 0);
 		worldLabels[playerRow][playerCol].revalidate();
 		worldLabels[playerRow][playerCol].repaint();
+		
+		
+
+	    
 	}
 
 	// Block Mapping & Randomizer
