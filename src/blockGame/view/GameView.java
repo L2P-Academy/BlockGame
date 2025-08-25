@@ -151,7 +151,7 @@ public class GameView extends JFrame {
 		worldWrapperPnl.setOpaque(false);
 		worldWrapperPnl.add(blockPnl);
 
-		// Erste Tilegröße bestimmen
+		// Erste Blockgröße bestimmen
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		blockSize = computeBlockSize(screenSize.width, screenSize.height);
 		applyPreferredWorldSize();
@@ -243,16 +243,15 @@ public class GameView extends JFrame {
 
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
-		
-		// >>> CHANGED: Spieler-Label (animiertes GIF) statt highlight
+    
+		// Spieler-Label (animiertes GIF) statt highlight
 		ImageIcon playerIcon = getScaledIcon("/res/img/player_IDLE_72px.gif", blockSize, true);
 		playerLbl = new JLabel(playerIcon);
 		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
 
-		// >>> ADDED: Resize-Handling (debounced)
+		// Resize-Handling (debounced)
 		addComponentListener(new java.awt.event.ComponentAdapter() {
 			private Timer debounce;
 
@@ -278,6 +277,12 @@ public class GameView extends JFrame {
 	    } 
 	
 
+	/**
+	 * Moves the player-Label to any side.
+	 * @param dRow sets the direction of the row, positive = downwards
+	 * @param dCol sets the direction of the column, positive = right side
+	 * @author Marc, Christoph
+	 */
 	private void movePlayer(int dRow, int dCol) {
 		int newRow = playerRow + dRow;
 		int newCol = playerCol + dCol;
@@ -319,6 +324,12 @@ public class GameView extends JFrame {
 	 * Copper 7, new int[]{20, 32}, // Gold 8, new int[]{25, 32} // Diamond );
 	 */
 
+	/**
+	 * Gets a random Block from the BlockRepository-Class.
+	 * @param x the Block row
+	 * @param y the Block col
+	 * @return A BlockModel for world generation.
+	 */
 	private BlockModel getRandomBlock(int x, int y) {
 		double totalWeight = blockChances.values().stream().mapToDouble(Double::doubleValue).sum();
 		double rand = Math.random() * totalWeight;
@@ -341,6 +352,10 @@ public class GameView extends JFrame {
 	private BlockModel[][] world = new BlockModel[ROWS][COLS];
 	private JLabel[][] worldLabels = new JLabel[ROWS][COLS];
 
+	/**
+	 * Fills the blockPanel of the game world with randomized blocks.
+	 * @author Christoph
+	 */
 	private void fillBlockPanelRandomly() {
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
@@ -391,6 +406,20 @@ public class GameView extends JFrame {
 	 * } lbl.repaint(); }
 	 */
 
+	/**
+	 * Ersetzt den Block an der angegebenen Weltposition durch einen neuen Blocktyp.
+	 * <p>
+	 * Validiert zuerst die Koordinaten, holt das Block-Template aus dem {@link BlockRepository},
+	 * erzeugt daraus ein neues {@link BlockModel} (mit korrekten Weltkoordinaten) und
+	 * aktualisiert anschließend die UI via {@link #refreshBlockLabel(int, int)}.
+	 * </p>
+	 *
+	 * @param row Zeilenindex in der Welt (0-basiert)
+	 * @param col Spaltenindex in der Welt (0-basiert)
+	 * @param newBlockByID ID des Ziel-Blocks (z. B. 0 = Luft, 1 = Dirt, …)
+	 * @author Marc
+	 */
+
 	public void replaceBlockAt(int row, int col, int newBlockByID) {
 		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
 		if (!isInside(row, col))
@@ -408,7 +437,20 @@ public class GameView extends JFrame {
 		refreshBlockLabel(row, col);
 	}
 
-	// Schalter zum Wechseln zw. BUILD_MODE und MINE_MODE
+	
+	/**
+	 * Schaltet an der angegebenen Weltposition zwischen Bauen und Abbauen um.
+	 * <p>
+	 * Wenn am Ziel kein Luft-Block (ID != 0) liegt, wird er zu Luft (abbauen).
+	 * Liegt dort Luft (ID == 0), wird Dirt (ID 1) platziert (bauen).
+	 * Intern nutzt die Methode {@link #replaceBlockAt(int, int, int)}.
+	 * </p>
+	 *
+	 * @param row Zeilenindex in der Welt (0-basiert)
+	 * @param col Spaltenindex in der Welt (0-basiert)
+	 * @author Marc
+	 */
+
 	public void toggleBuildOrMineMode(int row, int col) {
 		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
 		if (!isInside(row, col))
@@ -426,12 +468,35 @@ public class GameView extends JFrame {
 		}
 	}
 
-	// Prüft ob Koordinaten innerhalb des Bereichs liegen
+	/**
+	 * Prüft, ob die übergebenen Weltkoordinaten innerhalb der gültigen Grenzen liegen.
+	 *
+	 * @param row Zeilenindex in der Welt (0-basiert)
+	 * @param col Spaltenindex in der Welt (0-basiert)
+	 * @return {@code true}, wenn 0 ≤ row &lt; ROWS und 0 ≤ col &lt; COLS; sonst {@code false}
+	 * @author Marc
+	 */
+
 	private boolean isInside(int row, int col) {
 		return row >= 0 && row < ROWS && col >= 0 && col < COLS;
 	}
 
-	// Aktualisiert das Label für den Block an der angegebenen Position
+	/**
+	 * Aktualisiert das UI-Label für den Block an der angegebenen Position.
+	 * <p>
+	 * Entfernt vorhandene UI-Komponenten, setzt die PreferredSize auf die aktuelle {@code blockSize},
+	 * fügt (sofern kein Luft-Block) das skalierte Textur-Icon hinzu und stellt den passenden Rahmen ein.
+	 * Abschließend werden {@code revalidate()} und {@code repaint()} aufgerufen.
+	 * </p>
+	 *
+	 * <p><b>Hinweis:</b> Erwartet, dass {@code world[row][col]} und {@code worldLabels[row][col]}
+	 * initialisiert sind.</p>
+	 *
+	 * @param row Zeilenindex in der Welt (0-basiert)
+	 * @param col Spaltenindex in der Welt (0-basiert)
+	 * @author Marc
+	 */
+
 	private void refreshBlockLabel(int row, int col) {
 		JLabel lbl = worldLabels[row][col];
 		if (lbl == null) {
@@ -454,6 +519,10 @@ public class GameView extends JFrame {
 		lbl.repaint();
 	}
 
+	/**
+	 * Shows the Pause Menu and Game Dialog for saving, closing and resuming etc. the game.
+	 * @author Christoph
+	 */
 	private void showPauseMenu() {
 		JDialog pauseDialog = new JDialog(this, "PAUSE", true);
 		pauseDialog.setSize(400, 600);
@@ -552,6 +621,20 @@ public class GameView extends JFrame {
 		blockPnl.revalidate();
 	}
 
+	/**
+	 * Berechnet die dynamische Blockgröße ({@code blockSize}) in Pixeln für die aktuelle Fensterfläche.
+	 * <p>
+	 * Zieht die Höhe der Tool-Leiste ab und bestimmt dann die größtmögliche quadratische Kachelgröße,
+	 * die sowohl in die verfügbare Breite (COLS) als auch in die verfügbare Höhe (ROWS) passt.
+	 * Das Ergebnis wird auf einen sinnvollen Bereich geklemmt (mindestens 24 px, höchstens 2× BASE_BLOCK_SIZE).
+	 * </p>
+	 *
+	 * @param availW verfügbare Breite in Pixeln
+	 * @param availH verfügbare Höhe in Pixeln
+	 * @return berechnete Kachelgröße in Pixeln
+	 * @author Marc
+	 */
+
 	private int computeBlockSize(int availW, int availH) {
 		// Tool-Leiste oben abziehen, damit das Grid passt
 		int toolH = (toolPnl != null) ? toolPnl.getPreferredSize().height : 0;
@@ -568,6 +651,22 @@ public class GameView extends JFrame {
 		size = Math.max(24, Math.min(size, (int) Math.floor(BASE_BLOCK_SIZE * 2.0)));
 		return size;
 	}
+
+	/**
+	 * Reagiert auf Größenänderungen des Fensters und baut die Darstellung konsistent neu auf.
+	 * <p>
+	 * Schritte:
+	 * <ol>
+	 *   <li>Neue {@code blockSize} via {@link #computeBlockSize(int, int)} berechnen.</li>
+	 *   <li>Für jede Zelle die PreferredSize setzen und das Block-Icon neu skalieren.</li>
+	 *   <li>Spieler-Icon entsprechend neu skalieren und das {@code playerLbl} in der aktuellen Zelle platzieren.</li>
+	 *   <li>{@link #applyPreferredWorldSize()} aufrufen, anschließend {@code revalidate()} und {@code repaint()}.</li>
+	 * </ol>
+	 * Führt nur Arbeit aus, wenn sich die {@code blockSize} tatsächlich geändert hat.
+	 * </p>
+	 * 
+	 * @author Marc
+	 */
 
 	private void onResizeRebuild() {
 		int newSize = computeBlockSize(getWidth(), getHeight());
@@ -607,6 +706,25 @@ public class GameView extends JFrame {
 		blockPnl.revalidate();
 		blockPnl.repaint();
 	}
+
+	/**
+	 * Gibt ein skaliertes (und gecachtes) {@link ImageIcon} für den angegebenen Ressourcenpfad zurück.
+	 * <p>
+	 * Unterstützt:
+	 * <ul>
+	 *   <li><b>PNG</b>: Skalierung mit Nearest-Neighbor (scharfe Pixelart).</li>
+	 *   <li><b>GIF (animiert)</b>: einfache Laufzeit-Skalierung; je nach JVM können Animationsdetails variieren.</li>
+	 * </ul>
+	 * Ergebnisse werden per Key {@code "path@size#gif|#static"} im Speicher gecacht, um
+	 * erneute Decodes/Skalierungen zu vermeiden.
+	 * </p>
+	 *
+	 * @param path Klassenpfad zur Ressource (z. B. {@code "/res/img/player_IDLE_72px.gif"})
+	 * @param size Zielgröße (Breite = Höhe) in Pixeln
+	 * @param isAnimatedGif {@code true}, wenn es sich um ein animiertes GIF handelt
+	 * @return skaliertes {@link ImageIcon} oder {@code null}, wenn die Ressource nicht gefunden wurde
+	 * @author Marc
+	 */
 
 	private ImageIcon getScaledIcon(String path, int size, boolean isAnimatedGif) {
 		String key = path + "@" + size + (isAnimatedGif ? "#gif" : "#static");
