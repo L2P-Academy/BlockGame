@@ -126,7 +126,11 @@ public class StartMenuView extends JFrame {
 		setVisible(true); // Sichtbarkeit setzen
 	}
 	
-	// Modify Buttons
+	/**
+	 * Sets the Background, Foreground, Font & Border of a Button. Adds a MouseListener for Coloring.
+	 * @param The target-Button for modification
+	 * @author Christoph
+	 */
 		public static void beautifyButton(JButton button) {
 			button.setFocusPainted(false);
 			button.setBackground(new Color(16, 62, 161));
