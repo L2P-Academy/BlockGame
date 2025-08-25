@@ -37,6 +37,8 @@ import javax.swing.Timer;
 import blockGame.controller.SoundController;
 import blockGame.model.BlockModel;
 import blockGame.model.BlockRepository;
+import java.awt.event.KeyEvent;
+
 
 public class GameView extends JFrame {
 	private JLabel toolLbl0, toolLbl1, toolLbl2, toolLbl3, toolLbl4, toolLbl5, toolLbl6, toolLbl7, toolLbl8, toolLbl9,
@@ -54,6 +56,8 @@ public class GameView extends JFrame {
 	private static final int BASE_BLOCK_SIZE = 72; // Baseline 72px @1440p
 	private int blockSize;
 	private final java.util.Map<String, ImageIcon> iconCache = new HashMap<>();
+	private InventoryView inventoryView;
+
 
 	public static GameView getInstance() {
 		return instance;
@@ -159,7 +163,8 @@ public class GameView extends JFrame {
 
 		getContentPane().add(backgroundPnl);
 
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('i'), "openInventory");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+        .put(KeyStroke.getKeyStroke("I"), "toggleInventory");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
 				"toggleMenu");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "moveUp");
@@ -182,16 +187,11 @@ public class GameView extends JFrame {
 
 		});
 		
-		getRootPane().getActionMap().put("openInventory", new AbstractAction() {
-
-			@Override
-
-			public void actionPerformed(ActionEvent e) {
-
-				InventoryView inventory = new InventoryView();
-
-			}
-
+		getRootPane().getActionMap().put("toggleInventory", new AbstractAction() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        toggleInventory();
+		    }
 		});
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
 
@@ -243,6 +243,8 @@ public class GameView extends JFrame {
 
 		setLocationRelativeTo(null);
 		setVisible(true);
+		
+		
 		// >>> CHANGED: Spieler-Label (animiertes GIF) statt highlight
 		ImageIcon playerIcon = getScaledIcon("/res/img/player_IDLE_72px.gif", blockSize, true);
 		playerLbl = new JLabel(playerIcon);
@@ -269,6 +271,12 @@ public class GameView extends JFrame {
 			}
 		});
 	}
+	private void toggleInventory() {
+	    
+	        inventoryView = new InventoryView();
+	       
+	    }
+	
 
 	private void movePlayer(int dRow, int dCol) {
 		int newRow = playerRow + dRow;
