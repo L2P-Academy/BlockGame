@@ -4,6 +4,14 @@ package blockGame.model;
 
 public class ItemModel {
 	
+	/**
+	 * *	 
+	 * * Contains Information about blocks and their parameters.
+	 */
+	
+	
+	
+	
 	//attributes
 	private int id;
 	private String itemTyp;
@@ -11,6 +19,19 @@ public class ItemModel {
 	private int tier;
 	private String textureImagePath;
 
+	/**
+	 * *
+	 * *
+	 * Constructor to initialize an item
+	 * @param id: The Number/ID for Blocks of the Block-Repository
+	 * @param itemTyp: Item_Type defines the Type of item. (Blocks)
+	 * @param itemName: Name of Blocks, "Coal" for example.
+	 * @param tier: Parameter which defines the required Tool by number. This numbers can be found in the Block-Repository
+	 * @param textureImagePath: The path of the image source
+	 * @author Adrian
+	 * 
+	 */
+	
 	//Constructor
 	public ItemModel(int id, String itemTyp, String itemName, int tier,  String textureImagePath) {
 		this.id = id;
@@ -20,7 +41,11 @@ public class ItemModel {
 		this.textureImagePath = textureImagePath;
 	}
 
-
+/**
+ * Sets and gets parameters
+ * @return id,itemTyp,itemName,tier, textureImagePath,
+ */
+	
 	//Getter und Setter
 	public int getId() {
 		return id;
