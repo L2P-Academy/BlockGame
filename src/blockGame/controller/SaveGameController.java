@@ -91,28 +91,29 @@ public class SaveGameController {
     }
 
     /**
-     * lists existing game saves 
-     * @param directoryPath
-     * @return a list of found savegames as a File[] variable
+     * gets a list of saved savegame files 
+     * @return returns a list of saved savegame files variable type File[], 6needs to import java.io.* 
      * @author Vladi und Jörg
      */
-    public static void listSavegames(String directoryPath) {
-        File ordner = new File(directoryPath);
+    public static File[] listSavegames() {
+        File ordner = new File(savegamePath);
         
         if (!ordner.exists() || !ordner.isDirectory()) {
             System.err.println("Fehler: Der angegebene Pfad ist kein gültiges Verzeichnis.");
+            return new File[0]; // returns emty file list
         }
 
         File[] savegameFiles = ordner.listFiles((dir, name) -> name.toLowerCase().endsWith(".sav"));
 
         if (savegameFiles == null || savegameFiles.length == 0) {
             System.out.println("Keine Spielstände gefunden.");
+            return new File[0]; // returns emty file list
         } else {
             System.out.println("Gefundene Spielstände:");
-            // return savegameFiles;
             for (File datei : savegameFiles) {
-                System.out.println("- " + datei.getName()); //Ausgabe auf der Kommandozeile 
+                System.out.println("- " + datei.getName()); // Output to command interface 
             }
+            return savegameFiles; // returns savegame file list
         }
     }
 }
