@@ -5,11 +5,11 @@ import java.io.*;
 
 public class SaveGameController {
 
-    // Variablen (aktuell nicht genutzt, könnten entfernt oder verwendet werden)
-    public static String savegamePath = "/savegames";
-    private static String savegameFileName = "savegame1.sav"; // Dateiname
-    private static String savegameString; // nur Temporäre, wird nach Umschreibung auf XML-Format unnötig; kompletter String der in/aus Datei geschrieben/gelesen wird.
-    private static String splitString = "AAAA"; // nur Temporär, wird später unnötig. Vordefinierte Zeichenkette zum Abtrennen der einzelnenen Attribute des Charakters
+    // Variables (currently unused, can be removed or used)
+	public static String savegamePath = "/savegames";
+    private static String savegameFileName = "savegame1.sav"; // Filename
+    private static String savegameString; // only temporary
+    private static String splitString = "AAAA"; // only temporary, this string is used to delimit the stored data/character values 
 
     // Platzhalter / Methoden
     private static String positionX() {
@@ -20,21 +20,26 @@ public class SaveGameController {
         return "200";
     }
 
-    private static String charakterWerte() {
+    private static String characterStats() {
         return "Leben:100;Mana:50";
     }
 
-    private static String spielerInventar() {
+    private static String playerInventory() {
         return "Schwert,Bogen,Trank";
     }
+    
+    /**
+     * Saves a savegame into a file.
+     * @param fileName
+     * @param saveGameString
+     * @author Vladi und Jörg
+     */
+    public static void writeSavegame(String fileName, String saveGameString) {
+        savegameFileName = fileName;
+        //Savegamestring will be composed by character / data values splitted by splitString "AAAA". 
+        savegameString = positionX() + splitString + positionY() + splitString + characterStats() + splitString + playerInventory();
 
-// Spiel speichern
-    public static void writeSavegame(String dateiName, String spielStand) {
-        savegameFileName = dateiName;
-        //der Spielstandstring wird aus den einzelnene Charakterattributen jeweils getrennt durch den oben splitString mit dem Wert "AAAA" zusammengebaut 
-        savegameString = positionX() + splitString + positionY() + splitString + charakterWerte() + splitString + spielerInventar();
-
-        //der Spielstandstring wird in die Datei geschrieben 
+        //writing savegameString into file 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(savegameFileName))) {
             writer.write(savegameString);
             System.out.println("Spielstand erfolgreich gespeichert.");
@@ -43,23 +48,27 @@ public class SaveGameController {
         }
     }
 
-// Spielstand laden
-    public static void readSavegame(String dateiName) {
-        savegameFileName = dateiName;
+    /**
+     * loads a savegame from a file
+     * @param fileName
+     * @author Vladi und Jörg
+     */
+    public static void readSavegame(String fileName) {
+        savegameFileName = fileName;
         try (BufferedReader reader = new BufferedReader(new FileReader(savegameFileName))) {
             savegameString = reader.readLine();
             //Split des Savegamestrings in die einzelnenen Attribute (Charakterattribute werden durch Variable splitString getrennt)
             String[] daten = savegameString.split(splitString); 
             String posX = daten[0];
             String posY = daten[1];
-            String werte = daten[2];
-            String inventar = daten[3];
+            String charStats = daten[2];
+            String inventory = daten[3];
 
             //Platzhalter, derzeit Ausgabe der Charakterattribute des geladenen Spielstands
             System.out.println("Position X: " + posX);
             System.out.println("Position Y: " + posY);
-            System.out.println("Charakterwerte: " + werte);
-            System.out.println("Inventar: " + inventar);
+            System.out.println("Charakterwerte: " + charStats);
+            System.out.println("Inventar: " + inventory);
         } catch (IOException e) {
             System.err.println("Fehler beim Laden des Spielstands: " + e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -67,9 +76,13 @@ public class SaveGameController {
         }
     }
 
-// Spielstand löschen
-    public static void deleteSavegame(String dateiName) {
-        File file = new File(dateiName);
+    /**
+     * deletes a savegame file.
+     * @param fileName
+     * @author Vladi und Jörg
+     */
+    public static void deleteSavegame(String fileName) {
+        File file = new File(fileName);
         if (file.exists() && file.delete()) {
             System.out.println("Spielstand erfolgreich gelöscht.");
         } else {
@@ -77,23 +90,28 @@ public class SaveGameController {
         }
     }
 
-// Liste der vorhandenen Spielstände erstellen
+    /**
+     * lists existing game saves 
+     * @param directoryPath
+     * @return a list of found savegames as a File[] variable
+     * @author Vladi und Jörg
+     */
     public static void listSavegames(String directoryPath) {
         File ordner = new File(directoryPath);
-
+        
         if (!ordner.exists() || !ordner.isDirectory()) {
             System.err.println("Fehler: Der angegebene Pfad ist kein gültiges Verzeichnis.");
-            return;
         }
 
-        File[] dateien = ordner.listFiles((dir, name) -> name.toLowerCase().endsWith(".sav"));
+        File[] savegameFiles = ordner.listFiles((dir, name) -> name.toLowerCase().endsWith(".sav"));
 
-        if (dateien == null || dateien.length == 0) {
+        if (savegameFiles == null || savegameFiles.length == 0) {
             System.out.println("Keine Spielstände gefunden.");
         } else {
             System.out.println("Gefundene Spielstände:");
-            for (File datei : dateien) {
-                System.out.println("- " + datei.getName());
+            // return savegameFiles;
+            for (File datei : savegameFiles) {
+                System.out.println("- " + datei.getName()); //Ausgabe auf der Kommandozeile 
             }
         }
     }
