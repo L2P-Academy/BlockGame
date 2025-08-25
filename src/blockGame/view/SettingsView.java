@@ -195,6 +195,11 @@ public class SettingsView extends JFrame {
 		
 	}
 	
+	/**
+	 * Sets the Background, Foreground, Font & Border of a Button. Adds a MouseListener for Coloring.
+	 * @param The target-Button for modification
+	 * @author Christoph
+	 */
 		// Modify Buttons
 				public static void beautifyButton(JButton button) {
 					button.setFocusPainted(false);
