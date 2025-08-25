@@ -270,6 +270,12 @@ public class GameView extends JFrame {
 		});
 	}
 
+	/**
+	 * Moves the player-Label to any side.
+	 * @param dRow sets the direction of the row, positive = downwards
+	 * @param dCol sets the direction of the column, positive = right side
+	 * @author Marc, Christoph
+	 */
 	private void movePlayer(int dRow, int dCol) {
 		int newRow = playerRow + dRow;
 		int newCol = playerCol + dCol;
@@ -311,6 +317,12 @@ public class GameView extends JFrame {
 	 * Copper 7, new int[]{20, 32}, // Gold 8, new int[]{25, 32} // Diamond );
 	 */
 
+	/**
+	 * Gets a random Block from the BlockRepository-Class.
+	 * @param x the Block row
+	 * @param y the Block col
+	 * @return A BlockModel for world generation.
+	 */
 	private BlockModel getRandomBlock(int x, int y) {
 		double totalWeight = blockChances.values().stream().mapToDouble(Double::doubleValue).sum();
 		double rand = Math.random() * totalWeight;
@@ -333,6 +345,10 @@ public class GameView extends JFrame {
 	private BlockModel[][] world = new BlockModel[ROWS][COLS];
 	private JLabel[][] worldLabels = new JLabel[ROWS][COLS];
 
+	/**
+	 * Fills the blockPanel of the game world with randomized blocks.
+	 * @author Christoph
+	 */
 	private void fillBlockPanelRandomly() {
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
@@ -383,6 +399,7 @@ public class GameView extends JFrame {
 	 * } lbl.repaint(); }
 	 */
 
+	
 	public void replaceBlockAt(int row, int col, int newBlockByID) {
 		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
 		if (!isInside(row, col))
@@ -446,6 +463,10 @@ public class GameView extends JFrame {
 		lbl.repaint();
 	}
 
+	/**
+	 * Shows the Pause Menu and Game Dialog for saving, closing and resuming etc. the game.
+	 * @author Christoph
+	 */
 	private void showPauseMenu() {
 		JDialog pauseDialog = new JDialog(this, "PAUSE", true);
 		pauseDialog.setSize(400, 600);
