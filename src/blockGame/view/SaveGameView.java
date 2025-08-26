@@ -21,6 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
+import blockGame.GameState;
 import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
 
@@ -64,7 +65,7 @@ public class SaveGameView extends JFrame {
 	 * - Buttons with custom styles
 	 * Also initializes button listeners with sound effects.
 	 */
-	public SaveGameView() {
+	public SaveGameView(GameState gameState) {
 		instance = this;
 		setAlwaysOnTop(true);                        // keep window on top
 		setTitle("Load Game - PixelMine");           // window title
