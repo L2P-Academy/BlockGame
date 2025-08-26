@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.net.URL;
@@ -26,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
@@ -349,10 +351,27 @@ public class GameView extends JFrame {
 		for(int r = 0; r < ROWS; r++) {
 			for(int c = 0; c < COLS; c++) {
 				int id = gameState.getBlock(c, r);
-				BlockModel block = BlockRepository.getBlockByID(id);
-				
+				BlockModel blockTemplate = BlockRepository.getBlockByID(id);
+				BlockModel newBlock = new BlockModel(id, "Block", blockTemplate.getItemName(), 
+						blockTemplate.getTier(), c, r, blockTemplate.getTextureImagePath());
+				world[r][c] = newBlock;
+				refreshBlockLabel(r, c);
+							
 			}
 		}
+		playerRow = gameState.getPlayerRow();
+		playerCol = gameState.getPlayerCol();
+		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
+		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER); 
+		worldLabels[playerRow][playerCol].revalidate();
+		worldLabels[playerRow][playerCol].repaint();
+	    if (lastHlRow >= 0 && lastHlCol >= 0) {
+	        unhighlightAt(lastHlRow, lastHlCol);
+	    }
+	    highlightAt(playerRow, playerCol + 1);
+	 
+	    blockPnl.revalidate();
+	    blockPnl.repaint();
 	}
 	
 	/**
@@ -672,8 +691,12 @@ public class GameView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
-				SaveGameView loadGame = new SaveGameView();
-				loadGame.setAlwaysOnTop(true);
+				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
+				GameView gameView = getInstance();
+				gameView.loadGameState(gameState);
+				JOptionPane.showMessageDialog(GameView.this, "Spiel geladen!", "Laden", JOptionPane.INFORMATION_MESSAGE);
+//				SaveGameView saveGameView = new SaveGameView();
+//				saveGameView.setAlwaysOnTop(true);
 
 			}
 		});

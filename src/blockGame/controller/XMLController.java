@@ -46,7 +46,7 @@ public class XMLController {
 	 * Return a gamestate from XML 
 	 * @return
 	 */
-	public GameState readSaveGameFromXML(File xmlFile) {
+	public static GameState readSaveGameFromXML(File xmlFile) {
 		// Startpunkt: SaveGameView -> Datei darstellen -> Logik zum Auswählen/Laden in der View
 		// 1. Datei einlesen (File-Objekt) -> GameView lädt Datei (oder Launcher?)
 		try {
