@@ -7,9 +7,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-//import java.util.Iterator;
 import java.util.Map;
-//import java.util.Random;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,7 +27,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-//import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
@@ -39,7 +36,6 @@ import blockGame.controller.SoundController;
 import blockGame.controller.XMLController;
 import blockGame.model.BlockModel;
 import blockGame.model.BlockRepository;
-import java.awt.event.KeyEvent;
 
 
 public class GameView extends JFrame {
@@ -321,6 +317,7 @@ public class GameView extends JFrame {
 		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
+		highlightAt(playerRow, playerCol +1);
 		
 		
 		// Resize-Handling (debounced)
@@ -344,7 +341,7 @@ public class GameView extends JFrame {
 	}
 	private void toggleInventory() {
 	    
-	        inventoryView = new InventoryView();
+	        new InventoryView();
 	       
 	    } 
 	
@@ -361,15 +358,23 @@ public class GameView extends JFrame {
 		if (newRow < 0 || newRow >= ROWS || newCol < 0 || newCol >= COLS) {
 			return;
 		}
+		JLabel mineLbl = highlightAt(newRow, newCol + 1);
+		
 		// alten Platz räumen
+		if (mineLbl != null && worldLabels[playerRow][playerCol] != null) {
+			worldLabels[playerRow][playerCol+1].remove(mineLbl);
+			worldLabels[playerRow][playerCol+1].revalidate(); 
+			worldLabels[playerRow][playerCol+1].repaint();
+		}
 		if (playerLbl != null && worldLabels[playerRow][playerCol] != null) {
 			worldLabels[playerRow][playerCol].remove(playerLbl);
 			worldLabels[playerRow][playerCol].revalidate();
 			worldLabels[playerRow][playerCol].repaint();
 			
-		}
+		}		
 		playerRow = newRow;
 		playerCol = newCol;
+		
 		// neuen Platz setzen
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
@@ -393,14 +398,17 @@ public class GameView extends JFrame {
 			Map.entry(8, 0.03), // Diamond
 			Map.entry(9, 0.08), // Clay
 			Map.entry(10, 0.05) // Water
-	);
+	);	
 
 	// ungenutzt momentan, da die Tiefe nicht berücksichtigt wird
-	/*
-	 * private static final Map<Integer, int[]> DEPTH_RANGES = Map.of( 4, new
-	 * int[]{5, 15}, // Coal 5, new int[]{10, 20}, // Iron 6, new int[]{15, 25}, //
-	 * Copper 7, new int[]{20, 32}, // Gold 8, new int[]{25, 32} // Diamond );
-	 */
+	private static final Map<Integer, int[]> DEPTH_RANGES = Map.of(
+			4, new int[] { 5, 15 }, // Coal
+			5, new int[] { 10, 20 }, // Iron
+			6, new int[] { 15, 25 }, // Copper
+			7, new int[] { 20, 32 }, // Gold
+			8, new int[] { 25, 32 } // Diamond
+	);
+	 
 
 	/**
 	 * Gets a random Block from the BlockRepository-Class.
@@ -554,15 +562,15 @@ public class GameView extends JFrame {
 		if (!isInside(row, col))
 			return;
 
-		BlockModel current = world[row][col];
+		BlockModel current = world[row][col+1];
 		int currentId = (current != null) ? current.getId() : 0;
 
 		if (currentId != 0) {
 			// abbauen -> Luft
-			replaceBlockAt(row, col, 0);
+			replaceBlockAt(row, col+1, 0);
 		} else {
 			// bauen -> Dirt
-			replaceBlockAt(row, col, 1);
+			replaceBlockAt(row, col+1, 1);
 		}
 	}
 
