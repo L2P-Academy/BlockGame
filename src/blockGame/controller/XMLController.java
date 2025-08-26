@@ -69,8 +69,8 @@ public class XMLController {
 			int cols = Integer.parseInt(worldElement.getAttribute("cols"));
 			// Player position
 			Element playerElement = (Element) rootElement.getElementsByTagName("player").item(0);			
-			int pRow = Integer.parseInt(worldElement.getAttribute("row"));
-			int pCol = Integer.parseInt(worldElement.getAttribute("col"));
+			int pRow = Integer.parseInt(playerElement.getAttribute("row"));
+			int pCol = Integer.parseInt(playerElement.getAttribute("col"));
 
 			GameState gameState = new GameState(rows, cols, pRow, pCol);
 						
@@ -78,9 +78,9 @@ public class XMLController {
 			NodeList blockNodes = rootElement.getElementsByTagName("b");
 			for(int i = 0; i < blockNodes.getLength(); i++) {
 				Element blockElement = (Element) blockNodes.item(i);
-				int c = Integer.parseInt(worldElement.getAttribute("c"));
-				int id = Integer.parseInt(worldElement.getAttribute("id"));
-				int r = Integer.parseInt(worldElement.getAttribute("r"));
+				int c = Integer.parseInt(blockElement.getAttribute("c"));
+				int id = Integer.parseInt(blockElement.getAttribute("id"));
+				int r = Integer.parseInt(blockElement.getAttribute("r"));
 				gameState.putBlock(c, r, id);
 			}
 			
