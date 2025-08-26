@@ -32,7 +32,20 @@ public class XMLController {
 		this.gameState = gameState;
 	}
 	
-	// create empty XML-File if none exists for coordinates
+	// read XML-File from "savegames/saveGame.xml"
+	public void readSaveGameFromXML() {
+		// Startpunkt: SaveGameView -> Datei darstellen -> Logik zum Auswählen/Laden in der View
+		// 1. Datei einlesen (File-Objekt) -> GameView lädt Datei (oder Launcher?)
+		
+		// 2. XML-Elemente einlesen und in GameState ablegen (Festplatte -> RAM)
+		
+		// 		- Weltgröße, Spielerposition, Blöcke mit Koordinaten & IDs
+		
+		// 3. GameView verwendet dann die GameState zum Aufbau der Spielwelt
+		
+	}
+	
+	// create XML-File if none exists for coordinates
 	public void writeSaveGameFileXML() {
 		new File(saveGamePath);
 		
