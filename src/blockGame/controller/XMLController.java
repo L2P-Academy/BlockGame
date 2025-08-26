@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.Map;
 
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,6 +19,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import blockGame.GameState;
 
@@ -31,18 +33,65 @@ public class XMLController {
 	public XMLController(GameState gameState) {
 		this.gameState = gameState;
 	}
-	
+	/**
+	 * Returns savegame as a file
+	 * @return
+	 */
+	public GameState readSaveGameFromXML() {
+		return readSaveGameFromXML(new File(saveGamePath));
+		
+	}
 	// read XML-File from "savegames/saveGame.xml"
-	public void readSaveGameFromXML() {
+	/**
+	 * Return a gamestate from XML 
+	 * @return
+	 */
+	public GameState readSaveGameFromXML(File xmlFile) {
 		// Startpunkt: SaveGameView -> Datei darstellen -> Logik zum Auswählen/Laden in der View
 		// 1. Datei einlesen (File-Objekt) -> GameView lädt Datei (oder Launcher?)
-		
-		// 2. XML-Elemente einlesen und in GameState ablegen (Festplatte -> RAM)
-		
-		// 		- Weltgröße, Spielerposition, Blöcke mit Koordinaten & IDs
-		
-		// 3. GameView verwendet dann die GameState zum Aufbau der Spielwelt
-		
+		try {
+			if(!xmlFile.exists()) {
+				System.err.println("Savegame Datei nicht gefunden!"+xmlFile.getAbsolutePath());
+				return null;
+			}
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			Document doc = documentBuilder.parse(xmlFile);
+			doc.getDocumentElement().normalize();
+			
+			Element rootElement = doc.getDocumentElement();
+			// 2. XML-Elemente einlesen und in GameState ablegen (Festplatte -> RAM)
+			// 		- Weltgröße, Spielerposition, Blöcke mit Koordinaten & IDs
+			// World
+			
+			Element worldElement = (Element) rootElement.getElementsByTagName("world").item(0);
+			int rows = Integer.parseInt(worldElement.getAttribute("rows"));
+			int cols = Integer.parseInt(worldElement.getAttribute("cols"));
+			// Player position
+			Element playerElement = (Element) rootElement.getElementsByTagName("player").item(0);			
+			int pRow = Integer.parseInt(worldElement.getAttribute("row"));
+			int pCol = Integer.parseInt(worldElement.getAttribute("col"));
+
+			GameState gameState = new GameState(rows, cols, pRow, pCol);
+						
+			// Blocks information
+			NodeList blockNodes = rootElement.getElementsByTagName("b");
+			for(int i = 0; i < blockNodes.getLength(); i++) {
+				Element blockElement = (Element) blockNodes.item(i);
+				int c = Integer.parseInt(worldElement.getAttribute("c"));
+				int id = Integer.parseInt(worldElement.getAttribute("id"));
+				int r = Integer.parseInt(worldElement.getAttribute("r"));
+				gameState.putBlock(c, r, id);
+			}
+			
+			System.out.println("Savegame geladen von: " + xmlFile.getAbsolutePath());
+			return gameState;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Fehler beim lesen der Datei!");
+			return null;
+		}
 	}
 	
 	// create XML-File if none exists for coordinates

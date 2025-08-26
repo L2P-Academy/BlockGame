@@ -345,7 +345,16 @@ public class GameView extends JFrame {
 	       
 	    } 
 	
-
+	public void loadGameState(GameState gameState) {
+		for(int r = 0; r < ROWS; r++) {
+			for(int c = 0; c < COLS; c++) {
+				int id = gameState.getBlock(c, r);
+				BlockModel block = BlockRepository.getBlockByID(id);
+				
+			}
+		}
+	}
+	
 	/**
 	 * Moves the player-Label to any side.
 	 * @param dRow sets the direction of the row, positive = downwards
