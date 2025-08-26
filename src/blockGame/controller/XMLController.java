@@ -84,6 +84,16 @@ public class XMLController {
 				gameState.putBlock(c, r, id);
 			}
 			
+			// inventory
+			NodeList itemNodes = rootElement.getElementsByTagName("item");
+			for(int i = 0; i < itemNodes.getLength(); i++) {
+				Element blockElement = (Element) itemNodes.item(i);
+				int id = Integer.parseInt(blockElement.getAttribute("id"));
+				int number = Integer.parseInt(blockElement.getAttribute("number"));
+//				gameState.putInventory(id,number);
+//				System.out.println(id + " - " + String.valueOf(number) + " Stück");
+			}
+			
 			System.out.println("Savegame geladen von: " + xmlFile.getAbsolutePath());
 			return gameState;
 			
@@ -138,6 +148,21 @@ public class XMLController {
 		        b.setAttribute("id", String.valueOf(id));
 		        blocks.appendChild(b);
 		    });
+			
+			// inventory informations
+			Element inventory = doc.createElement("inventory");
+			rootElement.appendChild(inventory);
+			
+			// write items in order
+			int itemSlots = 20; 											// wildcard
+			for(int i = 0; i < itemSlots; i++) { 
+				Element item = doc.createElement("item");
+				int id = 3;												// wildcard 	
+				item.setAttribute("id", String.valueOf(id));
+				int numberOfPices = 23; 									// wildcard
+				item.setAttribute("number", String.valueOf(numberOfPices));	
+				inventory.appendChild(item);
+			}
 			
 			// write contents into file
 			TransformerFactory tf = TransformerFactory.newInstance();

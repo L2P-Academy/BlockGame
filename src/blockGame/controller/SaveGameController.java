@@ -100,14 +100,14 @@ public class SaveGameController {
         
         if (!ordner.exists() || !ordner.isDirectory()) {
             System.err.println("Fehler: Der angegebene Pfad ist kein gültiges Verzeichnis.");
-            return new File[0]; // returns emty file list
+            return new File[0]; // returns empty file list
         }
 
         File[] savegameFiles = ordner.listFiles((dir, name) -> name.toLowerCase().endsWith(".sav"));
 
         if (savegameFiles == null || savegameFiles.length == 0) {
             System.out.println("Keine Spielstände gefunden.");
-            return new File[0]; // returns emty file list
+            return new File[0]; // returns empty file list
         } else {
             System.out.println("Gefundene Spielstände:");
             for (File datei : savegameFiles) {
