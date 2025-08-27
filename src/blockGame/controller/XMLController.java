@@ -30,6 +30,7 @@ public class XMLController {
 	
 	// Filepaths
 	private String saveGamePath = "savegames/saveGame.xml";
+	private String settingsPath = "settings/settings.xml";
 	private GameState gameState;
 	
 	public XMLController(GameState gameState) {
@@ -191,13 +192,13 @@ public class XMLController {
 			e.printStackTrace();
 		}
 	listSaveGames(); 											// testing method listSaveGames()
+	}
 	
 	/**
 	 * Return the list of savegame files
 	 * 
 	 */
-	}
-    public static File[] listSaveGames() {
+	public static File[] listSaveGames() {
         // relative path to savegame folder in user directory
     		Path savegameDir = Paths.get(System.getProperty("user.dir")).resolve("savegames");
         File folder = savegameDir.toFile();
@@ -223,7 +224,68 @@ public class XMLController {
             return savegameFiles; // returns savegame file list
         }
     }
-	
-	
-
+    
+	// save Settings in XML file 
+	public void saveSettings() {
+		new File(settingsPath);
+		
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder;
+		try {
+			documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			Document doc = documentBuilder.newDocument();
+			
+			// root element for settings
+			Element rootElement = doc.createElement("Settings");
+			doc.appendChild(rootElement);
+			
+			// sound volume
+			Element soundVolume = doc.createElement("SoundVolume");
+//			float sVolume = gameState.getSoundVolume();
+			float sVolume = -6.8f;									//Wild card 			
+			soundVolume.setAttribute("Volume", String.valueOf(sVolume));
+//			soundVolume.setAttribute("muted", String.valueOf(gameState.getSoundVolumeMute())); // sound muted or not
+			rootElement.appendChild(soundVolume);
+			
+			// SFX volume
+			Element SFXVolume = doc.createElement("SFXVolume");
+//			float sfxVolume = gameState.getSFXVolume();
+			float sfxVolume = -6.8f;	//wild card
+			SFXVolume.setAttribute("Volume", String.valueOf(sfxVolume));
+//			SFXVolume.setAttribute("muted", String.valueOf(gameState.getSFXVolumeMute()));	// sound muted or not
+			rootElement.appendChild(SFXVolume);
+			
+			// Screen resolution
+			Element resolution = doc.createElement("Resolution");
+//			int row = gameState.getPlayerRow();
+			int row = 1024;								// wild card
+			resolution.setAttribute("X", String.valueOf(row));
+//			int col = gameState.getPlayerCol();
+			int col = 768;								// wild card
+			resolution.setAttribute("Y", String.valueOf(col));
+			rootElement.appendChild(resolution);
+			
+			// write contents into file
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			
+			File file = new File(settingsPath);
+			file.getParentFile().mkdirs();
+			transformer.transform(new DOMSource(doc), new StreamResult(file));
+			
+			System.out.println("Settings gespeichert unter: " + file.getAbsolutePath());
+			
+			// possible exceptions
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	listSaveGames(); 											// testing method listSaveGames()
+	}
 }
