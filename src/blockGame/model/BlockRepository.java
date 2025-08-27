@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class BlockRepository {
 
+	// templates for all existing Blocks (excluding Items and Tools)
     private static final List<BlockModel> BLOCKS = new ArrayList<>();
 
     static {
