@@ -9,9 +9,12 @@ import java.awt.Image;
 
 import javax.swing.JPanel;
 
-// Helper Class for Background Drawing in Main Menu
+/**
+ * Specialized JPanel for Backgrounds in the Game, uses a Image when constructed
+ *
+ */
 public class BackGroundPanel extends JPanel{
-
+	private static final long serialVersionUID = 2594379063999212873L;
 	private Image backgroundImage;
 	
 	public BackGroundPanel(Image backgroundImage) {
@@ -30,6 +33,5 @@ public class BackGroundPanel extends JPanel{
 	public Dimension getPreferredSize() {
 		// TODO Auto-generated method stub
 		return new Dimension(backgroundImage.getWidth(this), backgroundImage.getHeight(this));
-		
 	}
 }

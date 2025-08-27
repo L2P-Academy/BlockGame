@@ -7,14 +7,12 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.format.DateTimeFormatterBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -31,15 +29,15 @@ import blockGame.controller.XMLController;
 /**
  * SaveGameView represents the window for loading and saving game progress.
  * 
- * It includes:
- * - A title banner
- * - A table listing saved games
- * - Buttons for Save, Load, and Back
+ * It includes: - A title banner - A table listing saved games - Buttons for
+ * Save, Load, and Back
  * 
  * This view is typically accessed from the main menu or in-game pause menu.
+ * 
  * @author Chris
  */
 public class SaveGameView extends JFrame {
+	private static final long serialVersionUID = 8413425887045207326L;
 	// GUI attributes
 	private JLabel gameTitleLbl;
 	private JPanel buttonPnl, backgroundPnl, gameTitlePnl;
@@ -53,6 +51,7 @@ public class SaveGameView extends JFrame {
 
 	/**
 	 * Returns the current instance of SaveGameView (Singleton-like behavior).
+	 * 
 	 * @return SaveGameView instance
 	 */
 	public static SaveGameView getInstance() {
@@ -60,23 +59,19 @@ public class SaveGameView extends JFrame {
 	}
 
 	/**
-	 * Constructor for SaveGameView.
-	 * Sets up the entire UI including:
-	 * - Background image
-	 * - Title panel
-	 * - Save/Load table
-	 * - Buttons with custom styles
-	 * Also initializes button listeners with sound effects.
+	 * Constructor for SaveGameView. Sets up the entire UI including: - Background
+	 * image - Title panel - Save/Load table - Buttons with custom styles Also
+	 * initializes button listeners with sound effects.
 	 */
 	public SaveGameView(GameState gameState) {
 		instance = this;
-		setAlwaysOnTop(true);                        // keep window on top
-		setTitle("Load Game - PixelMine");           // window title
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-		setExtendedState(JFrame.MAXIMIZED_BOTH);     // fullscreen
-		setUndecorated(true);                        // no window decorations
+		setAlwaysOnTop(true); // keep window on top
+		setTitle("Load Game - PixelMine"); // window title
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setExtendedState(JFrame.MAXIMIZED_BOTH); // fullscreen
+		setUndecorated(true); // no window decorations
 
-		//  Panels 
+		// Panels
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
 		backgroundPnl = new BackGroundPanel(bgIcon.getImage());
 		backgroundPnl.setLayout(new BorderLayout());
@@ -84,24 +79,23 @@ public class SaveGameView extends JFrame {
 		gameTitlePnl.setOpaque(false);
 		buttonPnl = new JPanel(new FlowLayout());
 
-		// Title 
+		// Title
 		gameTitleLbl = new JLabel("Pixel Mine!", SwingConstants.CENTER);
 		gameTitleLbl.setFont(FontLoader.loadPixelFont(64f));
 		gameTitleLbl.setForeground(new Color(16, 62, 161));
 		gameTitlePnl.add(gameTitleLbl);
 
-		// Save Table 
+		// Save Table
 		// TODO: "Playtime"-column = currentTime(ms) - lastSaveTime.parseInt
-		String[] columnNames = {"Save Slot", "Date"};
+		String[] columnNames = { "Save Slot", "Date" };
 		Object[][] data = {
 				// Format: dd/mm/yyyy + hh/mm/ss as a String
-			{"Save 1", "" + 
-				gameState.getLastSavedDate().getDayOfMonth()+ "." + 
-				gameState.getLastSavedDate().getMonth() + "." +
-				gameState.getLastSavedDate().getYear() + " " +
-				gameState.getLastSavedDate().getHour() + ":" +
-				gameState.getLastSavedDate().getMinute() + ":" +
-				gameState.getLastSavedDate().getSecond()}
+				{ "Save 1", "" + gameState.getLastSavedDate().getDayOfMonth() + "."
+						+ gameState.getLastSavedDate().getMonth() + "." + gameState.getLastSavedDate()
+						.getYear() + " "
+						+ gameState.getLastSavedDate().getHour() + ":" + gameState.getLastSavedDate()
+						.getMinute() + ":"
+						+ gameState.getLastSavedDate().getSecond() }
 //			{"Save 2", "2025-07-27", "01:20"},
 //			{"Save 3", "2025-07-26", "00:30"}
 		};
@@ -111,13 +105,13 @@ public class SaveGameView extends JFrame {
 		saveTable = new JTable(saveTableModel);
 		saveTable.setFont(FontLoader.loadPixelFont(16f));
 		saveTable.setRowHeight(48);
-		saveTable.setBackground(new Color(0, 0 , 0 , 150));
+		saveTable.setBackground(new Color(0, 0, 0, 150));
 		saveTable.setForeground(Color.WHITE);
 
 		// Header styling
 		saveTableHeader = saveTable.getTableHeader();
 		saveTableHeader.setFont(FontLoader.loadPixelFont(32f));
-		saveTableHeader.setBackground(new Color(255, 200, 200)); 
+		saveTableHeader.setBackground(new Color(255, 200, 200));
 
 		// Scroll pane enables scrolling inside the table
 		JScrollPane scrollPane = new JScrollPane(saveTable);
@@ -133,7 +127,7 @@ public class SaveGameView extends JFrame {
 		// Place table at the top
 		backgroundPnl.add(tablePanel, BorderLayout.NORTH);
 
-		// Buttons 
+		// Buttons
 		loadGameBtn = new JButton("Load Game");
 		beautifyButton(loadGameBtn);
 		backBtn = new JButton("Back");
@@ -151,25 +145,25 @@ public class SaveGameView extends JFrame {
 		backgroundPnl.add(gameTitlePnl, BorderLayout.CENTER);
 		backgroundPnl.add(buttonPnl, BorderLayout.SOUTH);
 
-		//  Button Actions 
+		// Button Actions
 
 		// Load button: play sound + debug output
 		loadGameBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				SoundController soundController2 = new SoundController();
-				soundController2.playBtnSound(); 
+				soundController2.playBtnSound();
 				System.out.println("Loading game...");
-				XMLController xmlController = new XMLController(gameState);
+				new XMLController(gameState);
 				dispose();
-				
+
 				new GameView(soundController2, gameState);
-				
+
 			}
 		});
 
 		// Back button: play sound + switch back to Menu / Game
-		backBtn.addActionListener(new ActionListener() {			
+		backBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				SoundController soundController3 = new SoundController();
@@ -179,7 +173,7 @@ public class SaveGameView extends JFrame {
 				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
 					GameView.getInstance().setAlwaysOnTop(true);
 					System.out.println("GameView focused");
-				} 
+				}
 				// Return to StartMenu if active
 				else if (StartMenuView.getInstance() != null && StartMenuView.getInstance().isVisible()) {
 					StartMenuView.getInstance().setAlwaysOnTop(true);
@@ -204,18 +198,15 @@ public class SaveGameView extends JFrame {
 			}
 		});
 
-		//  Window setup 
-		setContentPane(backgroundPnl); 
-		setLocationRelativeTo(null);    // center on screen
-		setVisible(true);               // make visible
+		// Window setup
+		setContentPane(backgroundPnl);
+		setLocationRelativeTo(null); // center on screen
+		setVisible(true); // make visible
 	}
 
 	/**
-	 * Enhances a JButton with custom styles:
-	 * - Custom font
-	 * - Background / foreground colors
-	 * - Rounded border
-	 * - Hover effect
+	 * Enhances a JButton with custom styles: - Custom font - Background /
+	 * foreground colors - Rounded border - Hover effect
 	 * 
 	 * @param button The button to be styled
 	 */
@@ -237,6 +228,7 @@ public class SaveGameView extends JFrame {
 			public void mouseEntered(java.awt.event.MouseEvent evt) {
 				button.setBackground(new Color(37, 232, 7));
 			}
+
 			public void mouseExited(java.awt.event.MouseEvent evt) {
 				button.setBackground(new Color(16, 62, 161));
 			}

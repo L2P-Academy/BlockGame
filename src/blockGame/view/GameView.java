@@ -11,6 +11,7 @@ import java.util.Map;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -18,9 +19,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.swing.JComponent;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -34,52 +35,63 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 
 import blockGame.GameState;
 import blockGame.controller.SoundController;
+import blockGame.controller.UIController;
 import blockGame.controller.XMLController;
 import blockGame.model.BlockModel;
 import blockGame.model.BlockRepository;
 
-
 public class GameView extends JFrame {
-	private JLabel toolLbl0, toolLbl1, toolLbl2, toolLbl3, toolLbl4, toolLbl5, toolLbl6, toolLbl7, toolLbl8, toolLbl9,
-			playerLbl;
-	private JPanel backgroundPnl, blockPnl, toolPnl;
+	// final attributes
+	private static final long serialVersionUID = 5003916840544409898L;
 	private static final int AIR_LAYERS = 15;
 	private static final int DIRT_LAYERS = 16;
 	private static final int ROWS = 31;
-	private static final int COLS = 64;
-	private String imagePath = "/res/img/maingame_bg.png";
-	private static GameView instance;
-	private SoundController soundController;
+	private static final int COLS = 64;	
+	private static final int BASE_BLOCK_SIZE = 72; // Baseline 72px @1440p
+	
+	// primitive attributes
+	private boolean isBuildModeActive = false; // TODO: sets the Build/Mine-Mode
+	private int cursorRow, cursorCol; // TODO: use cursor for building/mining
 	private int playerRow = 14;
 	private int playerCol = 0;
-	private static final int BASE_BLOCK_SIZE = 72; // Baseline 72px @1440p
-	private int blockSize;
-	private final java.util.Map<String, ImageIcon> iconCache = new HashMap<>();
-	private boolean isBuildModeActive = false; //Hebel zum Ein- und Ausschalten des Baumoduses ohne Character-Bewegung
-	private int cursorRow, cursorCol;
 	private int lastHlRow = -1, lastHlCol = -1;
-	private InventoryView inventoryView;
-	private enum PlayerAnim { IDLE, WALK_LEFT, WALK_RIGHT }
-	private PlayerAnim currentAnim = PlayerAnim.IDLE;		// Aktueller Animationzustand
-	private boolean leftDown = false, rightDown = false;	// Tastenzustand
+	private int blockSize;
+	
+	// complex attributes
+	private static GameView instance;
+	private SoundController soundController;
+	private JLabel toolLbl0, toolLbl1, toolLbl2, toolLbl3, toolLbl4, toolLbl5, toolLbl6, toolLbl7, toolLbl8, toolLbl9,
+			playerLbl;
+	private JPanel backgroundPnl, blockPnl, toolPnl;
+	private String imagePath = "/res/img/maingame_bg.png";	
+
+	private final Map<String, ImageIcon> iconCache = new HashMap<>();
+
+	private enum PlayerAnim {
+		IDLE, WALK_LEFT, WALK_RIGHT
+	}
+
+	private PlayerAnim currentAnim = PlayerAnim.IDLE; // Aktueller Animationzustand
+	private boolean leftDown = false, rightDown = false; // Tastenzustand
 
 	public static GameView getInstance() {
 		return instance;
 	}
-	
+
 	// overloaded constructor for loaded games from file
 	public GameView(SoundController soundController, GameState gameState) {
 		// standard constructor - see below
 		this(soundController);
-		
+
 		this.playerRow = gameState.getPlayerRow();
 		this.playerCol = gameState.getPlayerCol();
-		
+
 		loadGameState(gameState);
-		
+
 //		for (var entry : gameState.getBlocks().entrySet()) {
 //			GameState.Coord c = entry.getKey();
 //			int id = entry.getValue();
@@ -87,16 +99,16 @@ public class GameView extends JFrame {
 //				replaceBlockAt(c.row(), c.col(), id);
 //			}
 //		}
-		
+
 		// show player label
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
 		worldLabels[playerRow][playerCol].revalidate();
 		worldLabels[playerRow][playerCol].repaint();
-		
 	}
 
 	// standard constructor for new games
+	@SuppressWarnings("serial")
 	public GameView(SoundController soundController) {
 		// SoundController initialize
 		this.soundController = soundController;
@@ -107,6 +119,9 @@ public class GameView extends JFrame {
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLayout(new BorderLayout());
 		setUndecorated(true);
+		
+		Border toolBorder = BorderFactory.createLineBorder(new Color(37, 232, 7));
+		Dimension toolDimension = new Dimension(110, 110);
 
 		// background Panel
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
@@ -115,48 +130,48 @@ public class GameView extends JFrame {
 
 		// tool Panel
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toolPnl.setPreferredSize(new Dimension(100, 120));
+		toolPnl.setPreferredSize(toolDimension);
 		toolPnl.setBackground(Color.DARK_GRAY);
 
 		toolLbl0 = new JLabel();
-		toolLbl0.setPreferredSize(new Dimension(110, 110));
-		toolLbl0.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl0.setPreferredSize(toolDimension);
+		toolLbl0.setBorder(toolBorder);
 
 		toolLbl1 = new JLabel();
-		toolLbl1.setPreferredSize(new Dimension(110, 110));
-		toolLbl1.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl1.setPreferredSize(toolDimension);
+		toolLbl1.setBorder(toolBorder);
 
 		toolLbl2 = new JLabel();
-		toolLbl2.setPreferredSize(new Dimension(110, 110));
-		toolLbl2.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl2.setPreferredSize(toolDimension);
+		toolLbl2.setBorder(toolBorder);
 
 		toolLbl3 = new JLabel();
-		toolLbl3.setPreferredSize(new Dimension(110, 110));
-		toolLbl3.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl3.setPreferredSize(toolDimension);
+		toolLbl3.setBorder(toolBorder);
 
 		toolLbl4 = new JLabel();
-		toolLbl4.setPreferredSize(new Dimension(110, 110));
-		toolLbl4.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl4.setPreferredSize(toolDimension);
+		toolLbl4.setBorder(toolBorder);
 
 		toolLbl5 = new JLabel();
-		toolLbl5.setPreferredSize(new Dimension(110, 110));
-		toolLbl5.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl5.setPreferredSize(toolDimension);
+		toolLbl5.setBorder(toolBorder);
 
 		toolLbl6 = new JLabel();
-		toolLbl6.setPreferredSize(new Dimension(110, 110));
-		toolLbl6.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl6.setPreferredSize(toolDimension);
+		toolLbl6.setBorder(toolBorder);
 
 		toolLbl7 = new JLabel();
-		toolLbl7.setPreferredSize(new Dimension(110, 110));
-		toolLbl7.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl7.setPreferredSize(toolDimension);
+		toolLbl7.setBorder(toolBorder);
 
 		toolLbl8 = new JLabel();
-		toolLbl8.setPreferredSize(new Dimension(110, 110));
-		toolLbl8.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl8.setPreferredSize(toolDimension);
+		toolLbl8.setBorder(toolBorder);
 
 		toolLbl9 = new JLabel();
-		toolLbl9.setPreferredSize(new Dimension(110, 110));
-		toolLbl9.setBorder(BorderFactory.createLineBorder(new Color(37, 232, 7)));
+		toolLbl9.setPreferredSize(toolDimension);
+		toolLbl9.setBorder(toolBorder);
 
 		toolPnl.add(toolLbl0);
 		toolPnl.add(toolLbl1);
@@ -197,8 +212,8 @@ public class GameView extends JFrame {
 
 		getContentPane().add(backgroundPnl);
 
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-        .put(KeyStroke.getKeyStroke("I"), "toggleInventory");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("I"),
+				"toggleInventory");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
 				"toggleMenu");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "moveUp");
@@ -206,52 +221,49 @@ public class GameView extends JFrame {
 		var im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		var am = getRootPane().getActionMap();
 
-		im.put(KeyStroke.getKeyStroke("pressed A"),  "pressLeft");
+		im.put(KeyStroke.getKeyStroke("pressed A"), "pressLeft");
 		im.put(KeyStroke.getKeyStroke("released A"), "releaseLeft");
-		im.put(KeyStroke.getKeyStroke("pressed D"),  "pressRight");
+		im.put(KeyStroke.getKeyStroke("pressed D"), "pressRight");
 		im.put(KeyStroke.getKeyStroke("released D"), "releaseRight");
-		
-	
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"),
-				"toggleBuildOrMineMode");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("C"), "openCrafting");
 
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"),
+				"replaceBlockAt");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("C"), 
+				"openCrafting");
 		getRootPane().getActionMap().put("openCrafting", new AbstractAction() {
 
 			@Override
-
 			public void actionPerformed(ActionEvent e) {
-
 				new CraftingView();
-
 			}
+		});
 
+		getRootPane().getActionMap().put("toggleInventory", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new InventoryView();
+			}
 		});
 		
-		getRootPane().getActionMap().put("toggleInventory", new AbstractAction() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        toggleInventory();
-		    }
-		});
 		getRootPane().getActionMap().put("toggleMenu", new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				showPauseMenu();
-
 			}
 		});
+		
 		getRootPane().getActionMap().put("moveUp", new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				movePlayer(-1, 0);
-
 			}
 		});
+		
 		am.put("pressLeft", new AbstractAction() {
-			@Override public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				leftDown = true;
 				currentAnim = PlayerAnim.WALK_LEFT;
 				applyPlayerAnim();
@@ -259,8 +271,10 @@ public class GameView extends JFrame {
 				movePlayer(0, -1);
 			}
 		});
+		
 		am.put("releaseLeft", new AbstractAction() {
-			@Override public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				leftDown = false;
 				// Wenn rechts noch gehalten wird → weiter rechts laufen, sonst Idle
 				currentAnim = rightDown ? PlayerAnim.WALK_RIGHT : PlayerAnim.IDLE;
@@ -273,12 +287,13 @@ public class GameView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				movePlayer(+1, 0);
-
 			}
 		});
+		
 		am.put("pressRight", new AbstractAction() {
-			
-			@Override public void actionPerformed(ActionEvent e) {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				rightDown = true;
 				currentAnim = PlayerAnim.WALK_RIGHT;
 				applyPlayerAnim();
@@ -286,54 +301,57 @@ public class GameView extends JFrame {
 				movePlayer(0, +1);
 			}
 		});
+		
 		am.put("releaseRight", new AbstractAction() {
-			
-			@Override public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				rightDown = false;
 				// Wenn links noch gehalten wird → weiter links laufen, sonst Idle
 				currentAnim = leftDown ? PlayerAnim.WALK_LEFT : PlayerAnim.IDLE;
 				applyPlayerAnim();
 			}
 		});
-		getRootPane().getActionMap().put("toggleBuildOrMineMode", new AbstractAction() {
+		getRootPane().getActionMap().put("replaceBlockAt", new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				toggleBuildOrMineMode(playerRow, playerCol);
+				replaceBlockAt(playerRow, playerCol);
 			}
 		});
 
 		setLocationRelativeTo(null);
 		setVisible(true);
-    
+
 		// Spieler-Label erzeugen und aktuelle Animation anwenden (startet in IDLE)
 		playerLbl = new JLabel();
+		
 		/**
-		 * Initialisiert das Spieler-Label mit der zum Start passenden Animation.
-		 * Nutzt {@link #applyPlayerAnim()}, um direkt auf die aktuelle {@code blockSize} zu skalieren.
+		 * Initialisiert das Spieler-Label mit der zum Start passenden Animation. Nutzt
+		 * {@link #applyPlayerAnim()}, um direkt auf die aktuelle {@code blockSize} zu
+		 * skalieren.
 		 */
 		applyPlayerAnim();
 
 		playerLbl.setPreferredSize(new Dimension(blockSize, blockSize));
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
-		highlightAt(playerRow, playerCol +1);
-		
-		// Timer der alle 100ms gravitation erzeugt, insofern der unter dem spieler liegende block luft ist 
-		new Timer(100, e -> { 
+		highlightAt(playerRow, playerCol + 1);
+
+		// Timer der alle 100ms gravitation erzeugt, insofern der unter dem spieler
+		// liegende block luft ist
+		new Timer(100, e -> {
 			int r = playerRow + 1, c = playerCol;
 			if (r < ROWS && world[r][c] != null && world[r][c].getId() == 0) {
-				movePlayer(+1,0);
+				movePlayer(+1, 0);
 			}
 		}).start();
-		
-		
+
 		// Resize-Handling (debounced)
 		addComponentListener(new java.awt.event.ComponentAdapter() {
 			private Timer debounce;
 
 			@Override
-			public void componentResized(java.awt.event.ComponentEvent e) {
+			public void componentResized(ComponentEvent e) {
 				if (debounce != null && debounce.isRunning()) {
 					debounce.restart();
 				} else {
@@ -347,71 +365,73 @@ public class GameView extends JFrame {
 			}
 		});
 	}
+
 	/**
-	 * Liefert den Ressourcenpfad (Klassenpfad) zum GIF passend zum übergebenen Animationszustand.
+	 * Liefert den Ressourcenpfad (Klassenpfad) zum GIF passend zum übergebenen
+	 * Animationszustand.
 	 *
 	 * @param anim gewünschter Animationszustand
-	 * @return Klassenpfad zur entsprechenden GIF-Datei (z. B. {@code "/res/img/player_WALK_LEFT_72px.gif"})
+	 * @return Klassenpfad zur entsprechenden GIF-Datei (z. B.
+	 *         {@code "/res/img/player_WALK_LEFT_72px.gif"})
 	 * @author Marc
 	 */
-	private String animPath(PlayerAnim anim) { 				
+	private String animPath(PlayerAnim anim) {
 		switch (anim) {
-			case WALK_LEFT:  return "/res/img/player_WALK_LEFT_72px.gif";
-			case WALK_RIGHT: return "/res/img/player_WALK_RIGHT_72px.gif";
-			default:         return "/res/img/player_IDLE_72px.gif";
+		case WALK_LEFT:
+			return "/res/img/player_WALK_LEFT_72px.gif";
+		case WALK_RIGHT:
+			return "/res/img/player_WALK_RIGHT_72px.gif";
+		default:
+			return "/res/img/player_IDLE_72px.gif";
 		}
 	}
-
-	
 
 	/**
 	 * Wendet den aktuell gesetzten Animationszustand auf das {@code playerLbl} an.
 	 * <p>
-	 * Skaliert das entsprechende (ggf. animierte) GIF auf die aktuelle {@code blockSize}
-	 * und setzt es als Icon. Falls die Ressource nicht gefunden wird, bleibt das vorhandene Icon erhalten.
+	 * Skaliert das entsprechende (ggf. animierte) GIF auf die aktuelle
+	 * {@code blockSize} und setzt es als Icon. Falls die Ressource nicht gefunden
+	 * wird, bleibt das vorhandene Icon erhalten.
 	 * </p>
 	 */
 	private void applyPlayerAnim() {
-		if (playerLbl == null) return;
+		if (playerLbl == null)
+			return;
 		ImageIcon icon = getScaledIcon(animPath(currentAnim), blockSize, true);
-		if (icon != null) playerLbl.setIcon(icon);
+		if (icon != null)
+			playerLbl.setIcon(icon);
 	}
-	
-	private void toggleInventory() {
-	    
-	        new InventoryView();
-	       
-	    } 
-	
+
 	public void loadGameState(GameState gameState) {
-		for(int r = 0; r < ROWS; r++) {
-			for(int c = 0; c < COLS; c++) {
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
 				int id = gameState.getBlock(c, r);
 				BlockModel blockTemplate = BlockRepository.getBlockByID(id);
-				BlockModel newBlock = new BlockModel(id, "Block", blockTemplate.getItemName(), 
-						blockTemplate.getTier(), c, r, blockTemplate.getTextureImagePath());
+				BlockModel newBlock = new BlockModel(id, "Block", blockTemplate.getItemName(), blockTemplate.getTier(),
+						c, r, blockTemplate.getTextureImagePath());
 				world[r][c] = newBlock;
 				refreshBlockLabel(r, c);
-							
 			}
 		}
+		
 		playerRow = gameState.getPlayerRow();
 		playerCol = gameState.getPlayerCol();
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
-		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER); 
+		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
 		worldLabels[playerRow][playerCol].revalidate();
 		worldLabels[playerRow][playerCol].repaint();
-	    if (lastHlRow >= 0 && lastHlCol >= 0) {
-	        unhighlightAt(lastHlRow, lastHlCol);
-	    }
-	    highlightAt(playerRow, playerCol + 1);
-	 
-	    blockPnl.revalidate();
-	    blockPnl.repaint();
+		if (lastHlRow >= 0 && lastHlCol >= 0) {
+			unhighlightAt(lastHlRow, lastHlCol);
+		}
+		highlightAt(playerRow, playerCol + 1);
+
+		blockPnl.revalidate();
+		blockPnl.repaint();
 	}
-	
+
 	/**
 	 * Moves the player-Label to any side.
+	 * 
 	 * @param dRow sets the direction of the row, positive = downwards
 	 * @param dCol sets the direction of the column, positive = right side
 	 * @author Marc, Christoph
@@ -423,36 +443,32 @@ public class GameView extends JFrame {
 			return;
 		}
 		// Bewegen nur in AIR_BLOCKS mit (ID == 0) möglich
-		if (world[newRow][newCol] != null && world[newRow][newCol].getId() != 0) 
+		if (world[newRow][newCol] != null && world[newRow][newCol].getId() != 0)
 			return;
-		
+
 		JLabel mineLbl = highlightAt(newRow, newCol + 1);
-		
+
 		// alten Platz räumen
 		if (mineLbl != null && worldLabels[playerRow][playerCol] != null) {
-			worldLabels[playerRow][playerCol+1].remove(mineLbl);
-			worldLabels[playerRow][playerCol+1].revalidate(); 
-			worldLabels[playerRow][playerCol+1].repaint();
+			worldLabels[playerRow][playerCol + 1].remove(mineLbl);
+			worldLabels[playerRow][playerCol + 1].revalidate();
+			worldLabels[playerRow][playerCol + 1].repaint();
 		}
 		if (playerLbl != null && worldLabels[playerRow][playerCol] != null) {
 			worldLabels[playerRow][playerCol].remove(playerLbl);
 			worldLabels[playerRow][playerCol].revalidate();
 			worldLabels[playerRow][playerCol].repaint();
-			
-		}		
+
+		}
 		playerRow = newRow;
 		playerCol = newCol;
-		
+
 		// neuen Platz setzen
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
 		worldLabels[playerRow][playerCol].setComponentZOrder(playerLbl, 0);
 		worldLabels[playerRow][playerCol].revalidate();
 		worldLabels[playerRow][playerCol].repaint();
-		
-		
-
-	    
 	}
 
 	// Block Mapping & Randomizer
@@ -466,20 +482,19 @@ public class GameView extends JFrame {
 			Map.entry(8, 0.03), // Diamond
 			Map.entry(9, 0.08), // Clay
 			Map.entry(10, 0.05) // Water
-	);	
+	);
 
 	// ungenutzt momentan, da die Tiefe nicht berücksichtigt wird
-	private static final Map<Integer, int[]> DEPTH_RANGES = Map.of(
-			4, new int[] { 5, 15 }, // Coal
+	private static final Map<Integer, int[]> DEPTH_RANGES = Map.of(4, new int[] { 5, 15 }, // Coal
 			5, new int[] { 10, 20 }, // Iron
 			6, new int[] { 15, 25 }, // Copper
 			7, new int[] { 20, 32 }, // Gold
 			8, new int[] { 25, 32 } // Diamond
 	);
-	 
 
 	/**
 	 * Gets a random Block from the BlockRepository-Class.
+	 * 
 	 * @param x the Block row
 	 * @param y the Block col
 	 * @return A BlockModel for world generation.
@@ -508,6 +523,7 @@ public class GameView extends JFrame {
 
 	/**
 	 * Fills the blockPanel of the game world with randomized blocks.
+	 * 
 	 * @author Christoph
 	 */
 	private void fillBlockPanelRandomly() {
@@ -544,18 +560,18 @@ public class GameView extends JFrame {
 			}
 		}
 	}
-	
+
 	private JLabel highlightAt(int row, int col) {
 		JLabel lbl = worldLabels[row][col];
 		if (!isInside(row, col)) {
 			return null;
-		} 
+		}
 		if (lastHlRow >= 0 && lastHlCol >= 0) {
 			unhighlightAt(lastHlRow, lastHlCol);
-			
+
 		}
-		lastHlRow=row;
-		lastHlCol=col;
+		lastHlRow = row;
+		lastHlCol = col;
 		lbl.setOpaque(true);
 		lbl.setBackground(new Color(37, 232, 7, 50));
 		lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
@@ -578,18 +594,18 @@ public class GameView extends JFrame {
 		}
 		lbl.repaint();
 	}
-	 
 
 	/**
 	 * Ersetzt den Block an der angegebenen Weltposition durch einen neuen Blocktyp.
 	 * <p>
-	 * Validiert zuerst die Koordinaten, holt das Block-Template aus dem {@link BlockRepository},
-	 * erzeugt daraus ein neues {@link BlockModel} (mit korrekten Weltkoordinaten) und
-	 * aktualisiert anschließend die UI via {@link #refreshBlockLabel(int, int)}.
+	 * Validiert zuerst die Koordinaten, holt das Block-Template aus dem
+	 * {@link BlockRepository}, erzeugt daraus ein neues {@link BlockModel} (mit
+	 * korrekten Weltkoordinaten) und aktualisiert anschließend die UI via
+	 * {@link #refreshBlockLabel(int, int)}.
 	 * </p>
 	 *
-	 * @param row Zeilenindex in der Welt (0-basiert)
-	 * @param col Spaltenindex in der Welt (0-basiert)
+	 * @param row          Zeilenindex in der Welt (0-basiert)
+	 * @param col          Spaltenindex in der Welt (0-basiert)
 	 * @param newBlockByID ID des Ziel-Blocks (z. B. 0 = Luft, 1 = Dirt, …)
 	 * @author Marc
 	 */
@@ -611,43 +627,44 @@ public class GameView extends JFrame {
 		refreshBlockLabel(row, col);
 	}
 
-	
 	/**
 	 * Schaltet an der angegebenen Weltposition zwischen Bauen und Abbauen um.
 	 * <p>
 	 * Wenn am Ziel kein Luft-Block (ID != 0) liegt, wird er zu Luft (abbauen).
-	 * Liegt dort Luft (ID == 0), wird Dirt (ID 1) platziert (bauen).
-	 * Intern nutzt die Methode {@link #replaceBlockAt(int, int, int)}.
+	 * Liegt dort Luft (ID == 0), wird Dirt (ID 1) platziert (bauen). Intern nutzt
+	 * die Methode {@link #replaceBlockAt(int, int, int)}.
 	 * </p>
 	 *
-	 * @param row Zeilenindex in der Welt (0-basiert)
-	 * @param col Spaltenindex in der Welt (0-basiert)
+	 * @param row Zeilenindex in der Welt (0-basiert) = y
+	 * @param col Spaltenindex in der Welt (0-basiert) = x
 	 * @author Marc
 	 */
 
-	public void toggleBuildOrMineMode(int row, int col) {
+	public void replaceBlockAt(int row, int col) {
 		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
 		if (!isInside(row, col))
 			return;
 
-		BlockModel current = world[row][col+1];
+		BlockModel current = world[row][col + 1];
 		int currentId = (current != null) ? current.getId() : 0;
 
 		if (currentId != 0) {
 			// abbauen -> Luft
-			replaceBlockAt(row, col+1, 0);
+			replaceBlockAt(row, col + 1, 0);
 		} else {
 			// bauen -> Dirt
-			replaceBlockAt(row, col+1, 1);
+			replaceBlockAt(row, col + 1, 1);
 		}
 	}
 
 	/**
-	 * Prüft, ob die übergebenen Weltkoordinaten innerhalb der gültigen Grenzen liegen.
+	 * Prüft, ob die übergebenen Weltkoordinaten innerhalb der gültigen Grenzen
+	 * liegen.
 	 *
 	 * @param row Zeilenindex in der Welt (0-basiert)
 	 * @param col Spaltenindex in der Welt (0-basiert)
-	 * @return {@code true}, wenn 0 ≤ row &lt; ROWS und 0 ≤ col &lt; COLS; sonst {@code false}
+	 * @return {@code true}, wenn 0 ≤ row &lt; ROWS und 0 ≤ col &lt; COLS; sonst
+	 *         {@code false}
 	 * @author Marc
 	 */
 
@@ -658,13 +675,16 @@ public class GameView extends JFrame {
 	/**
 	 * Aktualisiert das UI-Label für den Block an der angegebenen Position.
 	 * <p>
-	 * Entfernt vorhandene UI-Komponenten, setzt die PreferredSize auf die aktuelle {@code blockSize},
-	 * fügt (sofern kein Luft-Block) das skalierte Textur-Icon hinzu und stellt den passenden Rahmen ein.
-	 * Abschließend werden {@code revalidate()} und {@code repaint()} aufgerufen.
+	 * Entfernt vorhandene UI-Komponenten, setzt die PreferredSize auf die aktuelle
+	 * {@code blockSize}, fügt (sofern kein Luft-Block) das skalierte Textur-Icon
+	 * hinzu und stellt den passenden Rahmen ein. Abschließend werden
+	 * {@code revalidate()} und {@code repaint()} aufgerufen.
 	 * </p>
 	 *
-	 * <p><b>Hinweis:</b> Erwartet, dass {@code world[row][col]} und {@code worldLabels[row][col]}
-	 * initialisiert sind.</p>
+	 * <p>
+	 * <b>Hinweis:</b> Erwartet, dass {@code world[row][col]} und
+	 * {@code worldLabels[row][col]} initialisiert sind.
+	 * </p>
 	 *
 	 * @param row Zeilenindex in der Welt (0-basiert)
 	 * @param col Spaltenindex in der Welt (0-basiert)
@@ -694,7 +714,9 @@ public class GameView extends JFrame {
 	}
 
 	/**
-	 * Shows the Pause Menu and Game Dialog for saving, closing and resuming etc. the game.
+	 * Shows the Pause Menu and Game Dialog for saving, closing and resuming the
+	 * game.
+	 * 
 	 * @author Christoph
 	 */
 	private void showPauseMenu() {
@@ -705,17 +727,17 @@ public class GameView extends JFrame {
 		pauseDialog.setUndecorated(true);
 
 		JButton resumeButton = new JButton("Fortsetzen");
-		StartMenuView.beautifyButton(resumeButton);
+		UIController.beautifyButton(resumeButton);
 		JButton loadButton = new JButton("Laden");
-		StartMenuView.beautifyButton(loadButton);
+		UIController.beautifyButton(loadButton);
 		JButton saveButton = new JButton("Speichern");
-		StartMenuView.beautifyButton(saveButton);
+		UIController.beautifyButton(saveButton);
 		JButton settingsButton = new JButton("Einstellungen");
-		StartMenuView.beautifyButton(settingsButton);
+		UIController.beautifyButton(settingsButton);
 		JButton menuButton = new JButton("Hauptmenü");
-		StartMenuView.beautifyButton(menuButton);
+		UIController.beautifyButton(menuButton);
 		JButton exitButton = new JButton("Beenden");
-		StartMenuView.beautifyButton(exitButton);
+		UIController.beautifyButton(exitButton);
 
 		resumeButton.addActionListener(new ActionListener() {
 
@@ -734,7 +756,7 @@ public class GameView extends JFrame {
 				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
 				SaveGameView saveGameView = new SaveGameView(gameState);
 				saveGameView.setAlwaysOnTop(true);
-				GameView gameView = getInstance();
+				getInstance();
 			}
 		});
 
@@ -751,15 +773,13 @@ public class GameView extends JFrame {
 						}
 					}
 				}
-				
-				//XML write process
+
+				// XML write process
 				XMLController xmlController = new XMLController(gameState);
 				xmlController.writeSaveGameFileXML();
 
-				javax.swing.JOptionPane.showMessageDialog(GameView.this,
-						"Spiel erfolgreich gespeichert!",
-						"Speichern",
-						javax.swing.JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(GameView.this, "Spiel erfolgreich gespeichert!", "Speichern",
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 
@@ -801,7 +821,7 @@ public class GameView extends JFrame {
 		pauseDialog.add(exitButton);
 		pauseDialog.setVisible(true);
 	}
-	
+
 	private void applyPreferredWorldSize() {
 		Dimension preferredDim = new Dimension(COLS * blockSize, ROWS * blockSize);
 		blockPnl.setPreferredSize(preferredDim);
@@ -811,11 +831,13 @@ public class GameView extends JFrame {
 	}
 
 	/**
-	 * Berechnet die dynamische Blockgröße ({@code blockSize}) in Pixeln für die aktuelle Fensterfläche.
+	 * Berechnet die dynamische Blockgröße ({@code blockSize}) in Pixeln für die
+	 * aktuelle Fensterfläche.
 	 * <p>
-	 * Zieht die Höhe der Tool-Leiste ab und bestimmt dann die größtmögliche quadratische Kachelgröße,
-	 * die sowohl in die verfügbare Breite (COLS) als auch in die verfügbare Höhe (ROWS) passt.
-	 * Das Ergebnis wird auf einen sinnvollen Bereich geklemmt (mindestens 24 px, höchstens 2× BASE_BLOCK_SIZE).
+	 * Zieht die Höhe der Tool-Leiste ab und bestimmt dann die größtmögliche
+	 * quadratische Kachelgröße, die sowohl in die verfügbare Breite (COLS) als auch
+	 * in die verfügbare Höhe (ROWS) passt. Das Ergebnis wird auf einen sinnvollen
+	 * Bereich geklemmt (mindestens 24 px, höchstens 2× BASE_BLOCK_SIZE).
 	 * </p>
 	 *
 	 * @param availW verfügbare Breite in Pixeln
@@ -832,26 +854,32 @@ public class GameView extends JFrame {
 
 		// width fitting
 		int byWidth = gridW / COLS;
-		
+
 		// height fitting
 		int byHeight = gridH / ROWS;
-		
+
 		int size = Math.min(byWidth, byHeight);
 		size = Math.max(24, Math.min(size, (int) Math.floor(BASE_BLOCK_SIZE * 2.0)));
 		return size;
 	}
 
 	/**
-	 * Reagiert auf Größenänderungen des Fensters und baut die Darstellung konsistent neu auf.
+	 * Reagiert auf Größenänderungen des Fensters und baut die Darstellung
+	 * konsistent neu auf.
 	 * <p>
 	 * Schritte:
 	 * <ol>
-	 *   <li>Neue {@code blockSize} via {@link #computeBlockSize(int, int)} berechnen.</li>
-	 *   <li>Für jede Zelle die PreferredSize setzen und das Block-Icon neu skalieren.</li>
-	 *   <li>Spieler-Icon entsprechend neu skalieren und das {@code playerLbl} in der aktuellen Zelle platzieren.</li>
-	 *   <li>{@link #applyPreferredWorldSize()} aufrufen, anschließend {@code revalidate()} und {@code repaint()}.</li>
+	 * <li>Neue {@code blockSize} via {@link #computeBlockSize(int, int)}
+	 * berechnen.</li>
+	 * <li>Für jede Zelle die PreferredSize setzen und das Block-Icon neu
+	 * skalieren.</li>
+	 * <li>Spieler-Icon entsprechend neu skalieren und das {@code playerLbl} in der
+	 * aktuellen Zelle platzieren.</li>
+	 * <li>{@link #applyPreferredWorldSize()} aufrufen, anschließend
+	 * {@code revalidate()} und {@code repaint()}.</li>
 	 * </ol>
-	 * Führt nur Arbeit aus, wenn sich die {@code blockSize} tatsächlich geändert hat.
+	 * Führt nur Arbeit aus, wenn sich die {@code blockSize} tatsächlich geändert
+	 * hat.
 	 * </p>
 	 * 
 	 * @author Marc
@@ -897,21 +925,25 @@ public class GameView extends JFrame {
 	}
 
 	/**
-	 * Gibt ein skaliertes (und gecachtes) {@link ImageIcon} für den angegebenen Ressourcenpfad zurück.
+	 * Gibt ein skaliertes (und gecachtes) {@link ImageIcon} für den angegebenen
+	 * Ressourcenpfad zurück.
 	 * <p>
 	 * Unterstützt:
 	 * <ul>
-	 *   <li><b>PNG</b>: Skalierung mit Nearest-Neighbor (scharfe Pixelart).</li>
-	 *   <li><b>GIF (animiert)</b>: einfache Laufzeit-Skalierung; je nach JVM können Animationsdetails variieren.</li>
+	 * <li><b>PNG</b>: Skalierung mit Nearest-Neighbor (scharfe Pixelart).</li>
+	 * <li><b>GIF (animiert)</b>: einfache Laufzeit-Skalierung; je nach JVM können
+	 * Animationsdetails variieren.</li>
 	 * </ul>
-	 * Ergebnisse werden per Key {@code "path@size#gif|#static"} im Speicher gecacht, um
-	 * erneute Decodes/Skalierungen zu vermeiden.
+	 * Ergebnisse werden per Key {@code "path@size#gif|#static"} im Speicher
+	 * gecacht, um erneute Decodes/Skalierungen zu vermeiden.
 	 * </p>
 	 *
-	 * @param path Klassenpfad zur Ressource (z. B. {@code "/res/img/player_IDLE_72px.gif"})
-	 * @param size Zielgröße (Breite = Höhe) in Pixeln
+	 * @param path          Klassenpfad zur Ressource (z. B.
+	 *                      {@code "/res/img/player_IDLE_72px.gif"})
+	 * @param size          Zielgröße (Breite = Höhe) in Pixeln
 	 * @param isAnimatedGif {@code true}, wenn es sich um ein animiertes GIF handelt
-	 * @return skaliertes {@link ImageIcon} oder {@code null}, wenn die Ressource nicht gefunden wurde
+	 * @return skaliertes {@link ImageIcon} oder {@code null}, wenn die Ressource
+	 *         nicht gefunden wurde
 	 * @author Marc
 	 */
 
@@ -939,7 +971,7 @@ public class GameView extends JFrame {
 		} else {
 			// Statische PNGs → nearest-neighbor (Pixelart)
 			try {
-				BufferedImage src = javax.imageio.ImageIO.read(url);
+				BufferedImage src = ImageIO.read(url);
 				BufferedImage dst = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = dst.createGraphics();
 				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,

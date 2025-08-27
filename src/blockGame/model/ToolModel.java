@@ -2,15 +2,13 @@
 
 package blockGame.model;
 
+/**
+ *  Inherits from ItemModel, extended with durability
+ *  @author Kai E
+ */
 public class ToolModel extends ItemModel {
 	
-	/**
-	 *  inherit from ItemModel
-	 *  Tool Attributes
-	 *  @author Kai E
-	 */
-	
-	
+
 	//attributes;
 	private int durability;
 

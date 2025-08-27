@@ -29,6 +29,7 @@ import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
 
 public class SettingsView extends JFrame {
+	private static final long serialVersionUID = -8999579228546841722L;
 	// graphical attributes
 	private JPanel settingsPnl, backgroundPnl, buttonPnl;
 	private JLabel musicLbl, effectLbl, resolutionLbl, fllscrnLbl;
@@ -39,11 +40,11 @@ public class SettingsView extends JFrame {
 	private String imagePath = "/res/img/loadscreen_bg.png";
 	private SoundController soundController;
 	private static SettingsView instance;
-	
+
 	public static SettingsView getInstance() {
 		return instance;
 	}
-	
+
 	// Konstruktor
 	public SettingsView(SoundController soundController) {
 		this.soundController = soundController;
@@ -54,47 +55,45 @@ public class SettingsView extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setUndecorated(true);
-		
+
 		// Hintergrund laden
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(imagePath));
 		backgroundPnl = new BackGroundPanel(bgIcon.getImage());
 		backgroundPnl.setLayout(new BorderLayout());
-		
+
 		// Settings Panel
 		settingsPnl = new JPanel(new GridLayout(6, 1, 10, 10));
 		settingsPnl.setOpaque(true);
 		settingsPnl.setBackground(new Color(0, 0, 0, 140));
 		settingsPnl.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 		settingsPnl.setMaximumSize(new Dimension(500, 300));
-		
+
 		// Komponenten
 		Font labelFont = FontLoader.loadPixelFont(16f);
 		Color fontColor = Color.WHITE;
-		
+
 		musicLbl = new JLabel("Musik:");
 		musicLbl.setFont(labelFont);
 		musicLbl.setForeground(fontColor);
-		
+
 		effectLbl = new JLabel("Effekte:");
 		effectLbl.setFont(labelFont);
 		effectLbl.setForeground(fontColor);
-		
+
 		resolutionLbl = new JLabel("Auflösung:");
 		resolutionLbl.setFont(labelFont);
 		resolutionLbl.setForeground(fontColor);
-		
+
 		fllscrnLbl = new JLabel("Vollbild:");
 		fllscrnLbl.setFont(labelFont);
 		fllscrnLbl.setForeground(fontColor);
-		
+
 		musicSldr = new JSlider(0, 100, 50);
 		effectSldr = new JSlider(0, 100, 50);
-		resDrpdwn = new JComboBox<>(new String[] {
-	            "800x600", "1280x720", "1920x1080", "2560x1440"
-	        });
+		resDrpdwn = new JComboBox<>(new String[] { "800x600", "1280x720", "1920x1080", "2560x1440" });
 		flscrnBox = new JCheckBox();
 		flscrnBox.setSelected(true);
-		
+
 		// Komponenten hinzufügen
 		settingsPnl.add(musicLbl);
 		settingsPnl.add(musicSldr);
@@ -104,62 +103,60 @@ public class SettingsView extends JFrame {
 		settingsPnl.add(resDrpdwn);
 		settingsPnl.add(fllscrnLbl);
 		settingsPnl.add(flscrnBox);
-		
+
 		// Button Panel
 		buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPnl.setOpaque(false);
 		buttonPnl.setMaximumSize(new Dimension(400, 60));
 		buttonPnl.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
+
 		backBtn = new JButton("Zurück");
 		applyBtn = new JButton("Übernehmen");
 		beautifyButton(backBtn);
 		beautifyButton(applyBtn);
 		buttonPnl.add(backBtn);
 		buttonPnl.add(applyBtn);
-		
+
 		// Aufbau
 		JPanel centerWrapper = new JPanel();
 		centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.Y_AXIS));
 		centerWrapper.setOpaque(false);
-		
+
 		centerWrapper.add(Box.createVerticalGlue());
 		settingsPnl.setAlignmentX(Component.CENTER_ALIGNMENT);
 		centerWrapper.add(settingsPnl);
 		centerWrapper.add(Box.createVerticalGlue());
-		
+
 		backgroundPnl.add(centerWrapper, BorderLayout.CENTER);
 		backgroundPnl.add(buttonPnl, BorderLayout.SOUTH);
-		
+
 		setContentPane(backgroundPnl);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
-		
+
 		for (int i = 0; i < 3; i++) {
+			settingsPnl.add(new JLabel());
+		}
 
-            settingsPnl.add(new JLabel());
-        }		
-		
 		// ActionListener für Buttonsound
-        applyBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SoundController soundController2 = new SoundController();
-				soundController2.playBtnSound();  
-            }
-        });
+		applyBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SoundController soundController2 = new SoundController();
+				soundController2.playBtnSound();
+			}
+		});
 
-        backBtn.addActionListener(new ActionListener() {
-        	@Override
-        	public void actionPerformed(ActionEvent e) {
-        		SoundController soundController3 = new SoundController();
-        		soundController3.playBtnSound();        	
-        	}
-        });
-		
+		backBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SoundController soundController3 = new SoundController();
+				soundController3.playBtnSound();
+			}
+		});
+
 		// Action Listener (2 versch. Wege getestet)
-		backBtn.addActionListener(new ActionListener() {			
+		backBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
@@ -170,10 +167,10 @@ public class SettingsView extends JFrame {
 					System.out.println("StartMenuView fokussiert");
 				}
 				System.out.println("SettingsView geschlossen");
-				dispose();	
+				dispose();
 			}
 		});
-		
+
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
 			int effectVolume = effectSldr.getValue();
@@ -185,15 +182,15 @@ public class SettingsView extends JFrame {
 				String[] parts = resolution.split("x");
 				int width = Integer.parseInt(parts[0].trim());
 				int height = Integer.parseInt(parts[1].trim());
-				
+
 				setSize(width, height);
 				setLocationRelativeTo(null);
-				
+
 				if (GameView.getInstance() != null) {
 					GameView.getInstance().setSize(width, height);
 					GameView.getInstance().setLocationRelativeTo(null);
 				}
-				
+
 				if (StartMenuView.getInstance() != null) {
 					StartMenuView.getInstance().setSize(width, height);
 					StartMenuView.getInstance().setLocationRelativeTo(null);
@@ -203,48 +200,47 @@ public class SettingsView extends JFrame {
 			System.out.println("Musik: " + musicVolume + "%");
 			System.out.println("Effekte: " + effectVolume + "%");
 			System.out.println("Auflösung: " + resolution);
-                    
+
 		});
-		
+
 	}
-	
+
 	/**
-	 * Sets the Background, Foreground, Font & Border of a Button. Adds a MouseListener for Coloring.
+	 * Sets the Background, Foreground, Font & Border of a Button. Adds a
+	 * MouseListener for Coloring.
+	 * 
 	 * @param The target-Button for modification
 	 * @author Christoph
 	 */
-		// Modify Buttons
-				public static void beautifyButton(JButton button) {
-					button.setFocusPainted(false);
-					button.setBackground(new Color(16, 62, 161));
-					button.setForeground(Color.WHITE);
-					button.setFont(FontLoader.loadPixelFont(18f));
+	// Modify Buttons
+	public static void beautifyButton(JButton button) {
+		button.setFocusPainted(false);
+		button.setBackground(new Color(16, 62, 161));
+		button.setForeground(Color.WHITE);
+		button.setFont(FontLoader.loadPixelFont(18f));
 
-					// Rounded Corners
-					Border border = BorderFactory.createLineBorder(new Color(255, 255, 255), 2);
-					Border roundedBorder = BorderFactory.createCompoundBorder(border,
-							BorderFactory.createEmptyBorder(10, 20, 10, 20));
-					button.setBorder(
-							BorderFactory.createCompoundBorder(roundedBorder, BorderFactory.createEmptyBorder(5, 15, 5, 15)));
+		// Rounded Corners
+		Border border = BorderFactory.createLineBorder(new Color(255, 255, 255), 2);
+		Border roundedBorder = BorderFactory.createCompoundBorder(border,
+				BorderFactory.createEmptyBorder(10, 20, 10, 20));
+		button.setBorder(
+				BorderFactory.createCompoundBorder(roundedBorder, BorderFactory.createEmptyBorder(5, 15, 5, 15)));
 
-					// color change when MouseOver is happening
-					button.addMouseListener(new java.awt.event.MouseAdapter() {
-						public void mouseEntered(java.awt.event.MouseEvent evt) {
-							button.setBackground(new Color(37, 232, 7));
-						}
+		// color change when MouseOver is happening
+		button.addMouseListener(new java.awt.event.MouseAdapter() {
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+				button.setBackground(new Color(37, 232, 7));
+			}
 
-						public void mouseExited(java.awt.event.MouseEvent evt) {
-							button.setBackground(new Color(16, 62, 161));
-						}
-					});
-		}
-				@Override
-				public void dispose() {
-					instance = null;
-					super.dispose();
-				}
+			public void mouseExited(java.awt.event.MouseEvent evt) {
+				button.setBackground(new Color(16, 62, 161));
+			}
+		});
 	}
-	
 
-
-
+	@Override
+	public void dispose() {
+		instance = null;
+		super.dispose();
+	}
+}

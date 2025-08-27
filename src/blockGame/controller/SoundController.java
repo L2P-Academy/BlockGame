@@ -2,27 +2,32 @@
 
 package blockGame.controller;
 
-import javax.sound.sampled.*; 					// Import für Audio-Handling (Clip, AudioSystem, AudioInputStream)
-import javax.swing.JFrame;
-
-import java.io.InputStream; 					// Import für das Einlesen von Dateien als Stream
-import java.io.BufferedInputStream;
-import java.io.File; 							// ermöglicht gepuffertes Einlesen für bessere Performance
+import javax.sound.sampled.*;
+import java.io.File; // ermöglicht gepuffertes Einlesen für bessere Performance
 
 public class SoundController {
 
-    private static SoundController instance; 	// Singleton-Instanz des SoundControllers
-    private int volume = 85;
-    private File file;
-    public Clip btnClip, musicClip, sfxClip;
-    
-    // Constructor
-    public SoundController() {
-    	setVolume(this.volume);		
-    }   
+	private static SoundController instance; // Singleton-Instanz des SoundControllers
+	private int volume = 85;
+	private File file;
+	public Clip btnClip, musicClip, sfxClip;
 
-    // Getter & Setter
-    public int getVolume() {
+	public static SoundController getInstance() {
+		return instance;
+	}
+
+	public static void setInstance(SoundController instance) {
+		SoundController.instance = instance;
+	}
+
+	// Constructor
+	public SoundController() {
+		//TODO: Volume from Settings.xml
+		setVolume(this.volume);
+	}
+
+	// Getter & Setter
+	public int getVolume() {
 		return volume;
 	}
 
@@ -67,64 +72,66 @@ public class SoundController {
 
 	/**
 	 * plays a Music Loop
+	 * 
 	 * @author Kain Plan
 	 * @param filePath - Path to Res-File
 	 * @return the Music Clip
 	 */
-    
-    public Clip playMusicLoop(String filePath) {
-        try {
-			if (musicClip == null || !musicClip.isOpen()) {		// || = oder, !vorEingabe = Gegenteiltag
+
+	public Clip playMusicLoop(String filePath) {
+		try {
+			if (musicClip == null || !musicClip.isOpen()) { // || = oder, !vorEingabe = Gegenteiltag
 				AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
 				musicClip = AudioSystem.getClip();
-				musicClip.open(audioStream);	
+				musicClip.open(audioStream);
 				adjustVolume(musicClip, volume);
 				musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        return musicClip;
-    }
-    
-    /**
-     * stops Music Loop
-     * @author Kain Plan
-     */
-    
-    public void stopMusicLoop() {
-    		musicClip.stop();
-    		musicClip.close();
-    }
-    
-    public void adjustVolume(Clip clip, int volume) {
-    		if (clip != null && clip.isOpen() && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+		return musicClip;
+	}
+
+	/**
+	 * stops Music Loop
+	 * 
+	 * @author Kain Plan
+	 */
+
+	public void stopMusicLoop() {
+		musicClip.stop();
+		musicClip.close();
+	}
+
+	public void adjustVolume(Clip clip, int volume) {
+		if (clip != null && clip.isOpen() && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
 			FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-			float minVolume = volumeControl.getMinimum();		// -80.0f
-			float maxVolume = volumeControl.getMaximum();		// 6.0206f
-			
+			float minVolume = volumeControl.getMinimum(); // -80.0f
+			float maxVolume = volumeControl.getMaximum(); // 6.0206f
+
 			float scaledVolume = minVolume + (volume / 100.0f) * (maxVolume - minVolume);
 			volumeControl.setValue(scaledVolume);
 			System.out.println("Volume set to: " + scaledVolume);
-    		} else if (clip != null && !clip.isOpen()) {
+		} else if (clip != null && !clip.isOpen()) {
 			System.out.println("❌ Clip not ready or not supported!");
-			}
-    		
-    }
-    
-    public void playBtnSound() {
-    		if (btnClip != null && btnClip.isOpen()) {
-    			btnClip.stop();
-    			btnClip.flush();
-    		}
-    		try {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File ("src/res/sounds/click.wav"));
+		}
+
+	}
+
+	public void playBtnSound() {
+		if (btnClip != null && btnClip.isOpen()) {
+			btnClip.stop();
+			btnClip.flush();
+		}
+		try {
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File("src/res/sounds/click.wav"));
 			btnClip = AudioSystem.getClip();
 			btnClip.open(audioStream);
 			btnClip.setFramePosition(0);
 			btnClip.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-    }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

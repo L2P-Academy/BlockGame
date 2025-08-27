@@ -12,7 +12,7 @@ public class RecipeRepository {
 	
 	private static final List<ToolModel> TOOLS = new ArrayList<>();
 	
-	// Tools
+	// Tool-Recipes
 	
 	static {
 		TOOLS.add(new ToolModel(101,"Werkzeug", "Holzspitzhake", 30, 1, "/res/img/textures/pickaxe.png"));
@@ -27,6 +27,7 @@ public class RecipeRepository {
 	}
 	
 	// Crafted Blocks
+	// TODO: Duplicate
 
 	private static final List<CraftedBlockModel> CRAFTEDBLOCKS = new ArrayList<>();
 	
