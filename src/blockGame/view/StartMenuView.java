@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -17,8 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
+import blockGame.GameState;
 import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
+import blockGame.controller.XMLController;
 
 public class StartMenuView extends JFrame {
 	// graphical attributes
@@ -96,7 +99,9 @@ public class StartMenuView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
-//				new SaveGameView();
+				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
+				new SaveGameView(gameState);
+				dispose();
 			}
 		});
 		

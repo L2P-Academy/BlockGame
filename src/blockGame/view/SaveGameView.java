@@ -7,12 +7,14 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.format.DateTimeFormatterBuilder;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -24,6 +26,7 @@ import javax.swing.table.JTableHeader;
 import blockGame.GameState;
 import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
+import blockGame.controller.XMLController;
 
 /**
  * SaveGameView represents the window for loading and saving game progress.
@@ -88,11 +91,19 @@ public class SaveGameView extends JFrame {
 		gameTitlePnl.add(gameTitleLbl);
 
 		// Save Table 
-		String[] columnNames = {"Save Slot", "Date", "Playtime"};
+		// TODO: "Playtime"-column = currentTime(ms) - lastSaveTime.parseInt
+		String[] columnNames = {"Save Slot", "Date"};
 		Object[][] data = {
-			{"Save 1", "2025-07-28", "00:45"},
-			{"Save 2", "2025-07-27", "01:20"},
-			{"Save 3", "2025-07-26", "00:30"}
+				// Format: dd/mm/yyyy + hh/mm/ss as a String
+			{"Save 1", "" + 
+				gameState.getLastSavedDate().getDayOfMonth()+ "." + 
+				gameState.getLastSavedDate().getMonth() + "." +
+				gameState.getLastSavedDate().getYear() + " " +
+				gameState.getLastSavedDate().getHour() + ":" +
+				gameState.getLastSavedDate().getMinute() + ":" +
+				gameState.getLastSavedDate().getSecond()}
+//			{"Save 2", "2025-07-27", "01:20"},
+//			{"Save 3", "2025-07-26", "00:30"}
 		};
 
 		// Table model with dummy save data
@@ -148,7 +159,12 @@ public class SaveGameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				SoundController soundController2 = new SoundController();
 				soundController2.playBtnSound(); 
-				System.out.println("Loading game..."); 
+				System.out.println("Loading game...");
+				XMLController xmlController = new XMLController(gameState);
+				dispose();
+				
+				new GameView(soundController2, gameState);
+				
 			}
 		});
 
@@ -168,6 +184,8 @@ public class SaveGameView extends JFrame {
 				else if (StartMenuView.getInstance() != null && StartMenuView.getInstance().isVisible()) {
 					StartMenuView.getInstance().setAlwaysOnTop(true);
 					System.out.println("StartMenuView focused");
+				} else {
+					new StartMenuView(soundController3);
 				}
 
 				// Close this view
