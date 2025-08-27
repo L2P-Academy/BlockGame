@@ -63,7 +63,8 @@ public class SaveGameView extends JFrame {
 	 * image - Title panel - Save/Load table - Buttons with custom styles Also
 	 * initializes button listeners with sound effects.
 	 */
-	public SaveGameView(GameState gameState) {
+	public SaveGameView(SoundController soundController, GameState gameState) {
+		this.soundController = soundController;
 		instance = this;
 		setAlwaysOnTop(true); // keep window on top
 		setTitle("Load Game - PixelMine"); // window title
@@ -151,14 +152,14 @@ public class SaveGameView extends JFrame {
 		loadGameBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SoundController soundController2 = new SoundController();
-				soundController2.playBtnSound();
-				System.out.println("Loading game...");
-				new XMLController(gameState);
+				soundController.playBtnSound();
+				soundController.stopMusicLoop();
 				dispose();
-
-				new GameView(soundController2, gameState);
-
+				StartMenuView.getInstance().dispose();
+				if (GameView.getInstance() != null) {
+					GameView.getInstance().dispose();
+				}
+				new GameView(soundController, gameState);
 			}
 		});
 
@@ -166,8 +167,7 @@ public class SaveGameView extends JFrame {
 		backBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SoundController soundController3 = new SoundController();
-				soundController3.playBtnSound();
+				soundController.playBtnSound();
 
 				// Return to GameView if it's active
 				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
@@ -178,8 +178,6 @@ public class SaveGameView extends JFrame {
 				else if (StartMenuView.getInstance() != null && StartMenuView.getInstance().isVisible()) {
 					StartMenuView.getInstance().setAlwaysOnTop(true);
 					System.out.println("StartMenuView focused");
-				} else {
-					new StartMenuView(soundController3);
 				}
 
 				// Close this view
@@ -192,8 +190,7 @@ public class SaveGameView extends JFrame {
 		saveGameBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SoundController soundController4 = new SoundController();
-				soundController4.playBtnSound();
+				soundController.playBtnSound();
 				System.out.println("Saving game...");
 			}
 		});

@@ -92,13 +92,13 @@ public class GameView extends JFrame {
 
 		loadGameState(gameState);
 
-//		for (var entry : gameState.getBlocks().entrySet()) {
-//			GameState.Coord c = entry.getKey();
-//			int id = entry.getValue();
-//			if (id != 0) {
-//				replaceBlockAt(c.row(), c.col(), id);
-//			}
-//		}
+		for (var entry : gameState.getBlocks().entrySet()) {
+			GameState.Coord c = entry.getKey();
+			int id = entry.getValue();
+			if (id != 0) {
+				replaceBlockAt(c.row(), c.col(), id);
+			}
+		}
 
 		// show player label
 		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
@@ -130,7 +130,7 @@ public class GameView extends JFrame {
 
 		// tool Panel
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toolPnl.setPreferredSize(toolDimension);
+		toolPnl.setPreferredSize(new Dimension(0, 120));
 		toolPnl.setBackground(Color.DARK_GRAY);
 		
 		// add tool labels from 0-9
@@ -702,6 +702,7 @@ public class GameView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				pauseDialog.dispose();
 
 			}
@@ -711,9 +712,10 @@ public class GameView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				pauseDialog.dispose();
 				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
-				SaveGameView saveGameView = new SaveGameView(gameState);
+				SaveGameView saveGameView = new SaveGameView(soundController, gameState);
 				saveGameView.setAlwaysOnTop(true);
 				getInstance();
 			}
@@ -723,6 +725,7 @@ public class GameView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				pauseDialog.dispose();
 				GameState gameState = new GameState(ROWS, COLS, playerRow, playerCol);
 				for (int r = 0; r < ROWS; r++) {
@@ -746,6 +749,7 @@ public class GameView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				pauseDialog.dispose();
 				new SettingsView(soundController);
 
@@ -756,6 +760,8 @@ public class GameView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
+				soundController.stopMusicLoop();
 				pauseDialog.dispose();
 				dispose();
 				StartMenuView startMenu = new StartMenuView(soundController);
@@ -764,9 +770,10 @@ public class GameView extends JFrame {
 		});
 
 		exitButton.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
+				soundController.stopMusicLoop();
 				pauseDialog.dispose();
 				dispose();
 			}
