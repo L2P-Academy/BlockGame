@@ -17,6 +17,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,7 +33,8 @@ public class SettingsView extends JFrame {
 	private JPanel settingsPnl, backgroundPnl, buttonPnl;
 	private JLabel musicLbl, effectLbl, resolutionLbl, fllscrnLbl;
 	private JSlider musicSldr, effectSldr;
-	private JComboBox<String> resDrpdwn, flscrnDrpdwn;
+	private JComboBox<String> resDrpdwn;
+	private JCheckBox flscrnBox;
 	private JButton backBtn, applyBtn;
 	private String imagePath = "/res/img/loadscreen_bg.png";
 	private SoundController soundController;
@@ -81,7 +83,7 @@ public class SettingsView extends JFrame {
 		resolutionLbl.setFont(labelFont);
 		resolutionLbl.setForeground(fontColor);
 		
-		fllscrnLbl = new JLabel("Vollbild");
+		fllscrnLbl = new JLabel("Vollbild:");
 		fllscrnLbl.setFont(labelFont);
 		fllscrnLbl.setForeground(fontColor);
 		
@@ -90,10 +92,8 @@ public class SettingsView extends JFrame {
 		resDrpdwn = new JComboBox<>(new String[] {
 	            "800x600", "1280x720", "1920x1080", "2560x1440"
 	        });
-		
-		flscrnDrpdwn = new JComboBox<>(new String[] {
-				"Vollbild", "Fenstermodus"
-			});
+		flscrnBox = new JCheckBox();
+		flscrnBox.setSelected(true);
 		
 		// Komponenten hinzufügen
 		settingsPnl.add(musicLbl);
@@ -103,7 +103,7 @@ public class SettingsView extends JFrame {
 		settingsPnl.add(resolutionLbl);
 		settingsPnl.add(resDrpdwn);
 		settingsPnl.add(fllscrnLbl);
-		settingsPnl.add(flscrnDrpdwn);
+		settingsPnl.add(flscrnBox);
 		
 		// Button Panel
 		buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER));
