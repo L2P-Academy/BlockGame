@@ -1,6 +1,8 @@
 package blockGame.controller;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -84,6 +86,16 @@ public class XMLController {
 				gameState.putBlock(c, r, id);
 			}
 			
+			// inventory
+			NodeList itemNodes = rootElement.getElementsByTagName("item");
+			for(int i = 0; i < itemNodes.getLength(); i++) {
+				Element blockElement = (Element) itemNodes.item(i);
+				int id = Integer.parseInt(blockElement.getAttribute("id"));
+				int number = Integer.parseInt(blockElement.getAttribute("number"));
+//				gameState.putInventory(id,number);
+//				System.out.println(id + " - " + String.valueOf(number) + " Stück");
+			}
+			
 			System.out.println("Savegame geladen von: " + xmlFile.getAbsolutePath());
 			return gameState;
 			
@@ -95,6 +107,9 @@ public class XMLController {
 	}
 	
 	// create XML-File if none exists for coordinates
+	/**
+	 * writes a savegame file
+	 */
 	public void writeSaveGameFileXML() {
 		new File(saveGamePath);
 		
@@ -139,6 +154,21 @@ public class XMLController {
 		        blocks.appendChild(b);
 		    });
 			
+			// inventory informations
+			Element inventory = doc.createElement("inventory");
+			rootElement.appendChild(inventory);
+			
+			// write items in order
+			int itemSlots = 20; 											// wildcard
+			for(int i = 0; i < itemSlots; i++) { 
+				Element item = doc.createElement("item");
+				int id = 3;												// wildcard 	
+				item.setAttribute("id", String.valueOf(id));
+				int numberOfPices = 23; 									// wildcard
+				item.setAttribute("number", String.valueOf(numberOfPices));	
+				inventory.appendChild(item);
+			}
+			
 			// write contents into file
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer = tf.newTransformer();
@@ -160,8 +190,39 @@ public class XMLController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+	listSaveGames(); 											// testing method listSaveGames()
+	
+	/**
+	 * Return the list of savegame files
+	 * 
+	 */
 	}
+    public static File[] listSaveGames() {
+        // relative path to savegame folder in user directory
+    		Path savegameDir = Paths.get(System.getProperty("user.dir")).resolve("savegames");
+        File folder = savegameDir.toFile();
+        
+        if (!folder.exists() || !folder.isDirectory()) {
+            System.err.println("Fehler: Verzeichnis nicht gefunden: " + savegameDir.toAbsolutePath());
+            return new File[0];
+        }
+
+        File[] savegameFiles = folder.listFiles((dir, name) -> name.toLowerCase().startsWith("savegame"));
+        
+        if (savegameFiles == null || savegameFiles.length == 0) {
+        		System.out.println("Keine Spielstände gefunden in: " + savegameDir.toAbsolutePath());
+            return new File[0]; // returns empty file list
+        } else {
+        		// Output to command interface 
+            System.out.println("Gefundene Spielstände:"); 
+            for (File datei : savegameFiles) {
+                System.out.println("- " + datei.getName()); // Output to command interface 
+            }
+            // order files by name - Thx 2 ChatGPT 4 this suggestion
+            java.util.Arrays.sort(savegameFiles, java.util.Comparator.comparing(File::getName));
+            return savegameFiles; // returns savegame file list
+        }
+    }
 	
 	
 
