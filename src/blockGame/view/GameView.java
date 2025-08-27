@@ -64,10 +64,10 @@ public class GameView extends JFrame {
 	// complex attributes
 	private static GameView instance;
 	private SoundController soundController;
-	private JLabel toolLbl0, toolLbl1, toolLbl2, toolLbl3, toolLbl4, toolLbl5, toolLbl6, toolLbl7, toolLbl8, toolLbl9,
-			playerLbl;
 	private JPanel backgroundPnl, blockPnl, toolPnl;
-	private String imagePath = "/res/img/maingame_bg.png";	
+	private String imagePath = "/res/img/maingame_bg.png";
+	private JLabel playerLbl;
+	private JLabel[] toolLbls;
 
 	private final Map<String, ImageIcon> iconCache = new HashMap<>();
 
@@ -113,7 +113,7 @@ public class GameView extends JFrame {
 		// SoundController initialize
 		this.soundController = soundController;
 		soundController.playMusicLoop("src/res/sounds/music/pmtfoundation.wav");
-		instance = this;
+		instance = this; 
 		setTitle("PixelMine!"); // frame title
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // "X" -> close frame
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -132,57 +132,16 @@ public class GameView extends JFrame {
 		toolPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		toolPnl.setPreferredSize(toolDimension);
 		toolPnl.setBackground(Color.DARK_GRAY);
-
-		toolLbl0 = new JLabel();
-		toolLbl0.setPreferredSize(toolDimension);
-		toolLbl0.setBorder(toolBorder);
-
-		toolLbl1 = new JLabel();
-		toolLbl1.setPreferredSize(toolDimension);
-		toolLbl1.setBorder(toolBorder);
-
-		toolLbl2 = new JLabel();
-		toolLbl2.setPreferredSize(toolDimension);
-		toolLbl2.setBorder(toolBorder);
-
-		toolLbl3 = new JLabel();
-		toolLbl3.setPreferredSize(toolDimension);
-		toolLbl3.setBorder(toolBorder);
-
-		toolLbl4 = new JLabel();
-		toolLbl4.setPreferredSize(toolDimension);
-		toolLbl4.setBorder(toolBorder);
-
-		toolLbl5 = new JLabel();
-		toolLbl5.setPreferredSize(toolDimension);
-		toolLbl5.setBorder(toolBorder);
-
-		toolLbl6 = new JLabel();
-		toolLbl6.setPreferredSize(toolDimension);
-		toolLbl6.setBorder(toolBorder);
-
-		toolLbl7 = new JLabel();
-		toolLbl7.setPreferredSize(toolDimension);
-		toolLbl7.setBorder(toolBorder);
-
-		toolLbl8 = new JLabel();
-		toolLbl8.setPreferredSize(toolDimension);
-		toolLbl8.setBorder(toolBorder);
-
-		toolLbl9 = new JLabel();
-		toolLbl9.setPreferredSize(toolDimension);
-		toolLbl9.setBorder(toolBorder);
-
-		toolPnl.add(toolLbl0);
-		toolPnl.add(toolLbl1);
-		toolPnl.add(toolLbl2);
-		toolPnl.add(toolLbl3);
-		toolPnl.add(toolLbl4);
-		toolPnl.add(toolLbl5);
-		toolPnl.add(toolLbl6);
-		toolPnl.add(toolLbl7);
-		toolPnl.add(toolLbl8);
-		toolPnl.add(toolLbl9);
+		
+		// add tool labels from 0-9
+		toolLbls = new JLabel[10];
+		for (int i = 0; i < toolLbls.length; i++) {
+			JLabel toolLbl = new JLabel();
+			toolLbl.setPreferredSize(toolDimension);
+			toolLbl.setBorder(toolBorder);
+			toolLbls[i] = toolLbl;
+			toolPnl.add(toolLbl);
+		}
 
 		ButtonGroup tools = new ButtonGroup();
 		for (int i = 0; i < 10; i++) {
