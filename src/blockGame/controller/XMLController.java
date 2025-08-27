@@ -3,6 +3,8 @@ package blockGame.controller;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -123,6 +125,19 @@ public class XMLController {
 			// root element for world & player state
 			Element rootElement = doc.createElement("savegame");
 			doc.appendChild(rootElement);
+			
+			// time information 
+			Element time = doc.createElement("time");
+			LocalTime timeNow = LocalTime.now();
+			LocalDate dateNow = LocalDate.now();
+
+	        time.setAttribute("day", String.valueOf(dateNow.getDayOfMonth()));
+	        time.setAttribute("month", String.valueOf(dateNow.getMonthValue()));
+			time.setAttribute("year", String.valueOf(dateNow.getYear()));
+			time.setAttribute("hour", String.valueOf(timeNow.getHour()));
+			time.setAttribute("minute", String.valueOf(timeNow.getMinute()));
+			time.setAttribute("second", String.valueOf(timeNow.getSecond()));
+			rootElement.appendChild(time);
 			
 			// world size information
 			Element world = doc.createElement("world");
@@ -252,7 +267,7 @@ public class XMLController {
 //			float sfxVolume = gameState.getSFXVolume();
 			float sfxVolume = -6.8f;	//wild card
 			SFXVolume.setAttribute("Volume", String.valueOf(sfxVolume));
-//			SFXVolume.setAttribute("muted", String.valueOf(gameState.getSFXVolumeMute()));	// sound muted or not
+//			SFXVolume.setAttribute("muted", String.valueOf(gameState.getSFXVolumeMute()));	// SFX muted or not
 			rootElement.appendChild(SFXVolume);
 			
 			// Screen resolution
@@ -286,6 +301,5 @@ public class XMLController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	listSaveGames(); 											// testing method listSaveGames()
 	}
 }
