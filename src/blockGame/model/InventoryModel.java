@@ -12,7 +12,6 @@ public class InventoryModel {
 
 	
 	// Konstruktor 
-	
 	public InventoryModel (ItemModel InventoryModel) {
 		this.InventoryModel = InventoryModel;
 		this.itemNumbersMap = new HashMap<>();
@@ -21,7 +20,23 @@ public class InventoryModel {
 		// Item hinzufügen
 		public void addItemNumber(ItemModel item, int amount) {
 			itemNumbersMap.put(item, amount);
-		} 
+		}
+
+		public ItemModel getInventoryModel() {
+			return InventoryModel;
+		}
+
+		public void setInventoryModel(ItemModel inventoryModel) {
+			InventoryModel = inventoryModel;
+		}
+
+		public Map<ItemModel, Integer> getItemNumbersMap() {
+			return itemNumbersMap;
+		}
+
+		public void setItemNumbersMap(Map<ItemModel, Integer> itemNumbersMap) {
+			this.itemNumbersMap = itemNumbersMap;
+		}  
 		
 		
 }
