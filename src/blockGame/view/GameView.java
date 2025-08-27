@@ -18,6 +18,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
+
 import javax.swing.JComponent;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -63,42 +65,38 @@ public class GameView extends JFrame {
 	private enum PlayerAnim { IDLE, WALK_LEFT, WALK_RIGHT }
 	private PlayerAnim currentAnim = PlayerAnim.IDLE;		// Aktueller Animationzustand
 	private boolean leftDown = false, rightDown = false;	// Tastenzustand
-	
-	/**
-	 * Liefert den Ressourcenpfad (Klassenpfad) zum GIF passend zum übergebenen Animationszustand.
-	 *
-	 * @param anim gewünschter Animationszustand
-	 * @return Klassenpfad zur entsprechenden GIF-Datei (z. B. {@code "/res/img/player_WALK_LEFT_72px.gif"})
-	 * @author Marc
-	 */
-	private String animPath(PlayerAnim anim) { 				
-		switch (anim) {
-			case WALK_LEFT:  return "/res/img/player_WALK_LEFT_72px.gif";
-			case WALK_RIGHT: return "/res/img/player_WALK_RIGHT_72px.gif";
-			default:         return "/res/img/player_IDLE_72px.gif";
-		}
-	}
-
-	
-
-	/**
-	 * Wendet den aktuell gesetzten Animationszustand auf das {@code playerLbl} an.
-	 * <p>
-	 * Skaliert das entsprechende (ggf. animierte) GIF auf die aktuelle {@code blockSize}
-	 * und setzt es als Icon. Falls die Ressource nicht gefunden wird, bleibt das vorhandene Icon erhalten.
-	 * </p>
-	 */
-	private void applyPlayerAnim() {
-		if (playerLbl == null) return;
-		ImageIcon icon = getScaledIcon(animPath(currentAnim), blockSize, true);
-		if (icon != null) playerLbl.setIcon(icon);
-	}
-
 
 	public static GameView getInstance() {
 		return instance;
 	}
+	
+	// overloaded constructor for loaded games from file
+	public GameView(SoundController soundController, GameState gameState) {
+		// standard constructor - see below
+		this(soundController);
+		
+		this.playerRow = gameState.getPlayerRow();
+		this.playerCol = gameState.getPlayerCol();
+		
+		loadGameState(gameState);
+		
+//		for (var entry : gameState.getBlocks().entrySet()) {
+//			GameState.Coord c = entry.getKey();
+//			int id = entry.getValue();
+//			if (id != 0) {
+//				replaceBlockAt(c.row(), c.col(), id);
+//			}
+//		}
+		
+		// show player label
+		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
+		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
+		worldLabels[playerRow][playerCol].revalidate();
+		worldLabels[playerRow][playerCol].repaint();
+		
+	}
 
+	// standard constructor for new games
 	public GameView(SoundController soundController) {
 		// SoundController initialize
 		this.soundController = soundController;
@@ -341,6 +339,36 @@ public class GameView extends JFrame {
 			}
 		});
 	}
+	/**
+	 * Liefert den Ressourcenpfad (Klassenpfad) zum GIF passend zum übergebenen Animationszustand.
+	 *
+	 * @param anim gewünschter Animationszustand
+	 * @return Klassenpfad zur entsprechenden GIF-Datei (z. B. {@code "/res/img/player_WALK_LEFT_72px.gif"})
+	 * @author Marc
+	 */
+	private String animPath(PlayerAnim anim) { 				
+		switch (anim) {
+			case WALK_LEFT:  return "/res/img/player_WALK_LEFT_72px.gif";
+			case WALK_RIGHT: return "/res/img/player_WALK_RIGHT_72px.gif";
+			default:         return "/res/img/player_IDLE_72px.gif";
+		}
+	}
+
+	
+
+	/**
+	 * Wendet den aktuell gesetzten Animationszustand auf das {@code playerLbl} an.
+	 * <p>
+	 * Skaliert das entsprechende (ggf. animierte) GIF auf die aktuelle {@code blockSize}
+	 * und setzt es als Icon. Falls die Ressource nicht gefunden wird, bleibt das vorhandene Icon erhalten.
+	 * </p>
+	 */
+	private void applyPlayerAnim() {
+		if (playerLbl == null) return;
+		ImageIcon icon = getScaledIcon(animPath(currentAnim), blockSize, true);
+		if (icon != null) playerLbl.setIcon(icon);
+	}
+	
 	private void toggleInventory() {
 	    
 	        new InventoryView();
@@ -692,12 +720,9 @@ public class GameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				pauseDialog.dispose();
 				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
+				SaveGameView saveGameView = new SaveGameView(gameState);
+				saveGameView.setAlwaysOnTop(true);
 				GameView gameView = getInstance();
-				gameView.loadGameState(gameState);
-				JOptionPane.showMessageDialog(GameView.this, "Spiel geladen!", "Laden", JOptionPane.INFORMATION_MESSAGE);
-//				SaveGameView saveGameView = new SaveGameView();
-//				saveGameView.setAlwaysOnTop(true);
-
 			}
 		});
 

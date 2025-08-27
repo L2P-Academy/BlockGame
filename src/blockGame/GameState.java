@@ -1,6 +1,7 @@
 // Dirk
 package blockGame;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ public class GameState {
 	public record Coord(int col, int row) {}; // compact Class, simplified coordinates
 	private final Map<Coord, Integer> blocks = new HashMap<>(); // mapping Coordinates and BlockIds later
 	private static GameState instance;
+	private LocalDateTime lastSavedDate;
 	
 	public static GameState getInstance() {
 		return instance;
@@ -25,6 +27,8 @@ public class GameState {
 		this.worldCols = worldCols;
 		this.playerRow = playerRow;
 		this.playerCol = playerCol;
+		// TODO: change to saveGame-created timestamp
+		this.lastSavedDate = LocalDateTime.now();
 	}
 	
 	// getter/setter
@@ -55,5 +59,14 @@ public class GameState {
 	
 	public Integer getBlock(int col, int row) {
 		return blocks.get(new Coord(col, row));
+	}
+	
+	// Time stamp
+	public LocalDateTime getLastSavedDate() {
+		return lastSavedDate;
+	}
+
+	public void setLastSavedDate(LocalDateTime lastSavedDate) {
+		this.lastSavedDate = lastSavedDate;
 	}
 }
