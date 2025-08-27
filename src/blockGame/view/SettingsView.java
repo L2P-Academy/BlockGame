@@ -17,7 +17,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,11 +30,10 @@ import blockGame.controller.SoundController;
 public class SettingsView extends JFrame {
 	// graphical attributes
 	private JPanel settingsPnl, backgroundPnl, buttonPnl;
-	private JLabel musicLbl, effectLbl, resolutionLbl;
+	private JLabel musicLbl, effectLbl, resolutionLbl, fllscrnLbl;
 	private JSlider musicSldr, effectSldr;
-	private JComboBox<String> resolutionDropdown;
+	private JComboBox<String> resDrpdwn, flscrnDrpdwn;
 	private JButton backBtn, applyBtn;
-	private JCheckBox fullscreenBox;
 	private String imagePath = "/res/img/loadscreen_bg.png";
 	private SoundController soundController;
 	private static SettingsView instance;
@@ -83,18 +81,19 @@ public class SettingsView extends JFrame {
 		resolutionLbl.setFont(labelFont);
 		resolutionLbl.setForeground(fontColor);
 		
-		/*
-		fullscreenBox = new JCheckBox("Vollbild");
-		fullscreenBox.setFont(labelFont);
-		fullscreenBox.setForeground(fontColor);
-		*/
+		fllscrnLbl = new JLabel("Vollbild");
+		fllscrnLbl.setFont(labelFont);
+		fllscrnLbl.setForeground(fontColor);
 		
-		
-		musicSldr = new JSlider(0, 100, 50); // -> Wert 50 später durch getInstance() ersetzen wenn Controller steht
-		effectSldr = new JSlider(0, 100, 50); // 							""
-		resolutionDropdown = new JComboBox<>(new String[] {
-	            "800x600", "1280x720", "1920x1080", "2560x1440"			//				""
+		musicSldr = new JSlider(0, 100, 50);
+		effectSldr = new JSlider(0, 100, 50);
+		resDrpdwn = new JComboBox<>(new String[] {
+	            "800x600", "1280x720", "1920x1080", "2560x1440"
 	        });
+		
+		flscrnDrpdwn = new JComboBox<>(new String[] {
+				"Vollbild", "Fenstermodus"
+			});
 		
 		// Komponenten hinzufügen
 		settingsPnl.add(musicLbl);
@@ -102,11 +101,9 @@ public class SettingsView extends JFrame {
 		settingsPnl.add(effectLbl);
 		settingsPnl.add(effectSldr);
 		settingsPnl.add(resolutionLbl);
-		settingsPnl.add(resolutionDropdown);
-		/*
-		settingsPnl.add(new JLabel("Fenstermodus:"));
-		settingsPnl.add(fullscreenBox);
-		*/
+		settingsPnl.add(resDrpdwn);
+		settingsPnl.add(fllscrnLbl);
+		settingsPnl.add(flscrnDrpdwn);
 		
 		// Button Panel
 		buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -149,8 +146,7 @@ public class SettingsView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SoundController soundController2 = new SoundController();
-				soundController2.playBtnSound(); 
-                System.out.println("Spiel wird geladen..."); 	// kannste später rausnehmen
+				soundController2.playBtnSound();  
             }
         });
 
@@ -158,8 +154,7 @@ public class SettingsView extends JFrame {
         	@Override
         	public void actionPerformed(ActionEvent e) {
         		SoundController soundController3 = new SoundController();
-        		soundController3.playBtnSound();
-        		System.out.println("Gehe zurück..."); 			// das auch ^^
+        		soundController3.playBtnSound();        	
         	}
         });
 		
@@ -185,7 +180,25 @@ public class SettingsView extends JFrame {
 			soundController.setVolume(effectVolume);
 			int musicVolume = musicSldr.getValue();
 			soundController.setVolume(musicVolume);
-			String resolution = (String) resolutionDropdown.getSelectedItem();
+			String resolution = (String) resDrpdwn.getSelectedItem();
+			if (resolution != null) {
+				String[] parts = resolution.split("x");
+				int width = Integer.parseInt(parts[0].trim());
+				int height = Integer.parseInt(parts[1].trim());
+				
+				setSize(width, height);
+				setLocationRelativeTo(null);
+				
+				if (GameView.getInstance() != null) {
+					GameView.getInstance().setSize(width, height);
+					GameView.getInstance().setLocationRelativeTo(null);
+				}
+				
+				if (StartMenuView.getInstance() != null) {
+					StartMenuView.getInstance().setSize(width, height);
+					StartMenuView.getInstance().setLocationRelativeTo(null);
+				}
+			}
 			System.out.println("Gespeichert:");
 			System.out.println("Musik: " + musicVolume + "%");
 			System.out.println("Effekte: " + effectVolume + "%");
