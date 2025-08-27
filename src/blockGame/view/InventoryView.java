@@ -137,7 +137,7 @@ public class InventoryView extends JFrame {
 
         backBtn = new JButton("Schließen");
 
-        beautifyButton(backBtn);
+        StartMenuView.beautifyButton(backBtn);
 
         buttonPnl.add(backBtn);
 
@@ -190,21 +190,4 @@ public class InventoryView extends JFrame {
         table.setForeground(Color.BLACK);
 
     }
-
-        
-
-    // Button verschönern
-
-    public static void beautifyButton(JButton button) {
-
-        button.setFocusPainted(false);
-
-        button.setBackground(Color.DARK_GRAY);
-
-        button.setForeground(Color.WHITE);
-
-        button.setFont(FontLoader.loadPixelFont(18f));
-
-    }
-
 }
