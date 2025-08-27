@@ -321,6 +321,14 @@ public class GameView extends JFrame {
 		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
 		highlightAt(playerRow, playerCol +1);
 		
+		// Timer der alle 100ms gravitation erzeugt, insofern der unter dem spieler liegende block luft ist 
+		new Timer(100, e -> { 
+			int r = playerRow + 1, c = playerCol;
+			if (r < ROWS && world[r][c] != null && world[r][c].getId() == 0) {
+				movePlayer(+1,0);
+			}
+		}).start();
+		
 		
 		// Resize-Handling (debounced)
 		addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -386,6 +394,10 @@ public class GameView extends JFrame {
 		if (newRow < 0 || newRow >= ROWS || newCol < 0 || newCol >= COLS) {
 			return;
 		}
+		// Bewegen nur in AIR_BLOCKS mit (ID == 0) möglich
+		if (world[newRow][newCol] != null && world[newRow][newCol].getId() != 0) 
+			return;
+		
 		JLabel mineLbl = highlightAt(newRow, newCol + 1);
 		
 		// alten Platz räumen
