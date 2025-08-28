@@ -233,7 +233,7 @@ public class XMLController {
 	}
 
 	/**
-	 * Return the list of savegame files
+	 * Return the File array of savegame files
 	 * 
 	 */
 	public static File[] listSaveGames() {
@@ -322,6 +322,48 @@ public class XMLController {
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * gibt { float soundVolume, float sfxVolume, int resolutionX, int resolutionY } 
+	 * @return
+	 */
+	public Object[] readSettingsFromXML() {
+		File settingsFile = new File(settingsPath);
+
+		try {
+			if (!settingsFile.exists()) {
+				System.err.println("Savegame Datei nicht gefunden!" + settingsFile.getAbsolutePath());
+				return null;
+			}
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			Document doc = documentBuilder.parse(settingsFile);
+			doc.getDocumentElement().normalize();
+
+			Element rootElement = doc.getDocumentElement();
+
+			//Sound Volume
+			Element soundVolume = (Element) rootElement.getElementsByTagName("SoundVolume").item(0);
+			float sVol = Float.parseFloat(soundVolume.getAttribute("Volume"));
+			
+			// SFX Volume
+			Element sfxVolume = (Element) rootElement.getElementsByTagName("SFXVolume").item(0);
+			float sfxVol = Float.parseFloat(sfxVolume.getAttribute("Volume"));
+			
+			//resolution X and Y
+			Element resolution = (Element) rootElement.getElementsByTagName("Resolution").item(0);
+			int resX = Integer.parseInt(resolution.getAttribute("X"));
+			int resY = Integer.parseInt(resolution.getAttribute("Y"));
+			
+			System.out.println("Einstellungen geladen von: " + settingsFile.getAbsolutePath());
+			return new Object[] { sVol, sfxVol, resX, resY };
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Fehler beim lesen der Datei!");
+			return null;
 		}
 	}
 }
