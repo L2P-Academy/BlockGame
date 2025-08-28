@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,7 +29,7 @@ import blockGame.GameState;
 public class XMLController {
 
 	// Filepaths
-	private String saveGamePath = "savegames/saveGame.xml";
+	private String saveGamePath = "savegames/saveGame_";
 	private String settingsPath = "settings/settings.xml";
 	private GameState gameState;
 
@@ -113,11 +114,27 @@ public class XMLController {
 
 	// create XML-File if none exists for coordinates
 	/**
-	 * writes a savegame file
+	 * creates a savegame file with the entered saveGameName as ID, must be unique 
+	 * @param saveGameName
 	 */
-	public void writeSaveGameFileXML() {
-		new File(saveGamePath);
+	public void writeSaveGameFileXML(/**String saveGameName*/) {
+		 // input dialog for saveGameName
+		String saveGameName = JOptionPane.showInputDialog(null, "Bitte eindeutige Speicher-ID angeben:", "Eingabe", JOptionPane.QUESTION_MESSAGE);
+		String saveGamePathLocal = saveGamePath + saveGameName + ".xml"; // builds filename of savegame file
+		File newFile = new File(saveGamePathLocal);   
 
+		//checking for duplicate filenames
+		if (newFile.exists()) { // hier ist noch ein Fehler, "return;" bricht das speichern offenbar nicht ab
+			//Yes/No confirm dialog
+			int yesNo = JOptionPane.showConfirmDialog(null, "Die Datei existiert bereits, soll sie überschrieben werden?", "Bestätigung", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+	        if (yesNo != JOptionPane.YES_OPTION) { // hier ist noch ein Fehler, egal was angeklickt wird, die Methode wird nicht abgebrochen 
+	        		System.out.println("Speichern abgebrochen.");
+	        		return;
+	        }
+	        System.out.println("Spielstand wird gespeichert...");
+		}
+		System.out.println("...gespeichert.");
+		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder;
 		try {
@@ -127,6 +144,11 @@ public class XMLController {
 			// root element for world & player state
 			Element rootElement = doc.createElement("savegame");
 			doc.appendChild(rootElement);
+
+			// savegame ID
+			Element saveGameID = doc.createElement("SavegameID");
+			saveGameID.setAttribute("ID", saveGameName);
+			rootElement.appendChild(saveGameID);
 			
 			// time information 
 			Element time = doc.createElement("time");
@@ -192,7 +214,7 @@ public class XMLController {
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
-			File file = new File(saveGamePath);
+			File file = new File(saveGamePathLocal);
 			file.getParentFile().mkdirs();
 			transformer.transform(new DOMSource(doc), new StreamResult(file));
 
@@ -242,7 +264,15 @@ public class XMLController {
 	}
 
 	// save Settings in XML file
-	public void saveSettings() {
+	/**
+	 * saves settings into XML file settings.xml
+	 * 
+	 * @param soundVolume
+	 * @param sfxVolume
+	 * @param resX
+	 * @param resY
+	 */
+	public void saveSettings(float soundVolume, float sfxVolume, int resX, int resY) {
 		new File(settingsPath);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -256,29 +286,22 @@ public class XMLController {
 			doc.appendChild(rootElement);
 
 			// sound volume
-			Element soundVolume = doc.createElement("SoundVolume");
-//			float sVolume = gameState.getSoundVolume();
-			float sVolume = -6.8f; // Wild card
-			soundVolume.setAttribute("Volume", String.valueOf(sVolume));
+			Element sound_Volume = doc.createElement("SoundVolume");
+			sound_Volume.setAttribute("Volume", String.valueOf(soundVolume));
 //			soundVolume.setAttribute("muted", String.valueOf(gameState.getSoundVolumeMute())); // sound muted or not
-			rootElement.appendChild(soundVolume);
+			rootElement.appendChild(sound_Volume);
 
 			// SFX volume
 			Element SFXVolume = doc.createElement("SFXVolume");
-//			float sfxVolume = gameState.getSFXVolume();
-			float sfxVolume = -6.8f; // wild card
+
 			SFXVolume.setAttribute("Volume", String.valueOf(sfxVolume));
 //			SFXVolume.setAttribute("muted", String.valueOf(gameState.getSFXVolumeMute()));	// SFX muted or not
 			rootElement.appendChild(SFXVolume);
 
 			// Screen resolution
 			Element resolution = doc.createElement("Resolution");
-//			int row = gameState.getPlayerRow();
-			int row = 1024; // wild card
-			resolution.setAttribute("X", String.valueOf(row));
-//			int col = gameState.getPlayerCol();
-			int col = 768; // wild card
-			resolution.setAttribute("Y", String.valueOf(col));
+			resolution.setAttribute("X", String.valueOf(resX));
+			resolution.setAttribute("Y", String.valueOf(resY));
 			rootElement.appendChild(resolution);
 
 			// write contents into file

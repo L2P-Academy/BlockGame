@@ -74,6 +74,9 @@ public class GameView extends JFrame {
 	private String imagePath = "/res/img/maingame_bg.png";
 	private JLabel playerLbl;
 	private JLabel[] toolLbls;
+	
+	// timer - IMPORTANT: stop after usage! (=memory/cpu leak)
+	Timer gravitationTimer, debounceTimer;
 
 	private final Map<String, ImageIcon> iconCache = new HashMap<>();
 
@@ -343,32 +346,31 @@ public class GameView extends JFrame {
 
 		// Timer der alle 100ms gravitation erzeugt, insofern der unter dem spieler
 		// liegende block luft ist
-		new Timer(100, e -> {
-		    if (isBuildModeActive) return;                // im BuildMode ist der Spieler festgesetzt aka keine Gravitation
+		gravitationTimer = new Timer(100, e -> {
+      if (isBuildModeActive) return;                // im BuildMode ist der Spieler festgesetzt aka keine Gravitation
 		    long t = System.currentTimeMillis();
-		    if (t - lastJumpMs < 180) return;          // ~180ms „Schwebezeit“ nach jedem mal SPACE drücken
-		    int r = playerRow + 1, c = playerCol;
-		    if (r < ROWS && world[r][c] != null && world[r][c].getId() == 0) {
-		        movePlayer(+1, 0);                       
-		    }
-		}).start();
-
+		  if (t - lastJumpMs < 180) return;          // ~180ms „Schwebezeit“ nach jedem mal SPACE drücken
+			int r = playerRow + 1, c = playerCol;
+			if (r < ROWS && world[r][c] != null && world[r][c].getId() == 0) {
+				movePlayer(+1, 0);
+			}
+		});
+		gravitationTimer.start();
 
 		// Resize-Handling (debounced)
 		addComponentListener(new java.awt.event.ComponentAdapter() {
-			private Timer debounce;
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				if (debounce != null && debounce.isRunning()) {
-					debounce.restart();
+				if (debounceTimer != null && debounceTimer.isRunning()) {
+					debounceTimer.restart();
 				} else {
-					debounce = new Timer(120, ev -> {
-						debounce.stop();
+					debounceTimer = new Timer(120, ev -> {
+						debounceTimer.stop();
 						onResizeRebuild();
 					});
-					debounce.setRepeats(false);
-					debounce.start();
+					debounceTimer.setRepeats(false);
+					debounceTimer.start();
 				}
 			}
 		});
@@ -859,7 +861,6 @@ public class GameView extends JFrame {
 				soundController.playBtnSound();
 				pauseDialog.dispose();
 				new SettingsView(soundController);
-
 			}
 		});
 
@@ -893,6 +894,14 @@ public class GameView extends JFrame {
 		pauseDialog.add(menuButton);
 		pauseDialog.add(exitButton);
 		pauseDialog.setVisible(true);
+	}
+	
+	// change dispose for threads, streams, timer... stop!
+	@Override
+	public void dispose() {
+		gravitationTimer.stop();
+		debounceTimer.stop();
+		super.dispose();
 	}
 
 	private void applyPreferredWorldSize() {
