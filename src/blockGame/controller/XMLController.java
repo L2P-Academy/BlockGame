@@ -98,8 +98,6 @@ public class XMLController {
 				Element blockElement = (Element) itemNodes.item(i);
 				int id = Integer.parseInt(blockElement.getAttribute("id"));
 				int number = Integer.parseInt(blockElement.getAttribute("number"));
-//				gameState.putInventory(id,number);
-//				System.out.println(id + " - " + String.valueOf(number) + " Stück");
 			}
 
 			System.out.println("Savegame geladen von: " + xmlFile.getAbsolutePath());
@@ -112,22 +110,21 @@ public class XMLController {
 		}
 	}
 
-	// create XML-File if none exists for coordinates
 	/**
-	 * creates a savegame file with the entered saveGameName as ID, must be unique 
+	 * create XML-File if none exists for coordinates
 	 * @param saveGameName
 	 */
 	public void writeSaveGameFileXML(/**String saveGameName*/) {
-		 // input dialog for saveGameName
+		// input dialog for saveGameName
 		String saveGameName = JOptionPane.showInputDialog(null, "Bitte eindeutige Speicher-ID angeben:", "Eingabe", JOptionPane.QUESTION_MESSAGE);
 		String saveGamePathLocal = saveGamePath + saveGameName + ".xml"; // builds filename of savegame file
 		File newFile = new File(saveGamePathLocal);   
 
 		//checking for duplicate filenames
-		if (newFile.exists()) { // hier ist noch ein Fehler, "return;" bricht das speichern offenbar nicht ab
+		if (newFile.exists()) {
 			//Yes/No confirm dialog
 			int yesNo = JOptionPane.showConfirmDialog(null, "Die Datei existiert bereits, soll sie überschrieben werden?", "Bestätigung", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-	        if (yesNo != JOptionPane.YES_OPTION) { // hier ist noch ein Fehler, egal was angeklickt wird, die Methode wird nicht abgebrochen 
+	        if (yesNo != JOptionPane.YES_OPTION) { 
 	        		System.out.println("Speichern abgebrochen.");
 	        		return;
 	        }
@@ -163,6 +160,12 @@ public class XMLController {
 			time.setAttribute("second", String.valueOf(timeNow.getSecond()));
 			rootElement.appendChild(time);
 
+			// time stamp
+			Element timeStamp = doc.createElement("TimeStamp");
+			timeStamp.setAttribute("date", dateNow.toString());
+			timeStamp.setAttribute("time", timeNow.toString());
+			rootElement.appendChild(timeStamp);
+			
 			// world size information
 			Element world = doc.createElement("world");
 			world.setAttribute("rows", String.valueOf(gameState.getWorldRows()));
@@ -270,7 +273,7 @@ public class XMLController {
 	 * @param resX
 	 * @param resY
 	 */
-	public void saveSettings(float soundVolume, float sfxVolume, int resX, int resY) {
+	public void saveSettingsToXML(float soundVolume, float sfxVolume, int resX, int resY) {
 		new File(settingsPath);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -326,7 +329,7 @@ public class XMLController {
 	}
 	
 	/**
-	 * gibt { float soundVolume, float sfxVolume, int resolutionX, int resolutionY } 
+	 * gibt { float soundVolume, float sfxVolume, int resolutionX, int resolutionY } zurück
 	 * @return
 	 */
 	public Object[] readSettingsFromXML() {
