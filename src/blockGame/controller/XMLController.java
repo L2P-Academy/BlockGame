@@ -163,6 +163,12 @@ public class XMLController {
 			time.setAttribute("second", String.valueOf(timeNow.getSecond()));
 			rootElement.appendChild(time);
 
+			// time stamp
+			Element timeStamp = doc.createElement("TimeStamp");
+			timeStamp.setAttribute("date", dateNow.toString());
+			timeStamp.setAttribute("time", timeNow.toString());
+			rootElement.appendChild(timeStamp);
+			
 			// world size information
 			Element world = doc.createElement("world");
 			world.setAttribute("rows", String.valueOf(gameState.getWorldRows()));
