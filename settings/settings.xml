@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Settings>
+  <SoundVolume Volume="0.1"/>
+  <SFXVolume Volume="0.2"/>
+  <Resolution X="1024" Y="768"/>
+  <Fullscreen On="true"/>
+</Settings>

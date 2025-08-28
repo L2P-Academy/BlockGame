@@ -3,9 +3,12 @@ package blockGame.controller;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -232,7 +235,7 @@ public class XMLController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		listSaveGames(); // testing method listSaveGames()
+//		listSaveGames(); // testing method listSaveGames()
 	}
 
 	/**
@@ -264,16 +267,17 @@ public class XMLController {
 		}
 	}
 
-	// save Settings in XML file
 	/**
-	 * saves settings into XML file settings.xml
+	 * saves settings in XML file settings.xml, 
+	 * Example: XMLController.saveSettingsToXML(0.1f, 0.2f, 1024, 768, true);
 	 * 
 	 * @param soundVolume
 	 * @param sfxVolume
 	 * @param resX
 	 * @param resY
+	 * @param fullScreenOn
 	 */
-	public void saveSettingsToXML(float soundVolume, float sfxVolume, int resX, int resY) {
+	public void saveSettingsToXML(float soundVolume, float sfxVolume, int resX, int resY, boolean fullScreenOn) {
 		new File(settingsPath);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -305,6 +309,11 @@ public class XMLController {
 			resolution.setAttribute("Y", String.valueOf(resY));
 			rootElement.appendChild(resolution);
 
+			// fullScreen
+			Element fullscreen = doc.createElement("Fullscreen");
+			fullscreen.setAttribute("On", String.valueOf(fullScreenOn));
+			rootElement.appendChild(fullscreen);
+			
 			// write contents into file
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer = tf.newTransformer();
@@ -329,7 +338,23 @@ public class XMLController {
 	}
 	
 	/**
-	 * gibt { float soundVolume, float sfxVolume, int resolutionX, int resolutionY } zurück
+	 * returns Object[] { float soundVolume, float sfxVolume, int resolutionX, int resolutionY, boolean fullScreen }
+	 * Example: 
+	 * Object[] settings = xmlController.readSettingsFromXML();
+	 * 
+     *	if (settings != null) {
+     *       float soundVolume   = (float) settings[0];
+     *       float sfxVolume     = (float) settings[1];
+     *       int resolutionX     = (int)   settings[2];
+     *       int resolutionY     = (int)   settings[3];
+     *       boolean fullscreen  = (boolean) settings[4];
+     *       System.out.println("Sound Volume: " + soundVolume);
+     *       System.out.println("SFX Volume: " + sfxVolume);
+     *       System.out.println("Resolution: " + resolutionX + "x" + resolutionY);
+     *       System.out.println("Fullscreen: " + fullscreen);
+     *   }
+     *   
+     *
 	 * @return
 	 */
 	public Object[] readSettingsFromXML() {
@@ -347,11 +372,11 @@ public class XMLController {
 
 			Element rootElement = doc.getDocumentElement();
 
-			//Sound Volume
+			// Sound Volume
 			Element soundVolume = (Element) rootElement.getElementsByTagName("SoundVolume").item(0);
 			float sVol = Float.parseFloat(soundVolume.getAttribute("Volume"));
 			
-			// SFX Volume
+			//  SFX Volume
 			Element sfxVolume = (Element) rootElement.getElementsByTagName("SFXVolume").item(0);
 			float sfxVol = Float.parseFloat(sfxVolume.getAttribute("Volume"));
 			
@@ -359,9 +384,13 @@ public class XMLController {
 			Element resolution = (Element) rootElement.getElementsByTagName("Resolution").item(0);
 			int resX = Integer.parseInt(resolution.getAttribute("X"));
 			int resY = Integer.parseInt(resolution.getAttribute("Y"));
+
+			// fullscreen
+			Element fullscreen = (Element) rootElement.getElementsByTagName("fullscreen").item(0);
+			boolean fullScreenOn = Boolean.parseBoolean(resolution.getAttribute("On"));			
 			
 			System.out.println("Einstellungen geladen von: " + settingsFile.getAbsolutePath());
-			return new Object[] { sVol, sfxVol, resX, resY };
+			return new Object[] { sVol, sfxVol, resX, resY, fullScreenOn};
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -369,4 +398,68 @@ public class XMLController {
 			return null;
 		}
 	}
+
+	/**
+	 * deletes a file in savegame folder need complete filename without path
+	 * Example: XMLController.deleteSavegame("saveGame_1234.xml");  
+	 * @param fileName
+	 */
+    public static void deleteSavegame(String fileName) {
+        
+		String saveGamePathLocal = "savegames/" + fileName; // builds filename of savegame file
+		File file = new File(saveGamePathLocal);
+		
+        int yesNo = JOptionPane.showConfirmDialog(null, "Den Spielstand wirklich löschen?", "Bestätigung", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (yesNo != JOptionPane.YES_OPTION) { 
+        		System.out.println("Löschen abgebrochen.");
+        		return;
+        }
+        System.out.println("Spielstand wird gelöscht...");
+        
+        if (file.exists() && file.delete()) {
+            System.out.println("Spielstand erfolgreich gelöscht.");
+        } else {
+            System.err.println("Fehler beim Löschen des Spielstands.");
+        }
+    }
+    
+    /**
+     * returns Timestamp from XML savegame file, Example: "LocalDateTime timeStamp = XMLController.getTimeStampFromSaveGame("saveGame_1.xml");"
+     * @param fileName
+     * @return
+     */
+    public static LocalDateTime getTimeStampFromSaveGame(String fileName) {
+		File tempFile = new File("savegames/" + fileName);
+
+		try {
+			if (!tempFile.exists()) {
+				System.err.println("Savegame Datei nicht gefunden!" + tempFile.getAbsolutePath());
+				return null;
+			}
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			Document doc = documentBuilder.parse(tempFile);
+			doc.getDocumentElement().normalize();
+
+			Element rootElement = doc.getDocumentElement();
+
+			// TimeStamp
+			Element timeStamp = (Element) rootElement.getElementsByTagName("TimeStamp").item(0);
+			String tempDateString = timeStamp.getAttribute("date");
+			String tempTimeString = timeStamp.getAttribute("time");
+			
+	        LocalDate date = LocalDate.parse(tempDateString);
+	        LocalTime time = LocalTime.parse(tempTimeString);
+	        
+	        LocalDateTime dateTime = LocalDateTime.of(date, time);
+						
+			System.out.println("Zeitstempel geladen von: " + tempFile.getAbsolutePath());
+			return dateTime;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Fehler beim lesen der Datei!");
+			return null;
+		}
+	}        
 }
