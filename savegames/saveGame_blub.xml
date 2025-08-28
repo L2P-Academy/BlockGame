@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <savegame>
   <SavegameID ID="blub"/>
-  <time day="28" hour="1" minute="22" month="8" second="58" year="2025"/>
+  <time day="28" hour="2" minute="22" month="8" second="58" year="2025"/>
   <world cols="64" rows="31"/>
   <player col="9" row="14"/>
   <blocks>

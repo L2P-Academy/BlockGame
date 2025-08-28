@@ -823,8 +823,7 @@ public class GameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
 				pauseDialog.dispose();
-				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
-				SaveGameView saveGameView = new SaveGameView(soundController, gameState);
+				SaveGameView saveGameView = new SaveGameView(soundController);
 				saveGameView.setAlwaysOnTop(true);
 				getInstance();
 			}
