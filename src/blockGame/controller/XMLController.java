@@ -243,22 +243,20 @@ public class XMLController {
 
 		if (!folder.exists() || !folder.isDirectory()) {
 			System.err.println("Fehler: Verzeichnis nicht gefunden: " + savegameDir.toAbsolutePath());
-			return new File[0];
+			return null;
 		}
 
 		File[] savegameFiles = folder.listFiles((dir, name) -> name.toLowerCase().startsWith("savegame"));
 
 		if (savegameFiles == null || savegameFiles.length == 0) {
 			System.out.println("Keine Spielstände gefunden in: " + savegameDir.toAbsolutePath());
-			return new File[0]; // returns empty file list
+			return null;
 		} else {
 			// Output to command interface
 			System.out.println("Gefundene Spielstände:");
 			for (File datei : savegameFiles) {
 				System.out.println("- " + datei.getName()); // Output to command interface
 			}
-			// order files by name - Thx 2 ChatGPT 4 this suggestion
-			java.util.Arrays.sort(savegameFiles, java.util.Comparator.comparing(File::getName));
 			return savegameFiles; // returns savegame file list
 		}
 	}
