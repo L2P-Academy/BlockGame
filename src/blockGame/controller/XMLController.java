@@ -270,7 +270,7 @@ public class XMLController {
 	 * @param resX
 	 * @param resY
 	 */
-	public void saveSettings(float soundVolume, float sfxVolume, int resX, int resY) {
+	public void saveSettingsToXML(float soundVolume, float sfxVolume, int resX, int resY) {
 		new File(settingsPath);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -326,7 +326,7 @@ public class XMLController {
 	}
 	
 	/**
-	 * gibt { float soundVolume, float sfxVolume, int resolutionX, int resolutionY } 
+	 * gibt { float soundVolume, float sfxVolume, int resolutionX, int resolutionY } zurück
 	 * @return
 	 */
 	public Object[] readSettingsFromXML() {
