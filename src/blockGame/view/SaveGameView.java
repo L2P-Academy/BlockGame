@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -48,6 +50,7 @@ public class SaveGameView extends JFrame {
 	private DefaultTableModel saveTableModel;
 	private SoundController soundController;
 	private static SaveGameView instance;
+	private File[] tempFiles;
 
 	/**
 	 * Returns the current instance of SaveGameView (Singleton-like behavior).
@@ -63,7 +66,7 @@ public class SaveGameView extends JFrame {
 	 * image - Title panel - Save/Load table - Buttons with custom styles Also
 	 * initializes button listeners with sound effects.
 	 */
-	public SaveGameView(SoundController soundController, GameState gameState) {
+	public SaveGameView(SoundController soundController) {
 		this.soundController = soundController;
 		instance = this;
 		setAlwaysOnTop(true); // keep window on top
@@ -87,22 +90,10 @@ public class SaveGameView extends JFrame {
 		gameTitlePnl.add(gameTitleLbl);
 
 		// Save Table
-		// TODO: "Playtime"-column = currentTime(ms) - lastSaveTime.parseInt
-		String[] columnNames = { "Save Slot", "Date" };
-		Object[][] data = {
-				// Format: dd/mm/yyyy + hh/mm/ss as a String
-				{ "Save 1", "" + gameState.getLastSavedDate().getDayOfMonth() + "."
-						+ gameState.getLastSavedDate().getMonth() + "." + gameState.getLastSavedDate()
-						.getYear() + " "
-						+ gameState.getLastSavedDate().getHour() + ":" + gameState.getLastSavedDate()
-						.getMinute() + ":"
-						+ gameState.getLastSavedDate().getSecond() }
-//			{"Save 2", "2025-07-27", "01:20"},
-//			{"Save 3", "2025-07-26", "00:30"}
-		};
+		String[] columnNames = { "Speicherstand", "Zeitstempel" };
 
 		// Table model with dummy save data
-		saveTableModel = new DefaultTableModel(data, columnNames);
+		saveTableModel = new DefaultTableModel(columnNames, 0);
 		saveTable = new JTable(saveTableModel);
 		saveTable.setFont(FontLoader.loadPixelFont(16f));
 		saveTable.setRowHeight(48);
@@ -113,6 +104,17 @@ public class SaveGameView extends JFrame {
 		saveTableHeader = saveTable.getTableHeader();
 		saveTableHeader.setFont(FontLoader.loadPixelFont(32f));
 		saveTableHeader.setBackground(new Color(255, 200, 200));
+		
+		// add table data from XML-files
+		tempFiles = XMLController.listSaveGames();
+		int numberOfSaveGames = tempFiles.length;
+		for (int i = 0; i < numberOfSaveGames; i++) {
+			// e.g. saveGame_ID.xml
+			String fileName = tempFiles[i].getName();
+			saveTableModel.addRow(new Object[] {
+					fileName.replaceFirst("\\.xml$", "")
+			});
+		}
 
 		// Scroll pane enables scrolling inside the table
 		JScrollPane scrollPane = new JScrollPane(saveTable);
@@ -129,11 +131,11 @@ public class SaveGameView extends JFrame {
 		backgroundPnl.add(tablePanel, BorderLayout.NORTH);
 
 		// Buttons
-		loadGameBtn = new JButton("Load Game");
+		loadGameBtn = new JButton("Spiel laden");
 		beautifyButton(loadGameBtn);
-		backBtn = new JButton("Back");
+		backBtn = new JButton("Zurück");
 		beautifyButton(backBtn);
-		saveGameBtn = new JButton("Save Game");
+		saveGameBtn = new JButton("Speichern");
 		beautifyButton(saveGameBtn);
 
 		// Add buttons to button panel
@@ -154,12 +156,18 @@ public class SaveGameView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
 				soundController.stopMusicLoop();
-				dispose();
+				int selectedRow = saveTable.getSelectedRow();
 				StartMenuView.getInstance().dispose();
+				
 				if (GameView.getInstance() != null) {
 					GameView.getInstance().dispose();
 				}
-				new GameView(soundController, gameState);
+				
+				if (selectedRow >= 0) {
+					GameState gameState = XMLController.readSaveGameFromXML(tempFiles[saveTable.getSelectedRow()]);
+					new GameView(soundController, gameState);
+					dispose();
+				}
 			}
 		});
 

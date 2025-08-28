@@ -236,7 +236,7 @@ public class XMLController {
 	 * Return the File array of savegame files
 	 * 
 	 */
-	public static File[] listSaveGames() {
+	public static File[] listSaveGames() { 
 		// relative path to savegame folder in user directory
 		Path savegameDir = Paths.get(System.getProperty("user.dir")).resolve("savegames");
 		File folder = savegameDir.toFile();

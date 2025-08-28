@@ -94,8 +94,8 @@ public class StartMenuView extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				soundController.playBtnSound();
-				GameState gameState = XMLController.readSaveGameFromXML(new File("savegames/saveGame.xml"));
-				new SaveGameView(soundController, gameState);
+				// TODO: SaveGameView decides
+				new SaveGameView(soundController);
 				
 			}
 		});
