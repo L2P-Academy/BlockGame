@@ -3,12 +3,10 @@ package blockGame.controller;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -387,7 +385,7 @@ public class XMLController {
 
 			// fullscreen
 			Element fullscreen = (Element) rootElement.getElementsByTagName("fullscreen").item(0);
-			boolean fullScreenOn = Boolean.parseBoolean(resolution.getAttribute("On"));			
+			boolean fullScreenOn = Boolean.parseBoolean(fullscreen.getAttribute("On"));			
 			
 			System.out.println("Einstellungen geladen von: " + settingsFile.getAbsolutePath());
 			return new Object[] { sVol, sfxVol, resX, resY, fullScreenOn};
