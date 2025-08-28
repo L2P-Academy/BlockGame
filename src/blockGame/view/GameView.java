@@ -11,6 +11,8 @@ import java.util.Map;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -60,6 +62,10 @@ public class GameView extends JFrame {
 	private int playerCol = 0;
 	private int lastHlRow = -1, lastHlCol = -1;
 	private int blockSize;
+	private long lastJumpMs = 0;
+	private long jumpLockMs = 0; 
+	private int viewDirRow = 0, viewDirCol = +1;
+	private boolean mineHl = true;
 	
 	// complex attributes
 	private static GameView instance;
@@ -78,8 +84,7 @@ public class GameView extends JFrame {
 		IDLE, WALK_LEFT, WALK_RIGHT
 	}
 
-	private PlayerAnim currentAnim = PlayerAnim.IDLE; // Aktueller Animationzustand
-	private boolean leftDown = false, rightDown = false; // Tastenzustand
+	private PlayerAnim currentAnim = PlayerAnim.IDLE; 
 
 	public static GameView getInstance() {
 		return instance;
@@ -156,6 +161,16 @@ public class GameView extends JFrame {
 		// block Panel
 		blockPnl = new JPanel(new GridLayout(ROWS, COLS));
 		blockPnl.setOpaque(false);
+		blockPnl.addMouseListener(new MouseAdapter() {
+			  @Override 
+			  public void mousePressed(MouseEvent e) {
+			    if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) 
+			    	return;
+			    if (isBuildModeActive) 
+			    	return; 
+			    mineBlock();
+			  }
+			});
 
 		// Wrapper class for scaling
 		JPanel worldWrapperPnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -178,18 +193,21 @@ public class GameView extends JFrame {
 				"toggleInventory");
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
 				"toggleMenu");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "moveUp");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("S"), "moveDown");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "viewUp");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("S"), "viewDown");
 		var im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		var am = getRootPane().getActionMap();
 
-		im.put(KeyStroke.getKeyStroke("pressed A"), "pressLeft");
-		im.put(KeyStroke.getKeyStroke("released A"), "releaseLeft");
-		im.put(KeyStroke.getKeyStroke("pressed D"), "pressRight");
-		im.put(KeyStroke.getKeyStroke("released D"), "releaseRight");
-
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"),
-				"replaceBlockAt");
+		im.put(KeyStroke.getKeyStroke("A"), "walkLeft");
+		
+		im.put(KeyStroke.getKeyStroke("D"), "walkRight");
+		
+		im.put(KeyStroke.getKeyStroke("SPACE"), "jumpTap");
+		
+		im.put(KeyStroke.getKeyStroke("B"), "toggleBuildMode");
+		
+		im.put(KeyStroke.getKeyStroke("M"), "toggleMineHighlight");
+		
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("C"), 
 				"openCrafting");
 		getRootPane().getActionMap().put("openCrafting", new AbstractAction() {
@@ -200,6 +218,21 @@ public class GameView extends JFrame {
 			}
 		});
 
+		am.put("toggleMineHighlight", new AbstractAction() {
+			  @Override 
+			  public void actionPerformed(ActionEvent e) {
+			    mineHl = !mineHl;
+			    updateViewDirection();
+			  }
+			});
+		
+		am.put("toggleBuildMode", new AbstractAction() {
+			  @Override 
+			  public void actionPerformed(ActionEvent e) { 
+				  toggleBuildMode(); 
+			}
+			});
+		
 		getRootPane().getActionMap().put("toggleInventory", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -215,64 +248,76 @@ public class GameView extends JFrame {
 			}
 		});
 		
-		getRootPane().getActionMap().put("moveUp", new AbstractAction() {
+		getRootPane().getActionMap().put("viewUp", new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				movePlayer(-1, 0);
+				currentAnim = PlayerAnim.IDLE;
+				applyPlayerAnim();
+				viewDirRow = -1; viewDirCol = 0;
+				updateViewDirection();
 			}
 		});
 		
-		am.put("pressLeft", new AbstractAction() {
+		am.put("walkLeft", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				leftDown = true;
 				currentAnim = PlayerAnim.WALK_LEFT;
 				applyPlayerAnim();
-				// optional einmal bewegen (dein bisheriges Verhalten):
 				movePlayer(0, -1);
+				viewDirRow = 0; viewDirCol = -1;
+				updateViewDirection();
 			}
 		});
 		
-		am.put("releaseLeft", new AbstractAction() {
+		
+
+		getRootPane().getActionMap().put("viewDown", new AbstractAction() {
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				leftDown = false;
-				// Wenn rechts noch gehalten wird → weiter rechts laufen, sonst Idle
-				currentAnim = rightDown ? PlayerAnim.WALK_RIGHT : PlayerAnim.IDLE;
+				currentAnim = PlayerAnim.IDLE;
 				applyPlayerAnim();
-			}
-		});
-
-		getRootPane().getActionMap().put("moveDown", new AbstractAction() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				movePlayer(+1, 0);
+				viewDirRow = +1; viewDirCol = 0;
+				updateViewDirection();
 			}
 		});
 		
-		am.put("pressRight", new AbstractAction() {
+		am.put("walkRight", new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				rightDown = true;
 				currentAnim = PlayerAnim.WALK_RIGHT;
 				applyPlayerAnim();
-				// optional einmal bewegen:
 				movePlayer(0, +1);
+				viewDirRow = 0; viewDirCol = +1;
+				updateViewDirection();
 			}
 		});
 		
-		am.put("releaseRight", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				rightDown = false;
-				// Wenn links noch gehalten wird → weiter links laufen, sonst Idle
-				currentAnim = leftDown ? PlayerAnim.WALK_LEFT : PlayerAnim.IDLE;
-				applyPlayerAnim();
-			}
-		});
+		
+		am.put("jumpTap", new AbstractAction() {
+			  @Override 
+			  public void actionPerformed(ActionEvent e) {
+			    if (isBuildModeActive) 
+			    	return;                 
+			    long t = System.currentTimeMillis();
+			    if (t < jumpLockMs) 
+			    	return;
+			    boolean doubleJump = (t - lastJumpMs) <= 220; // Double-Jump-Window ~220 ms
+			  
+			    int before = playerRow;
+			    movePlayer(-1, 0);                             
+			    
+			    if (playerRow < before) {
+			    	lastJumpMs = t; 
+			    	if (doubleJump) {
+			    		jumpLockMs = t + 500;
+			    	}
+			    }
+			                                 
+			  }
+			});
 		getRootPane().getActionMap().put("replaceBlockAt", new AbstractAction() {
 
 			@Override
@@ -302,6 +347,9 @@ public class GameView extends JFrame {
 		// Timer der alle 100ms gravitation erzeugt, insofern der unter dem spieler
 		// liegende block luft ist
 		gravitationTimer = new Timer(100, e -> {
+      if (isBuildModeActive) return;                // im BuildMode ist der Spieler festgesetzt aka keine Gravitation
+		    long t = System.currentTimeMillis();
+		  if (t - lastJumpMs < 180) return;          // ~180ms „Schwebezeit“ nach jedem mal SPACE drücken
 			int r = playerRow + 1, c = playerCol;
 			if (r < ROWS && world[r][c] != null && world[r][c].getId() == 0) {
 				movePlayer(+1, 0);
@@ -385,7 +433,7 @@ public class GameView extends JFrame {
 		if (lastHlRow >= 0 && lastHlCol >= 0) {
 			unhighlightAt(lastHlRow, lastHlCol);
 		}
-		highlightAt(playerRow, playerCol + 1);
+		updateViewDirection();
 
 		blockPnl.revalidate();
 		blockPnl.repaint();
@@ -399,6 +447,8 @@ public class GameView extends JFrame {
 	 * @author Marc, Christoph
 	 */
 	private void movePlayer(int dRow, int dCol) {
+		if (isBuildModeActive) 
+			return;
 		int newRow = playerRow + dRow;
 		int newCol = playerCol + dCol;
 		if (newRow < 0 || newRow >= ROWS || newCol < 0 || newCol >= COLS) {
@@ -431,6 +481,8 @@ public class GameView extends JFrame {
 		worldLabels[playerRow][playerCol].setComponentZOrder(playerLbl, 0);
 		worldLabels[playerRow][playerCol].revalidate();
 		worldLabels[playerRow][playerCol].repaint();
+		
+		updateViewDirection();
 	}
 
 	// Block Mapping & Randomizer
@@ -557,6 +609,51 @@ public class GameView extends JFrame {
 		lbl.repaint();
 	}
 
+	private void updateViewDirection() {
+	    if (isBuildModeActive || !mineHl) {
+	        if (lastHlRow >= 0) { unhighlightAt(lastHlRow, lastHlCol); lastHlRow = lastHlCol = -1; }
+	        return;
+	    }
+	    int r = playerRow + viewDirRow, c = playerCol + viewDirCol;
+	    if (isInside(r,c)) 
+	    	highlightAt(r,c); 
+	    else if (lastHlRow >= 0) { 
+	    	unhighlightAt(lastHlRow,lastHlCol); 
+	    	lastHlRow=lastHlCol=-1; 
+	    }
+	}
+
+	private void toggleBuildMode() {
+	    isBuildModeActive = !isBuildModeActive;
+
+	    if (isBuildModeActive && lastHlRow >= 0 && lastHlCol >= 0) {
+	        unhighlightAt(lastHlRow, lastHlCol);
+	        lastHlRow = lastHlCol = -1;
+	    }
+
+	    for (int r = 0; r < ROWS; r++) {
+	        for (int c = 0; c < COLS; c++) {
+	            JLabel lbl = worldLabels[r][c];
+	            BlockModel b = world[r][c];
+	            if (isBuildModeActive) {
+	                lbl.setOpaque(true);
+	                if (b != null && b.getId() == 0) { 
+	                    lbl.setBackground(new Color(37, 232, 7, 50)); 
+	                    lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
+	                } else {
+	                    lbl.setBackground(new Color(0, 0, 0, 60)); // schattiert Nicht-AIR_BLOCKS
+	                }
+	            } else {
+	                unhighlightAt(r, c);
+	            }
+	        }
+	    }
+	    blockPnl.repaint();
+
+	    if (!isBuildModeActive) 
+	    	updateViewDirection();
+	}
+	
 	/**
 	 * Ersetzt den Block an der angegebenen Weltposition durch einen neuen Blocktyp.
 	 * <p>
@@ -571,7 +668,7 @@ public class GameView extends JFrame {
 	 * @param newBlockByID ID des Ziel-Blocks (z. B. 0 = Luft, 1 = Dirt, …)
 	 * @author Marc
 	 */
-
+	
 	public void replaceBlockAt(int row, int col, int newBlockByID) {
 		// Überprüfen ob die Koordinaten innerhalb des Bereichs liegen
 		if (!isInside(row, col))
@@ -589,6 +686,15 @@ public class GameView extends JFrame {
 		refreshBlockLabel(row, col);
 	}
 
+	private void mineBlock() {
+	    int r = playerRow + viewDirRow;
+	    int c = playerCol + viewDirCol;
+	    if (!isInside(r, c)) return;
+	    BlockModel b = world[r][c];
+	    if (b != null && b.getId() != 0) {
+	        replaceBlockAt(r, c, 0);
+	    }
+	}
 	/**
 	 * Schaltet an der angegebenen Weltposition zwischen Bauen und Abbauen um.
 	 * <p>
