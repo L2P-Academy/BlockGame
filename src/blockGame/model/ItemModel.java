@@ -70,5 +70,22 @@ public class ItemModel {
 	public void setTextureImagePath(String textureImagePath) {
 		this.textureImagePath = textureImagePath;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof ItemModel)) {
+			return false;
+		}
+		ItemModel item = (ItemModel) o;
+		return id == item.id;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Integer.hashCode(id);
+	}
 }
 

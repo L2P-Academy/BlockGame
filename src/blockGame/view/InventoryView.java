@@ -3,14 +3,23 @@
 package blockGame.view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
+
+import blockGame.controller.FontLoader;
+import blockGame.controller.InventoryController;
 import blockGame.controller.UIController;
+import blockGame.model.ItemModel;
 
 public class InventoryView extends JFrame {
 	private static final long serialVersionUID = -2032473531274496012L;
 	private JTable inventoryTable;
+	private JTableHeader tableHeader;
     private JScrollPane scrollPane;
     private JPanel backGroundPnl, buttonPnl;
     private JButton backBtn;
@@ -40,17 +49,28 @@ public class InventoryView extends JFrame {
             }
         }); 
 
-        // Beispieldaten für Tabelle
-        String[] spaltenNamen = {"Items", "Anzahl"};
-        Object[][] daten = {
-            {"Stein", 10},
-            {"Holz", 5},
-            {"Erz", 2}
-        };
+        // Daten für Tabelle
+        Map<ItemModel, Integer> items = InventoryController.getInstance().getInventory().getItemNumbersMap();
+        
+		String[] columns = { "Item", "Anzahl" };
+		DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+		tableModel.setRowCount(0);
+
+		for (var e : items.entrySet()) {
+			tableModel.addRow(new Object[] {
+					e.getKey().getItemName(),
+					e.getValue()
+			}
+			);
+		}
 
         // Tabelle erstellen
-        inventoryTable = new JTable(daten, spaltenNamen);
+        inventoryTable = new JTable(tableModel);
         UIController.beautifyTable(inventoryTable);
+        
+        tableHeader = inventoryTable.getTableHeader();
+		tableHeader.setFont(FontLoader.loadPixelFont(32f));
+		tableHeader.setBackground(Color.BLUE);
 
         // Transparenz einstellen
         inventoryTable.setOpaque(false);

@@ -40,11 +40,13 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 
 import blockGame.GameState;
+import blockGame.controller.InventoryController;
 import blockGame.controller.SoundController;
 import blockGame.controller.UIController;
 import blockGame.controller.XMLController;
 import blockGame.model.BlockModel;
 import blockGame.model.BlockRepository;
+import blockGame.model.ItemModel;
 
 public class GameView extends JFrame {
 	// final attributes
@@ -693,6 +695,16 @@ public class GameView extends JFrame {
 	    BlockModel b = world[r][c];
 	    if (b != null && b.getId() != 0) {
 	        replaceBlockAt(r, c, 0);
+	        
+	        // add block to inventory
+	        ItemModel item = new ItemModel(
+	        	b.getId(),
+	        	"Block",
+	        	b.getItemName(),
+	        	b.getTier(),
+	        	b.getTextureImagePath()
+	        	);
+	        InventoryController.getInstance().addItem(item, 1);
 	    }
 	}
 	/**
