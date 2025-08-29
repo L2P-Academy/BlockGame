@@ -86,6 +86,8 @@ public class SoundController {
 				musicClip.open(audioStream);
 				adjustVolume(musicClip, volume);
 				musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+			} else {
+				stopMusicLoop();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,6 +104,7 @@ public class SoundController {
 	public void stopMusicLoop() {
 		musicClip.stop();
 		musicClip.close();
+		musicClip = null;
 	}
 
 	public void adjustVolume(Clip clip, int volume) {

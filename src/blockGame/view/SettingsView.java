@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -49,6 +50,10 @@ public class SettingsView extends JFrame {
 
 	// Konstruktor
 	public SettingsView(SoundController soundController) {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int sWidth = screenSize.width;
+		int sHeight = screenSize.height;
+		String currentResolution = sWidth + "x" + sHeight;
 		this.soundController = soundController;
 		// Instanz anlegen
 		instance = this;
@@ -92,7 +97,35 @@ public class SettingsView extends JFrame {
 
 		musicSldr = new JSlider(0, 100, 50);
 		effectSldr = new JSlider(0, 100, 50);
-		resDrpdwn = new JComboBox<>(new String[] { "800x600", "1280x720", "1920x1080", "2560x1440" });
+		resDrpdwn = new JComboBox<>(new String[] { "800x600", "1280x720", "1920x1080", "2048x1152", "2560x1440" });
+
+		switch (currentResolution) {
+		case "800x600": {
+			resDrpdwn.setSelectedIndex(0);
+			break;
+		}
+		case "1280x720": {
+			resDrpdwn.setSelectedIndex(1);
+			break;
+		}
+		
+		case "1920x1080": {
+			resDrpdwn.setSelectedIndex(2);
+			break;
+		}
+		
+		case "2048x1152": {
+			resDrpdwn.setSelectedIndex(3);
+		}
+		
+		case "2560x1440": {
+			resDrpdwn.setSelectedIndex(4);
+			break;
+		}		
+		default:
+			resDrpdwn.setSelectedItem("2048x1152");
+			break;
+		}		
 		flscrnBox = new JCheckBox();
 
 		// Komponenten hinzufügen
@@ -139,25 +172,11 @@ public class SettingsView extends JFrame {
 			settingsPnl.add(new JLabel());
 		}
 
-		// ActionListener für Buttonsound
-		applyBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				soundController.playBtnSound();
-			}
-		});
-
-		backBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				soundController.playBtnSound();
-			}
-		});
-
 		// Action Listener (2 versch. Wege getestet)
 		backBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.playBtnSound();
 				if (GameView.getInstance() != null && GameView.getInstance().isVisible()) {
 					GameView.getInstance().setAlwaysOnTop(true);
 					System.out.println("GameView fokussiert");
@@ -172,6 +191,7 @@ public class SettingsView extends JFrame {
 
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
+			soundController.playBtnSound();
 			SettingsModel model = new SettingsModel(0, 0, 0, 0, true);
 			model.setMusicVolume(musicSldr.getValue());
 			model.setEffectVolume(effectSldr.getValue());
@@ -199,10 +219,8 @@ public class SettingsView extends JFrame {
 			}
 			
 			soundController.setVolume(model.getMusicVolume());
-			soundController.setVolume(model.getEffectVolume());
 			XMLController.saveSettingsToXML(model.getMusicVolume(), model.getEffectVolume(), model.getResolutionX(), model.getResolutionY(), true);
-			System.out.println("Gespeichert");
-			
+			System.out.println("Gespeichert");			
 		});
 
 	}
