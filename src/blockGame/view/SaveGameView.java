@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -108,11 +109,13 @@ public class SaveGameView extends JFrame {
 		// add table data from XML-files
 		tempFiles = XMLController.listSaveGames();
 		int numberOfSaveGames = tempFiles.length;
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy | HH:mm:ss");
 		for (int i = 0; i < numberOfSaveGames; i++) {
 			// e.g. saveGame_ID.xml
 			String fileName = tempFiles[i].getName();
 			saveTableModel.addRow(new Object[] {
-					fileName.replaceFirst("\\.xml$", "")
+					fileName.replaceFirst("\\.xml$", ""),
+					XMLController.getTimeStampFromSaveGame(fileName).format(formatter)				 
 			});
 		}
 
