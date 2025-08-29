@@ -31,7 +31,7 @@ public class XMLController {
 
 	// Filepaths
 	private String saveGamePath = "savegames/saveGame_";
-	private String settingsPath = "settings/settings.xml";
+	private static String settingsPath = "settings/settings.xml";
 	private GameState gameState;
 
 	public XMLController(GameState gameState) {
@@ -53,6 +53,7 @@ public class XMLController {
 	 * Return a gamestate from XML
 	 * 
 	 * @return
+	 * @author Christoph, Vladi, Jörg
 	 */
 	public static GameState readSaveGameFromXML(File xmlFile) {
 		// Startpunkt: SaveGameView -> Datei darstellen -> Logik zum Auswählen/Laden in
@@ -114,6 +115,7 @@ public class XMLController {
 	/**
 	 * create XML-File if none exists for coordinates
 	 * @param saveGameName
+	 * @author Christoph, Vladi, Jörg
 	 */
 	public void writeSaveGameFileXML(/**String saveGameName*/) {
 		// input dialog for saveGameName
@@ -237,8 +239,9 @@ public class XMLController {
 	}
 
 	/**
-	 * Return the File array of savegame files
-	 * 
+	 * gets a list of all savegame files 
+	 * @return File array of found savegame files
+	 * @author Christoph, Vladi, Jörg
 	 */
 	public static File[] listSaveGames() { 
 		// relative path to savegame folder in user directory
@@ -267,15 +270,16 @@ public class XMLController {
 
 	/**
 	 * saves settings in XML file settings.xml, 
-	 * Example: XMLController.saveSettingsToXML(0.1f, 0.2f, 1024, 768, true);
+	 * @Example XMLController.saveSettingsToXML(0.1f, 0.2f, 1024, 768, true);
 	 * 
-	 * @param soundVolume
-	 * @param sfxVolume
-	 * @param resX
-	 * @param resY
-	 * @param fullScreenOn
+	 * @param soundVolume - float - Volume for Sound
+	 * @param sfxVolume - float - Volume for SFX 
+	 * @param resX - int - horizontal screen resolution  
+	 * @param resY - int - vertical screen resolution
+	 * @param fullScreenOn - boolean - true if full screen mode is used
+	 * @author Christoph, Vladi, Jörg
 	 */
-	public void saveSettingsToXML(float soundVolume, float sfxVolume, int resX, int resY, boolean fullScreenOn) {
+	public static void saveSettingsToXML(int soundVolume, int sfxVolume, int resX, int resY, boolean fullScreenOn) {
 		new File(settingsPath);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -336,8 +340,8 @@ public class XMLController {
 	}
 	
 	/**
-	 * returns Object[] { float soundVolume, float sfxVolume, int resolutionX, int resolutionY, boolean fullScreen }
-	 * Example: 
+	 * reads settings from settings/settings.xml  
+	 * @Example 
 	 * Object[] settings = xmlController.readSettingsFromXML();
 	 * 
      *	if (settings != null) {
@@ -353,14 +357,15 @@ public class XMLController {
      *   }
      *   
      *
-	 * @return
+	 * @return Object[] { float soundVolume, float sfxVolume, int resolutionX, int resolutionY, boolean fullScreen }
+	 * @author Christoph, Vladi, Jörg
 	 */
-	public Object[] readSettingsFromXML() {
+	public static Object[] readSettingsFromXML() {
 		File settingsFile = new File(settingsPath);
 
 		try {
 			if (!settingsFile.exists()) {
-				System.err.println("Savegame Datei nicht gefunden!" + settingsFile.getAbsolutePath());
+				System.err.println("Settings Datei nicht gefunden!" + settingsFile.getAbsolutePath());
 				return null;
 			}
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -372,11 +377,11 @@ public class XMLController {
 
 			// Sound Volume
 			Element soundVolume = (Element) rootElement.getElementsByTagName("SoundVolume").item(0);
-			float sVol = Float.parseFloat(soundVolume.getAttribute("Volume"));
+			int sVol = Integer.parseInt(soundVolume.getAttribute("Volume"));
 			
 			//  SFX Volume
 			Element sfxVolume = (Element) rootElement.getElementsByTagName("SFXVolume").item(0);
-			float sfxVol = Float.parseFloat(sfxVolume.getAttribute("Volume"));
+			int sfxVol = Integer.parseInt(sfxVolume.getAttribute("Volume"));
 			
 			//resolution X and Y
 			Element resolution = (Element) rootElement.getElementsByTagName("Resolution").item(0);
@@ -399,8 +404,8 @@ public class XMLController {
 
 	/**
 	 * deletes a file in savegame folder need complete filename without path
-	 * Example: XMLController.deleteSavegame("saveGame_1234.xml");  
-	 * @param fileName
+	 * @param fileName - string - full Filename of the file without path
+	 * @Example XMLController.deleteSavegame("saveGame_1234.xml");  
 	 */
     public static void deleteSavegame(String fileName) {
         
@@ -422,9 +427,11 @@ public class XMLController {
     }
     
     /**
-     * returns Timestamp from XML savegame file, Example: "LocalDateTime timeStamp = XMLController.getTimeStampFromSaveGame("saveGame_1.xml");"
-     * @param fileName
-     * @return
+     * reads the timestamp from XML savegame file, 
+     * @Example LocalDateTime timeStamp = XMLController.getTimeStampFromSaveGame("saveGame_1.xml");
+     * @param fileName - String - full file name without path 
+     * @return timestamp from XML savegame file
+     * @author Christoph, Vladi, Jörg
      */
     public static LocalDateTime getTimeStampFromSaveGame(String fileName) {
 		File tempFile = new File("savegames/" + fileName);
