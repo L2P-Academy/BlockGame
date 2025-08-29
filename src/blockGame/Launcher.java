@@ -1,7 +1,8 @@
 package blockGame; 
 
 import blockGame.view.StartMenuView; 				
-import blockGame.controller.SoundController; 		
+import blockGame.controller.SoundController;
+import blockGame.controller.XMLController; 		
 
 /**
  * The standard launcher class, calling SoundController and StartMenuView.
@@ -9,11 +10,10 @@ import blockGame.controller.SoundController;
  */
 public class Launcher {
 	public static SoundController globalSoundController;
-
     public static void main(String[] args) {
     	globalSoundController = new SoundController();
-    	//probably not necessary - test reasons
-//    	SoundController.setInstance(globalSoundController);
+    	Object[] settings = XMLController.readSettingsFromXML();
+    	globalSoundController.setVolume((int)settings[0]);
         new StartMenuView(globalSoundController);
     }
 }
