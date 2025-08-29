@@ -27,6 +27,7 @@ import javax.swing.border.Border;
 
 import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
+import blockGame.model.SettingsModel;
 
 public class SettingsView extends JFrame {
 	private static final long serialVersionUID = -8999579228546841722L;
@@ -173,10 +174,11 @@ public class SettingsView extends JFrame {
 
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
-			int effectVolume = effectSldr.getValue();
-			soundController.setVolume(effectVolume);
-			int musicVolume = musicSldr.getValue();
-			soundController.setVolume(musicVolume);
+			SettingsModel model = new SettingsModel();
+			model.setMusicVolume(musicSldr.getValue());
+			model.setEffectVolume(effectSldr.getValue());
+			model.setResolutionX((int) resDrpdwn.getSelectedItem());
+			model.setResolutionY((int) resDrpdwn.getSelectedItem());
 			String resolution = (String) resDrpdwn.getSelectedItem();
 			if (resolution != null) {
 				String[] parts = resolution.split("x");
@@ -196,11 +198,11 @@ public class SettingsView extends JFrame {
 					StartMenuView.getInstance().setLocationRelativeTo(null);
 				}
 			}
-			System.out.println("Gespeichert:");
-			System.out.println("Musik: " + musicVolume + "%");
-			System.out.println("Effekte: " + effectVolume + "%");
-			System.out.println("Auflösung: " + resolution);
-
+			
+			soundController.setVolume(model.getMusicVolume());
+			soundController.setVolume(model.getEffectVolume());
+			System.out.println("Gespeichert");
+			
 		});
 
 	}
