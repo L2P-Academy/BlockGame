@@ -389,7 +389,7 @@ public class XMLController {
 			int resY = Integer.parseInt(resolution.getAttribute("Y"));
 
 			// fullscreen
-			Element fullscreen = (Element) rootElement.getElementsByTagName("fullscreen").item(0);
+			Element fullscreen = (Element) rootElement.getElementsByTagName("Fullscreen").item(0);
 			boolean fullScreenOn = Boolean.parseBoolean(fullscreen.getAttribute("On"));			
 			
 			System.out.println("Einstellungen geladen von: " + settingsFile.getAbsolutePath());

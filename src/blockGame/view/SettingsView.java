@@ -27,6 +27,7 @@ import javax.swing.border.Border;
 
 import blockGame.controller.FontLoader;
 import blockGame.controller.SoundController;
+import blockGame.controller.XMLController;
 import blockGame.model.SettingsModel;
 
 public class SettingsView extends JFrame {
@@ -93,7 +94,6 @@ public class SettingsView extends JFrame {
 		effectSldr = new JSlider(0, 100, 50);
 		resDrpdwn = new JComboBox<>(new String[] { "800x600", "1280x720", "1920x1080", "2560x1440" });
 		flscrnBox = new JCheckBox();
-		flscrnBox.setSelected(true);
 
 		// Komponenten hinzufügen
 		settingsPnl.add(musicLbl);
@@ -143,16 +143,14 @@ public class SettingsView extends JFrame {
 		applyBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SoundController soundController2 = new SoundController();
-				soundController2.playBtnSound();
+				soundController.playBtnSound();
 			}
 		});
 
 		backBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SoundController soundController3 = new SoundController();
-				soundController3.playBtnSound();
+				soundController.playBtnSound();
 			}
 		});
 
@@ -174,17 +172,18 @@ public class SettingsView extends JFrame {
 
 		applyBtn.addActionListener(e -> {
 			// Einstellungen anwenden
-			SettingsModel model = new SettingsModel();
+			SettingsModel model = new SettingsModel(0, 0, 0, 0, true);
 			model.setMusicVolume(musicSldr.getValue());
 			model.setEffectVolume(effectSldr.getValue());
-			model.setResolutionX((int) resDrpdwn.getSelectedItem());
-			model.setResolutionY((int) resDrpdwn.getSelectedItem());
 			String resolution = (String) resDrpdwn.getSelectedItem();
 			if (resolution != null) {
 				String[] parts = resolution.split("x");
 				int width = Integer.parseInt(parts[0].trim());
 				int height = Integer.parseInt(parts[1].trim());
 
+				model.setResolutionX(width);
+				model.setResolutionY(height);
+				model.setFullscreen(flscrnBox.isSelected());
 				setSize(width, height);
 				setLocationRelativeTo(null);
 
@@ -201,6 +200,7 @@ public class SettingsView extends JFrame {
 			
 			soundController.setVolume(model.getMusicVolume());
 			soundController.setVolume(model.getEffectVolume());
+			XMLController.saveSettingsToXML(model.getMusicVolume(), model.getEffectVolume(), model.getResolutionX(), model.getResolutionY(), true);
 			System.out.println("Gespeichert");
 			
 		});
