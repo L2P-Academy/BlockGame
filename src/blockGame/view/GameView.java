@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -59,7 +60,7 @@ public class GameView extends JFrame {
 	
 	// primitive attributes
 	private boolean isBuildModeActive = false; // TODO: sets the Build/Mine-Mode
-	private int cursorRow, cursorCol; // TODO: use cursor for building/mining
+	private int cursorRow = -1, cursorCol = -1; // TODO: use cursor for building/mining
 	private int playerRow = 14;
 	private int playerCol = 0;
 	private int lastHlRow = -1, lastHlCol = -1;
@@ -166,11 +167,54 @@ public class GameView extends JFrame {
 		blockPnl.addMouseListener(new MouseAdapter() {
 			  @Override 
 			  public void mousePressed(MouseEvent e) {
-			    if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) 
+			    if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
 			    	return;
-			    if (isBuildModeActive) 
-			    	return; 
-			    mineBlock();
+			    }
+
+			    if (isBuildModeActive) {
+			      if (cursorRow < 0 || cursorCol < 0) {
+			    	  return;
+			      }
+			      if (cursorRow == playerRow && cursorCol == playerCol) {
+			    	  return;
+			      }
+
+			      BlockModel b = world[cursorRow][cursorCol];
+			      if (b != null && b.getId() == 0) {
+			        replaceBlockAt(cursorRow, cursorCol, 1); // TODO: hier Inventory-ID statt 1
+			        highlightAt(cursorRow, cursorCol);  
+			      }
+			      return;  
+			    }
+
+			    mineBlock(); 
+			  }
+
+			  @Override 
+			  public void mouseExited(MouseEvent e) {
+			    if (isBuildModeActive && lastHlRow >= 0) {
+			      unhighlightAt(lastHlRow, lastHlCol);
+			      lastHlRow = lastHlCol = cursorRow = cursorCol = -1;
+			    }
+			  }
+			});
+		blockPnl.addMouseMotionListener(new MouseMotionAdapter() {
+			  @Override public void mouseMoved(MouseEvent e) {
+			    if (!isBuildModeActive) return;
+
+			    int c = e.getX() / blockSize;
+			    int r = e.getY() / blockSize;
+
+			    if (!isInside(r, c)) {
+			      if (lastHlRow >= 0) { unhighlightAt(lastHlRow, lastHlCol); lastHlRow = lastHlCol = -1; }
+			      cursorRow = cursorCol = -1;
+			      return;
+			    }
+
+			    if (r != cursorRow || c != cursorCol) {
+			      cursorRow = r; cursorCol = c;
+			      highlightAt(cursorRow, cursorCol);
+			    }
 			  }
 			});
 
@@ -407,11 +451,13 @@ public class GameView extends JFrame {
 	 * </p>
 	 */
 	private void applyPlayerAnim() {
-		if (playerLbl == null)
+		if (playerLbl == null) {
 			return;
+		}
 		ImageIcon icon = getScaledIcon(animPath(currentAnim), blockSize, true);
-		if (icon != null)
+		if (icon != null) {
 			playerLbl.setIcon(icon);
+		}
 	}
 
 	public void loadGameState(GameState gameState) {
@@ -460,14 +506,8 @@ public class GameView extends JFrame {
 		if (world[newRow][newCol] != null && world[newRow][newCol].getId() != 0)
 			return;
 
-		JLabel mineLbl = highlightAt(newRow, newCol + 1);
+		highlightAt(newRow, newCol + 1);
 
-		// alten Platz räumen
-		if (mineLbl != null && worldLabels[playerRow][playerCol] != null) {
-			worldLabels[playerRow][playerCol + 1].remove(mineLbl);
-			worldLabels[playerRow][playerCol + 1].revalidate();
-			worldLabels[playerRow][playerCol + 1].repaint();
-		}
 		if (playerLbl != null && worldLabels[playerRow][playerCol] != null) {
 			worldLabels[playerRow][playerCol].remove(playerLbl);
 			worldLabels[playerRow][playerCol].revalidate();
@@ -578,38 +618,48 @@ public class GameView extends JFrame {
 	}
 
 	private JLabel highlightAt(int row, int col) {
-		JLabel lbl = worldLabels[row][col];
-		if (!isInside(row, col)) {
-			return null;
-		}
-		if (lastHlRow >= 0 && lastHlCol >= 0) {
-			unhighlightAt(lastHlRow, lastHlCol);
+	    if (!isInside(row, col)) {
+	    	return null;
+	    }
+	    if (lastHlRow >= 0 && lastHlCol >= 0) {
+	    	unhighlightAt(lastHlRow, lastHlCol);
+	    }
 
-		}
-		lastHlRow = row;
-		lastHlCol = col;
-		lbl.setOpaque(true);
-		lbl.setBackground(new Color(37, 232, 7, 50));
-		lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
-		lbl.repaint();
-		return lbl;
+	    lastHlRow = row;
+	    lastHlCol = col;
+
+	    JLabel lbl = worldLabels[row][col];
+	    lbl.setOpaque(false);                 
+	    lbl.setBackground(null);
+	    if (isBuildModeActive) {
+	        lbl.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));   // Build-Hover
+	    } else {
+	        lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN, 3));   // Mine-Higlight
+	    }
+	    lbl.repaint();
+	    return lbl;
 	}
+
 
 	private void unhighlightAt(int row, int col) {
-		JLabel lbl = worldLabels[row][col];
-		if (!isInside(row, col)) {
-			return;
-		}
-		lbl.setOpaque(false);
-		lbl.setBackground(null);
-		BlockModel block = world[row][col];
-		if (block != null && block.getId() != 0) { // Prüfung ob Block vorhanden und NICHT Luft
-			lbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		} else {
-			lbl.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 50)));
-		}
-		lbl.repaint();
+	    if (!isInside(row, col)) return;
+	    JLabel lbl = worldLabels[row][col];
+	    BlockModel block = world[row][col];
+
+	    if (isBuildModeActive) {
+	        if (block != null && block.getId() == 0) {
+	            lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));         
+	        } else {
+	            lbl.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 180))); 
+	        }
+	    } else {
+	        lbl.setBorder(BorderFactory.createLineBorder(
+	            (block != null && block.getId() != 0) ? Color.BLACK : new Color(255, 255, 255, 50)
+	        ));
+	    }
+	    lbl.repaint();
 	}
+
 
 	private void updateViewDirection() {
 	    if (isBuildModeActive || !mineHl) {
@@ -634,26 +684,34 @@ public class GameView extends JFrame {
 	    }
 
 	    for (int r = 0; r < ROWS; r++) {
-	        for (int c = 0; c < COLS; c++) {
-	            JLabel lbl = worldLabels[r][c];
-	            BlockModel b = world[r][c];
-	            if (isBuildModeActive) {
-	                lbl.setOpaque(true);
-	                if (b != null && b.getId() == 0) { 
-	                    lbl.setBackground(new Color(37, 232, 7, 50)); 
-	                    lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));
-	                } else {
-	                    lbl.setBackground(new Color(0, 0, 0, 60)); // schattiert Nicht-AIR_BLOCKS
-	                }
-	            } else {
-	                unhighlightAt(r, c);
-	            }
-	        }
-	    }
+	    	  for (int c = 0; c < COLS; c++) {
+	    	    JLabel lbl = worldLabels[r][c];
+	    	    BlockModel b = world[r][c];
+
+	    	    if (isBuildModeActive) {
+	    	      lbl.setOpaque(false);
+	    	      lbl.setBackground(null);
+	    	      if (b != null && b.getId() == 0) {
+	    	        lbl.setBorder(BorderFactory.createLineBorder(Color.CYAN));     
+	    	      } else {
+	    	        lbl.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,180))); 
+	    	      }
+	    	    } else {
+	    	    	unhighlightAt(r, c);
+	    	    }
+	    	  }
+	    	}
 	    blockPnl.repaint();
 
-	    if (!isBuildModeActive) 
+	    if (!isBuildModeActive) {
 	    	updateViewDirection();
+	    	if (lastHlRow >= 0) {
+	    		unhighlightAt(lastHlRow, lastHlCol);
+	    	    lastHlRow = lastHlCol = cursorRow = cursorCol = -1;
+	    	}
+	    }
+	    	
+	  
 	}
 	
 	/**
